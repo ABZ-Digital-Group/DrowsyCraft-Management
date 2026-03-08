@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realm Tool - Server Management</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-title">DrowsyCraft Management</div>
+        <div class="navbar">
+            <!-- Overview (Standalone) -->
+            <button class="nav-btn active" onclick="switchTab('overview', this)">📊 Overview</button>
+
+            <!-- Player Management -->
+            <div class="nav-group" data-permission="webapp.view.players">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">👥 Player Management</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('players', this)" data-permission="webapp.view.players">Players</button>
+                    <button class="nav-btn" onclick="switchTab('sessions', this)" data-permission="webapp.view.sessions">Sessions</button>
+                    <button class="nav-btn" onclick="switchTab('ips', this)" data-permission="webapp.view.ips">IP Tracking</button>
+                    <button class="nav-btn" onclick="switchTab('reputation', this)" data-permission="webapp.view.reputation">Reputation</button>
+                    <button class="nav-btn" onclick="switchTab('afk', this)" data-permission="webapp.view.afk">AFK Manager</button>
+                </div>
+            </div>
+
+            <!-- Moderation & Safety -->
+            <div class="nav-group" data-permission="webapp.view.banned">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">⚖️ Moderation</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('moderation', this)" data-permission="webapp.action.ban">Moderation</button>
+                    <button class="nav-btn" onclick="switchTab('whitelist', this)" data-permission="webapp.manage.whitelist">Whitelist</button>
+                    <button class="nav-btn" onclick="switchTab('mutes', this)" data-permission="webapp.view.mutes">Mutes</button>
+                    <button class="nav-btn" onclick="switchTab('punishments', this)" data-permission="webapp.action.punish">Punishments</button>
+                    <button class="nav-btn" onclick="switchTab('reports', this)" data-permission="webapp.view.reports">Reports</button>
+                </div>
+            </div>
+
+            <!-- Communication & Tickets -->
+            <div class="nav-group" data-permission="webapp.view.chat">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">💬 Communication</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('chat', this)" data-permission="webapp.view.chat">Chat</button>
+                    <button class="nav-btn" onclick="switchTab('notes', this)" data-permission="webapp.view.notes">Notes</button>
+                    <button class="nav-btn" onclick="switchTab('tickets', this)" data-permission="webapp.view.tickets">Tickets</button>
+                    <button class="nav-btn" onclick="switchTab('templates', this)" data-permission="webapp.view.templates">Templates</button>
+                </div>
+            </div>
+
+            <!-- Server Management -->
+            <div class="nav-group" data-permission="webapp.view.worlds">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">🌍 Server Mgmt</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('worlds', this)" data-permission="webapp.view.worlds">Worlds</button>
+                    <button class="nav-btn" onclick="switchTab('plugins', this)" data-permission="webapp.view.plugins">Plugins</button>
+                    <button class="nav-btn" onclick="switchTab('gamerules', this)" data-permission="webapp.view.gamerules">Game Rules</button>
+                    <button class="nav-btn" onclick="switchTab('blocklog', this)" data-permission="webapp.view.history">Block Log</button>
+                    <button class="nav-btn" onclick="switchTab('console', this)" data-permission="webapp.run.command">Console</button>
+                    <button class="nav-btn" onclick="switchTab('performance', this)" data-permission="webapp.view.performance">Performance</button>
+                    <button class="nav-btn" onclick="switchTab('restart', this)" data-permission="webapp.action.restart">Restart</button>
+                </div>
+            </div>
+
+            <!-- Events & Seasons -->
+            <div class="nav-group" data-permission="webapp.view.events">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">🎄 Events</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('events', this)" data-permission="webapp.view.events">Event Manager</button>
+                    <button class="nav-btn" onclick="switchTab('eventlog', this)" data-permission="webapp.view.events">Event History</button>
+                </div>
+            </div>
+
+            <!-- Analytics & Community -->
+            <div class="nav-group" data-permission="webapp.view.analytics">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">📊 Analytics</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('player-analytics', this)" data-permission="webapp.view.analytics">Player Analytics</button>
+                    <button class="nav-btn" onclick="switchTab('leaderboards', this)" data-permission="webapp.view.analytics">Leaderboards</button>
+                    <button class="nav-btn" onclick="switchTab('economy', this)" data-permission="webapp.view.analytics">Economy</button>
+                </div>
+            </div>
+
+            <!-- Logging & Audit -->
+            <div class="nav-group" data-permission="webapp.view.history">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">📋 Logging</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('history', this)" data-permission="webapp.view.history">History</button>
+                    <button class="nav-btn" onclick="switchTab('auditlog', this)" data-permission="webapp.view.audit">Audit Log</button>
+                    <button class="nav-btn" onclick="switchTab('warnings', this)" data-permission="webapp.view.warnings">Warnings Log</button>
+                    <button class="nav-btn" onclick="switchTab('bulk', this)" data-permission="webapp.action.bulk">Bulk Actions</button>
+                    <button class="nav-btn" onclick="switchTab('serverlogs', this)" data-permission="webapp.view.console">Server Logs</button>
+                </div>
+            </div>
+
+            <!-- Community & Appeals -->
+            <div class="nav-group" data-permission="webapp.view.announcements">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">💬 Community</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('appeals', this)" data-permission="webapp.view.applications">Player Appeals</button>
+                    <button class="nav-btn" onclick="switchTab('announcements', this)" data-permission="webapp.view.announcements">Announcements</button>
+                </div>
+            </div>
+
+            <!-- Server Operations -->
+            <div class="nav-group" data-permission="webapp.action.backup">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">⚙️ Operations</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('backups', this)" data-permission="webapp.action.backup">Backups</button>
+                    <button class="nav-btn" onclick="switchTab('scheduler', this)" data-permission="webapp.manage.announcements">Command Scheduler</button>
+                    <button class="nav-btn" onclick="switchTab('maintenance', this)" data-permission="webapp.manage.maintenance">Maintenance Mode</button>
+                </div>
+            </div>
+
+            <!-- Advanced -->
+            <div class="nav-group" data-permission="webapp.manage.groups">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">🛠️ Advanced</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('permissions', this)" data-permission="webapp.manage.groups">Permission Groups</button>
+                    <button class="nav-btn" onclick="switchTab('landc-claims', this)" data-permission="webapp.view.claims">Land Claims</button>
+                    <button class="nav-btn" onclick="switchTab('roleplay', this)" data-permission="webapp.admin">Roleplay Commands</button>
+                    <button class="nav-btn" onclick="switchTab('voterewards', this)" data-permission="webapp.admin">Vote Rewards</button>
+                </div>
+            </div>
+
+            <!-- Integrations -->
+            <div class="nav-group" data-permission="webapp.manage.discord">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">🔗 Integrations</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('discord', this)" data-permission="webapp.manage.discord">Discord</button>
+                </div>
+            </div>
+
+            <!-- Kits -->
+            <button class="nav-btn" onclick="switchTab('kits', this)" data-permission="webapp.view.kits">🎁 Kits</button>
+
+            <!-- Ranks -->
+            <button class="nav-btn" onclick="switchTab('ranks', this)" data-permission="webapp.manage.groups">⭐ Ranks</button>
+
+            <!-- High Impact Features -->
+            <div class="nav-group" data-permission="webapp.view.crates">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">🎮 Game Features</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('crates', this)" data-permission="webapp.view.crates">Crates</button>
+                    <button class="nav-btn" onclick="switchTab('bounties', this)" data-permission="webapp.view.bounties">Bounties</button>
+                    <button class="nav-btn" onclick="switchTab('shops', this)" data-permission="webapp.view.shops">Player Shops</button>
+                    <button class="nav-btn" onclick="switchTab('quests', this)" data-permission="webapp.view.quests">Quests</button>
+                    <button class="nav-btn" onclick="switchTab('enchantments', this)" data-permission="webapp.view.enchantments">Custom Enchants</button>
+                </div>
+            </div>
+
+            <!-- Admin Features -->
+            <div class="nav-group">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">🛡️ Admin Tools</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('applications', this)">Staff Apps</button>
+                    <button class="nav-btn" onclick="switchTab('polls', this)">Polls</button>
+                    <button class="nav-btn" onclick="switchTab('automod', this)">Auto-Mod</button>
+                    <button class="nav-btn" onclick="switchTab('playtime-rewards', this)">Playtime Rewards</button>
+                    <button class="nav-btn" onclick="switchTab('motd', this)">MOTD Editor</button>
+                </div>
+            </div>
+
+            <!-- New Features -->
+            <div class="nav-group">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">✨ New Features</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="switchTab('daily-login', this)">Daily Login</button>
+                    <button class="nav-btn" onclick="switchTab('auction-house', this)">Auction House</button>
+                    <button class="nav-btn" onclick="switchTab('nicknames', this)">Nicknames</button>
+                    <button class="nav-btn" onclick="switchTab('chat-tags', this)">Chat Tags</button>
+                    <button class="nav-btn" onclick="switchTab('server-rules', this)">Server Rules</button>
+                    <button class="nav-btn" onclick="switchTab('player-warps', this)">Player Warps</button>
+                    <button class="nav-btn" onclick="switchTab('custom-recipes', this)">Custom Recipes</button>
+                    <button class="nav-btn" onclick="switchTab('pvp-stats', this)">PvP Stats</button>
+                    <button class="nav-btn" onclick="switchTab('achievements-tab', this)">Achievements</button>
+                    <button class="nav-btn" onclick="switchTab('duels', this)">Duels</button>
+                    <button class="nav-btn" onclick="switchTab('welcome-settings', this)">Welcome Settings</button>
+                    <button class="nav-btn" onclick="switchTab('inactive-alerts', this)">Inactive Alerts</button>
+                    <button class="nav-btn" onclick="switchTab('sched-announcements', this)">Announcements</button>
+                </div>
+            </div>
+
+            <button class="nav-btn nav-btn-logout" id="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- OVERVIEW -->
+        <div id="overview" class="tab active">
+            <h2>📊 Server Overview</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="label">Online Players</div>
+                    <div class="stats" id="stat-players">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Punished Players</div>
+                    <div class="stats" id="stat-punished">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Open Tickets</div>
+                    <div class="stats" id="stat-tickets">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Muted Players</div>
+                    <div class="stats" id="stat-muted">0</div>
+                </div>
+            </div>
+
+            <h3 style="color: #4ec9b0; margin-top: 30px;"> Broadcast</h3>
+            <input type="text" id="broadcast-msg" placeholder="Broadcast message..." class="full-width">
+            <button onclick="broadcast()" class="full-width">Send Broadcast</button>
+        </div>
+
+        <!-- PLAYERS -->
+        <div id="players" class="tab">
+            <h2>👥 Online Players</h2>
+            <input type="text" id="player-search" placeholder="Search players..." class="full-width" oninput="filterPlayers()">
+            <table>
+                <tr><th>Name</th><th>Health</th><th>Location</th><th>Warnings</th><th>Playtime</th><th>Status</th><th>Actions</th></tr>
+                <tbody id="players-list"></tbody>
+            </table>
+        </div>
+
+        <!-- TICKETS -->
+        <div id="tickets" class="tab">
+            <h2>🎫 Tickets</h2>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <select id="ticket-status-filter" style="padding: 6px 10px;">
+                    <option value="">All Status</option>
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <select id="ticket-priority-filter" style="padding: 6px 10px;">
+                    <option value="">All Priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                </select>
+                <button onclick="loadTickets()" style="padding: 6px 12px; background: #2196F3;">Apply Filters</button>
+            </div>
+            <table>
+                <tr><th>ID</th><th>Player</th><th>Priority</th><th>Category</th><th>Status</th><th>Assignee</th><th>Message</th><th>Created</th><th>Action</th></tr>
+                <tbody id="tickets-list"></tbody>
+            </table>
+        </div>
+
+        <!-- TICKET DETAIL MODAL -->
+        <div id="ticket-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto;">
+            <div style="background: #222; margin: 40px auto; padding: 20px; width: 90%; max-width: 700px; border-radius: 8px; color: #ccc;">
+                <h2 id="modal-ticket-id">Ticket #0</h2>
+                <div style="margin-bottom: 15px;">
+                    <p><strong>Player:</strong> <span id="modal-player">N/A</span></p>
+                    <p><strong>Status:</strong> 
+                        <select id="modal-status" style="padding: 4px; margin-left: 10px;">
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </p>
+                    <p><strong>Priority:</strong>
+                        <select id="modal-priority" style="padding: 4px; margin-left: 10px;">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </p>
+                    <p><strong>Category:</strong>
+                        <select id="modal-category" style="padding: 4px; margin-left: 10px;">
+                            <option value="bug">Bug</option>
+                            <option value="griefing">Griefing</option>
+                            <option value="chat">Chat Abuse</option>
+                            <option value="item_loss">Item Loss</option>
+                            <option value="pvp">PvP Complaint</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </p>
+                    <p><strong>Assignee:</strong> <input type="text" id="modal-assignee" style="padding: 4px; margin-left: 10px; width: 200px;"></p>
+                    <p id="modal-location-row" style="display: none;"><strong>Location:</strong> <span id="modal-location">N/A</span></p>
+                </div>
+                <div style="background: #1a1a1a; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <p><strong>Message:</strong></p>
+                    <p id="modal-message" style="margin: 5px 0;">N/A</p>
+                </div>
+                <div style="background: #1a1a1a; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <p><strong>Responses:</strong></p>
+                    <div id="modal-responses" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <p><strong>Add Response:</strong></p>
+                    <input type="text" id="modal-admin-name" placeholder="Your name" style="width: 200px; padding: 8px; margin-bottom: 8px; background: #1a1a1a; border: 1px solid #444; color: #ccc;">
+                    <input type="text" id="modal-response-text" placeholder="Your response..." style="width: 100%; padding: 8px; margin-bottom: 8px; background: #1a1a1a; border: 1px solid #444; color: #ccc;">
+                    <button onclick="addTicketResponse()" style="padding: 6px 12px; background: #4CAF50;">Add Response</button>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <p><strong>Resolution Reason:</strong></p>
+                    <select id="modal-resolution-reason" style="padding: 6px 10px; width: 200px;">
+                        <option value="">Not Resolved</option>
+                        <option value="fixed">Fixed</option>
+                        <option value="false_report">False Report</option>
+                        <option value="duplicate">Duplicate</option>
+                        <option value="spam">Spam</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button onclick="resolveTicket()" style="padding: 6px 12px; margin-left: 10px; background: #F44336;">Resolve & Close</button>
+                </div>
+                <div>
+                    <button onclick="updateTicketFields()" style="padding: 6px 12px; background: #2196F3;">Save Changes</button>
+                    <button onclick="document.getElementById('ticket-modal').style.display = 'none';" style="padding: 6px 12px; background: #666; margin-left: 10px;">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTES -->
+        <div id="notes" class="tab">
+            <h2>📝 Player Notes</h2>
+            
+            <!-- Add Note Section -->
+            <div style="background: #252526; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid #4ec9b0;">
+                <h3 style="color: #4ec9b0; margin-bottom: 10px;">Add New Note</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="note-player" placeholder="Player name..." list="players-datalist" style="flex: 1; min-width: 150px;">
+                    <select id="note-category" style="width: 140px; background: #2d2d30; color: #e0e0e0; border: 1px solid #3e3e42; border-radius: 4px; padding: 8px;">
+                        <option value="info">ℹ️ Info</option>
+                        <option value="warning">⚠️ Warning</option>
+                        <option value="important">❗ Important</option>
+                        <option value="positive">✅ Positive</option>
+                    </select>
+                </div>
+                <textarea id="note-text" placeholder="Write your note here..." style="width: 100%; height: 80px; margin-top: 10px; resize: vertical;"></textarea>
+                <button onclick="addNote()" class="full-width btn-success" style="margin-top: 8px;">Add Note</button>
+            </div>
+            
+            <!-- Search / Filter -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
+                <input type="text" id="note-search-player" placeholder="🔍 Search player notes..." list="players-datalist" style="flex: 1;" oninput="searchNotes()">
+                <button onclick="loadAllNotes()" style="white-space: nowrap;">Show All Players</button>
+            </div>
+            
+            <!-- Notes Display -->
+            <div id="notes-summary" style="display: none;"></div>
+            <div id="notes-display"></div>
+        </div>
+
+        <!-- NOTE DETAIL MODAL -->
+        <div id="note-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto;">
+            <div style="background: #222; margin: 40px auto; padding: 20px; width: 90%; max-width: 700px; border-radius: 8px; color: #ccc;">
+                <h2>📝 Note for <span id="modal-note-player">Player</span></h2>
+                <div style="background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                    <p><strong>Note Content:</strong></p>
+                    <textarea id="modal-note-text" style="width: 100%; height: 120px; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: #ccc; border-radius: 4px; font-family: monospace;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="saveNoteEdit()" style="padding: 8px 16px; background: #4CAF50;">Save Changes</button>
+                    <button onclick="deleteNoteFromModal()" style="padding: 8px 16px; background: #F44336;">Delete Note</button>
+                    <button onclick="document.getElementById('note-modal').style.display = 'none';" style="padding: 8px 16px; background: #666; margin-left: auto;">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div id="history" class="tab">
+            <h2>📜 Action History</h2>
+            <table>
+                <tr><th>Time</th><th>Admin</th><th>Action</th><th>Target</th></tr>
+                <tbody id="history-list"></tbody>
+            </table>
+        </div>
+
+        <!-- CHAT -->
+        <div id="chat" class="tab">
+            <h2>💬 Chat Monitor</h2>
+            <div id="chat-display" style="background: #2d2d30; padding: 15px; border-radius: 4px; height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
+            <button onclick="refreshChat()" class="full-width">Refresh Chat</button>
+        </div>
+
+        <datalist id="players-datalist"></datalist>
+
+        <!-- MODERATION -->
+        <div id="moderation" class="tab">
+            <h2>⚖️ Moderation</h2>
+            <div class="grid">
+                <div class="card" style="border-left: 4px solid #d32f2f;">
+                    <h3 style="color: #f44336; margin-bottom: 15px;">🚫 Ban Player</h3>
+                    <input type="text" id="mod-ban-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
+                    <textarea id="mod-ban-reason" placeholder="Ban reason..." rows="4" style="width: 100%; margin-top: 10px;"></textarea>
+                    <button onclick="banPlayer()" class="full-width btn-danger" style="margin-top: 10px; font-weight: bold;">BAN PLAYER</button>
+                </div>
+                <div class="card" style="border-left: 4px solid #ff9800;">
+                    <h3 style="color: #ffb74d; margin-bottom: 15px;">⚠️ Warn Player</h3>
+                    <input type="text" id="mod-warn-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
+                    <textarea id="mod-warn-reason" placeholder="Warning reason..." rows="4" style="width: 100%; margin-top: 10px;"></textarea>
+                    <button onclick="warnPlayer()" class="full-width" style="margin-top: 10px; background: #ff9800; font-weight: bold;">WARN PLAYER</button>
+                </div>
+                <div class="card" style="border-left: 4px solid #ff6b6b;">
+                    <h3 style="color: #ff7979; margin-bottom: 15px;">⏰ Punish 1 Hour</h3>
+                    <input type="text" id="mod-punish1h-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
+                    <p style="color: #969696; font-size: 12px; margin: 10px 0; font-style: italic;">Lock player in place for 1 hour</p>
+                    <button onclick="punishPlayer(60)" class="full-width" style="margin-top: 5px; background: #d32f2f; font-weight: bold;">PUNISH 1H</button>
+                </div>
+                <div class="card" style="border-left: 4px solid #e91e63;">
+                    <h3 style="color: #f06292; margin-bottom: 15px;">⏰ Punish 3 Hours</h3>
+                    <input type="text" id="mod-punish3h-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
+                    <p style="color: #969696; font-size: 12px; margin: 10px 0; font-style: italic;">Lock player in place for 3 hours</p>
+                    <button onclick="punishPlayer(180)" class="full-width" style="margin-top: 5px; background: #c2185b; font-weight: bold;">PUNISH 3H</button>
+                </div>
+            </div>
+            <h3 style="margin-top: 40px; color: #4ec9b0; border-bottom: 2px solid #4ec9b0; padding-bottom: 10px;">🚷 Banned Players</h3>
+            <table>
+                <tr><th>Player</th><th>Reason</th><th>Action</th></tr>
+                <tbody id="banned-list"></tbody>
+            </table>
+        </div>
+
+        <!-- WHITELIST -->
+        <div id="whitelist" class="tab">
+            <h2>📋 Whitelist Management</h2>
+            <input type="text" id="whitelist-player" placeholder="Player name to add..." list="players-datalist" style="width: 70%; margin-right: 2%;">
+            <button onclick="addToWhitelist()" style="width: 25%;">Add to Whitelist</button>
+            <table style="margin-top: 20px;">
+                <tr><th>Player</th><th>Action</th></tr>
+                <tbody id="whitelist-list"></tbody>
+            </table>
+        </div>
+
+        <!-- MUTES -->
+        <div id="mutes" class="tab">
+            <h2>🔇 Mute Management</h2>
+            <input type="text" id="mute-player" placeholder="Player name..." list="players-datalist" style="width: 48%; margin-right: 2%;">
+            <input type="text" id="mute-reason" placeholder="Reason..." style="width: 48%; margin: 0;">
+            <button onclick="mutePlayer()" class="full-width">Mute Player</button>
+            <h3 style="margin-top: 20px; color: #4ec9b0;">Muted Players</h3>
+            <table>
+                <tr><th>Player</th><th>Reason</th><th>Action</th></tr>
+                <tbody id="muted-list"></tbody>
+            </table>
+        </div>
+
+        <!-- IP TRACKING -->
+        <div id="ips" class="tab">
+            <h2>🔍 IP Tracking</h2>
+            <input type="text" id="ip-search-player" placeholder="Search player..." class="full-width">
+            <button onclick="searchIPs()" class="full-width">Search IPs</button>
+            <div id="ips-display" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- SESSIONS -->
+        <div id="sessions" class="tab">
+            <h2>🕐 Session History</h2>
+            <input type="text" id="session-search-player" placeholder="Search player..." class="full-width">
+            <button onclick="searchSessions()" class="full-width">Search Sessions</button>
+            <div id="sessions-display" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- TEMPLATES -->
+        <div id="templates" class="tab">
+            <h2>📄 Message Templates</h2>
+            <input type="text" id="template-name" placeholder="Template name..." style="width: 48%; margin-right: 2%;">
+            <input type="text" id="template-content" placeholder="Template content..." style="width: 48%; margin: 0;">
+            <button onclick="saveTemplate()" class="full-width">Save Template</button>
+            <h3 style="margin-top: 20px; color: #4ec9b0;">Saved Templates</h3>
+            <div id="templates-list"></div>
+        </div>
+
+        <!-- WORLDS -->
+        <div id="worlds" class="tab">
+            <h2>🌍 Worlds</h2>
+            <table>
+                <tr><th>World Name</th><th>Players</th><th>Environment</th><th>Difficulty</th></tr>
+                <tbody id="worlds-list"></tbody>
+            </table>
+        </div>
+
+        <!-- PLUGINS -->
+        <div id="plugins" class="tab">
+            <h2>🔌 Plugins</h2>
+            <table>
+                <tr><th>Plugin Name</th><th>Version</th></tr>
+                <tbody id="plugins-list"></tbody>
+            </table>
+        </div>
+
+        <!-- GAMERULES -->
+        <div id="gamerules" class="tab">
+            <h2>🎮 Game Rules</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>PVP</h3>
+                    <div id="gamerule-pvp">Loading...</div>
+                    <button onclick="setGameRule('pvp', true)" class="btn-success full-width">Enable PVP</button>
+                    <button onclick="setGameRule('pvp', false)" class="btn-danger full-width">Disable PVP</button>
+                </div>
+                <div class="card">
+                    <h3>Difficulty</h3>
+                    <div id="gamerule-difficulty">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BULK ACTIONS -->
+        <div id="bulk" class="tab">
+            <h2>📦 Bulk Actions</h2>
+            <textarea id="bulk-players" placeholder="Player names (comma separated)..." style="width: 100%; height: 100px;"></textarea>
+            <p style="color: #969696; font-size: 12px; margin: 10px 0;">💡 Tip: Start typing a name after comma for autocomplete suggestions</p>
+            <select id="bulk-action" class="full-width">
+                <option value="kick">Kick All</option>
+                <option value="ban">Ban All</option>
+                <option value="warn">Warn All</option>
+            </select>
+            <input type="text" id="bulk-reason" placeholder="Reason..." class="full-width">
+            <button onclick="executeBulkAction()" class="full-width btn-danger">Execute Bulk Action</button>
+        </div>
+
+        <!-- REPORTS -->
+        <div id="reports" class="tab">
+            <h2>🚩 Player Reports</h2>
+            <input type="text" id="report-reporter" placeholder="Your name..." list="players-datalist" style="width: 33%; margin-right: 2%;">
+            <input type="text" id="report-reported" placeholder="Reported player..." list="players-datalist" style="width: 33%; margin-right: 2%;">
+            <input type="text" id="report-reason" placeholder="Reason..." style="width: 31%; margin: 0;">
+            <button onclick="submitReport()" class="full-width">Submit Report</button>
+            <h3 style="margin-top: 20px; color: #4ec9b0;">Recent Reports</h3>
+            <div id="reports-display" style="height: 400px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- RESTART -->
+        <div id="restart" class="tab">
+            <h2>⏳ Server Restart</h2>
+            <div class="card">
+                <h3>Schedule Restart</h3>
+                <label>Delay (minutes):</label>
+                <input type="number" id="restart-delay" value="5" min="1" max="240">
+                <button onclick="scheduleRestart()" class="full-width btn-danger">Schedule Restart</button>
+                <div id="restart-status" style="margin-top: 10px; color: #4ec9b0;"></div>
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h3>⚙️ Backup Server</h3>
+                <button onclick="triggerBackup()" class="full-width btn-success">Create Backup Now</button>
+                <div id="backup-status" style="margin-top: 10px; color: #4ec9b0;"></div>
+            </div>
+        </div>
+
+        <!-- CONSOLE -->
+        <div id="console" class="tab">
+            <h2>⌨️ Console Commands</h2>
+            <input type="text" id="console-cmd" placeholder="Enter command..." class="full-width">
+            <button onclick="executeCommand()" class="full-width">Execute</button>
+            <div id="console-output" style="background: #2d2d30; padding: 15px; margin-top: 20px; border-radius: 4px; font-family: monospace; height: 300px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div id="performance" class="tab">
+            <h2>📈 Server Performance</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="label">TPS (Ticks Per Second)</div>
+                    <div class="stats" id="stat-tps">20.0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Memory Usage</div>
+                    <div class="stats" id="stat-memory">0%</div>
+                </div>
+                <div class="card">
+                    <div class="label">Player Count</div>
+                    <div class="stats" id="stat-playercount">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Uptime</div>
+                    <div class="stats" id="stat-uptime">0h 0m</div>
+                </div>
+            </div>
+            <h3 style="margin-top: 30px; color: #4ec9b0;">Player Join History</h3>
+            <div id="join-history" style="background: #2d2d30; padding: 15px; border-radius: 4px; height: 300px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- BLOCK LOG -->
+        <div id="blocklog" class="tab">
+            <h2>🔲 Block Change Log</h2>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="blocklog-player" placeholder="Filter by player..." style="width: 30%; padding: 6px;">
+                <input type="text" id="blocklog-block" placeholder="Filter by block type..." style="width: 30%; padding: 6px;">
+                <button onclick="loadBlockLog()" style="padding: 6px 12px;">Search</button>
+            </div>
+            <table>
+                <tr><th>Time</th><th>Player</th><th>Action</th><th>Block</th><th>Location</th></tr>
+                <tbody id="blocklog-list"></tbody>
+            </table>
+        </div>
+
+        <!-- PLAYER REPUTATION -->
+        <div id="reputation" class="tab">
+            <h2>⭐ Player Reputation</h2>
+            <input type="text" id="reputation-search" placeholder="Search player..." class="full-width" oninput="searchReputation()">
+            <table>
+                <tr><th>Player</th><th>Score</th><th>Warnings</th><th>Bans</th><th>Status</th><th>Actions</th></tr>
+                <tbody id="reputation-list"></tbody>
+            </table>
+        </div>
+
+        <!-- CUSTOM PUNISHMENTS -->
+        <div id="punishments" class="tab">
+            <h2>⏱️ Custom Punishments</h2>
+            <div class="card">
+                <h3>Create Custom Punishment</h3>
+                <input type="text" id="punish-player" placeholder="Player name..." list="players-datalist" style="width: 100%; margin-bottom: 10px;">
+                <label>Duration (minutes): <input type="number" id="punish-duration" min="1" value="30" style="width: 150px;"></label>
+                <textarea id="punish-reason" placeholder="Punishment reason..." style="width: 100%; height: 60px; margin: 10px 0;"></textarea>
+                <button onclick="createCustomPunishment()" class="full-width btn-danger">Create Punishment</button>
+            </div>
+            <h3 style="margin-top: 30px; color: #4ec9b0;">Active Punishments</h3>
+            <table>
+                <tr><th>Player</th><th>Duration</th><th>Reason</th><th>Ends At</th><th>Actions</th></tr>
+                <tbody id="active-punishments"></tbody>
+            </table>
+        </div>
+
+        <!-- AUDIT LOG -->
+        <div id="auditlog" class="tab">
+            <h2>📋 Admin Audit Log</h2>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="audit-admin-filter" placeholder="Filter by admin..." style="width: 30%; padding: 6px;">
+                <select id="audit-action-filter" style="width: 30%; padding: 6px;">
+                    <option value="">All Actions</option>
+                    <option value="ban">Ban</option>
+                    <option value="warn">Warn</option>
+                    <option value="kick">Kick</option>
+                    <option value="mute">Mute</option>
+                    <option value="afk_kick">AFK Kick</option>
+                </select>
+                <button onclick="loadAuditLog()" style="padding: 6px 12px;">Search</button>
+            </div>
+            <table>
+                <tr><th>Time</th><th>Admin</th><th>Action</th><th>Target</th><th>Reason</th></tr>
+                <tbody id="auditlog-table"></tbody>
+            </table>
+        </div>
+
+        <!-- AFK MANAGER -->
+        <div id="afk" class="tab">
+            <h2>💤 AFK Manager</h2>
+            <div class="card">
+                <h3>AFK Settings</h3>
+                <label>Auto-kick after (minutes): <input type="number" id="afk-timeout" min="5" value="30" style="width: 150px;"></label>
+                <button onclick="saveAFKSettings()" class="full-width btn-success" style="margin-top: 10px;">Save Settings</button>
+            </div>
+            <h3 style="margin-top: 30px; color: #4ec9b0;">AFK Players</h3>
+            <table>
+                <tr><th>Player</th><th>Idle Time</th><th>Last Action</th><th>Actions</th></tr>
+                <tbody id="afk-list"></tbody>
+            </table>
+        </div>
+
+        <!-- ADVANCED SEARCH -->
+        <div id="search" class="tab">
+            <h2>🔎 Advanced Player Search</h2>
+            <div class="card">
+                <h3>Search Criteria</h3>
+                <label>Player Name: <input type="text" id="search-name" placeholder="Exact or partial..." style="width: 300px;"></label>
+                <label>Min Playtime (hours): <input type="number" id="search-playtime-min" min="0" style="width: 150px;"></label>
+                <label>Max Playtime (hours): <input type="number" id="search-playtime-max" style="width: 150px;"></label>
+                <label>Warnings: <input type="number" id="search-warnings" min="0" style="width: 150px;"></label>
+                <label>Banned: <select id="search-banned" style="width: 200px;"><option value="">Any</option><option value="0">Not Banned</option><option value="1">Banned</option></select></label>
+                <button onclick="executeAdvancedSearch()" class="full-width btn-success" style="margin-top: 15px;">Search</button>
+            </div>
+            <h3 style="margin-top: 30px; color: #4ec9b0;">Results</h3>
+            <table>
+                <tr><th>Player</th><th>Playtime</th><th>Warnings</th><th>Reputation</th><th>Status</th></tr>
+                <tbody id="search-results"></tbody>
+            </table>
+        </div>
+
+        <!-- DISCORD INTEGRATION -->
+        <div id="discord" class="tab">
+            <h2>🤖 Discord Integration</h2>
+            <div class="card">
+                <h3>📡 Webhook Configuration</h3>
+                <label>Primary Webhook URL:</label>
+                <input type="text" id="discord-webhook" placeholder="https://discordapp.com/api/webhooks/..." style="width: 100%;">
+                
+                <label style="margin-top: 15px;">Additional Webhook URLs:</label>
+                <input type="text" id="webhook-ban" placeholder="Bans webhook URL" style="width: 100%; margin-top: 5px;" title="Optional: Separate webhook for ban alerts">
+                <input type="text" id="webhook-warn" placeholder="Warnings webhook URL" style="width: 100%; margin-top: 5px;" title="Optional: Separate webhook for warnings">
+                <input type="text" id="webhook-report" placeholder="Reports webhook URL" style="width: 100%; margin-top: 5px;" title="Optional: Separate webhook for reports">
+                
+                <button onclick="saveDiscordSettings()" class="full-width btn-success" style="margin-top: 15px;">💾 Save Settings</button>
+                <button onclick="testDiscordWebhook()" class="full-width" style="margin-top: 10px; background: #2196F3;">🧪 Test Webhook</button>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3>✅ Event Alerts</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label><input type="checkbox" id="discord-bans" checked> 🚫 Player Bans</label><br>
+                        <label><input type="checkbox" id="discord-warns" checked> ⚠️ Warnings</label><br>
+                        <label><input type="checkbox" id="discord-reports" checked> 📢 Player Reports</label><br>
+                        <label><input type="checkbox" id="discord-joins" checked> ✅ Player Joins</label><br>
+                        <label><input type="checkbox" id="discord-leaves" checked> 🚪 Player Leaves</label><br>
+                    </div>
+                    <div>
+                        <label><input type="checkbox" id="discord-deaths"> 💀 Death Notifications</label><br>
+                        <label><input type="checkbox" id="discord-block_logging"> ⛏️ Block Logging</label><br>
+                        <label><input type="checkbox" id="discord-container_logging"> 📦 Container Access</label><br>
+                        <label><input type="checkbox" id="discord-command_logging"> 🔧 Command Logging</label><br>
+                        <label><input type="checkbox" id="discord-milestone_alerts"> 🎮 Playtime Milestones</label><br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3>⚙️ Monitoring & Maintenance</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label><input type="checkbox" id="discord-performance_alerts"> ⚠️ Performance Alerts</label><br>
+                        <label style="font-size: 11px; color: #969696;">CPU/Memory/TPS monitoring every 60s</label><br><br>
+                        <label><input type="checkbox" id="discord-health_check"> 🏥 Webhook Health Check</label><br>
+                        <label style="font-size: 11px; color: #969696;">Validates webhook connectivity every 30 min</label>
+                    </div>
+                    <div>
+                        <label><input type="checkbox" id="discord-daily_summary"> 📊 Daily Summary</label><br>
+                        <label style="font-size: 11px; color: #969696;">Compiles 24-hour stats and resets counters</label><br><br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3>📈 Webhook Statistics</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Webhooks Sent</div>
+                        <div style="font-size: 20px; color: #4ec9b0;" id="stat-webhooks-sent">0</div>
+                    </div>
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Webhooks Failed</div>
+                        <div style="font-size: 20px; color: #d32f2f;" id="stat-webhooks-failed">0</div>
+                    </div>
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Today's Joins</div>
+                        <div style="font-size: 20px; color: #4ec9b0;" id="stat-joins-today">0</div>
+                    </div>
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Today's Leaves</div>
+                        <div style="font-size: 20px; color: #888;" id="stat-leaves-today">0</div>
+                    </div>
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Today's Bans</div>
+                        <div style="font-size: 20px; color: #d32f2f;" id="stat-bans-today">0</div>
+                    </div>
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Today's Warns</div>
+                        <div style="font-size: 20px; color: #ff9800;" id="stat-warns-today">0</div>
+                    </div>
+                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #969696;">Today's Reports</div>
+                        <div style="font-size: 20px; color: #2196F3;" id="stat-reports-today">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="discord-status" style="margin-top: 20px; padding: 10px; background: #2d2d30; border-radius: 4px; color: #969696;"></div>
+        </div>
+
+        <!-- RANKS SYSTEM -->
+        <div id="ranks" class="tab">
+            <h2>⭐ Player Ranks Management</h2>
+            
+            <!-- Create New Rank -->
+            <div class="card">
+                <h3>➕ Create New Rank</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label>Rank Name:</label>
+                        <input type="text" id="rank-name" placeholder="e.g., Moderator, Helper, VIP">
+                    </div>
+                    <div>
+                        <label>Display Color:</label>
+                        <input type="color" id="rank-color" value="#4ec9b0" style="height: 35px;">
+                    </div>
+                    <div>
+                        <label>Rank Level:</label>
+                        <input type="number" id="rank-level" min="1" value="1" style="width: 100%;">
+                    </div>
+                </div>
+                <textarea id="rank-description" placeholder="Rank description and responsibilities..." style="width: 100%; height: 60px; margin-bottom: 10px;"></textarea>
+                <button onclick="createRank()" class="full-width btn-success">Create Rank</button>
+            </div>
+
+            <!-- Ranks List -->
+            <h3 style="color: #4ec9b0; margin-top: 30px;">📋 All Ranks</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank Name</th>
+                        <th>Level</th>
+                        <th>Color</th>
+                        <th>Members</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ranks-list"></tbody>
+            </table>
+
+            <!-- Promote/Demote Players -->
+            <div class="card" style="margin-top: 30px;">
+                <h3>🎖️ Promote / Demote Player</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>Select Player:</label>
+                        <input type="text" id="player-rank-input" placeholder="Player name..." list="players-datalist" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label>New Rank:</label>
+                        <select id="new-rank-select" style="width: 100%; height: 35px;">
+                            <option value="">Select Rank</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="text" id="promotion-reason" placeholder="Reason for promotion (optional)" style="width: 100%; margin-top: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <button onclick="promotePlayer()" class="btn-success">✅ Promote</button>
+                    <button onclick="demotePlayer()" class="btn-danger">❌ Demote</button>
+                </div>
+            </div>
+
+            <!-- Player Ranks -->
+            <h3 style="color: #4ec9b0; margin-top: 30px;">👥 Player Ranks</h3>
+            <input type="text" id="search-player-rank" placeholder="Search player..." style="width: 100%; margin-bottom: 15px;" onkeyup="filterPlayerRanks()">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player Name</th>
+                        <th>Current Rank</th>
+                        <th>Rank Level</th>
+                        <th>Promoted By</th>
+                        <th>Promotion Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="player-ranks-list"></tbody>
+            </table>
+
+            <div id="ranks-status" style="margin-top: 20px; padding: 10px; background: #2d2d30; border-radius: 4px; color: #969696;"></div>
+        </div>
+
+        <!-- KITS SYSTEM -->
+        <div id="kits" class="tab">
+            <h2>🎁 Kit Management</h2>
+            
+            <!-- Create/Edit Kit -->
+            <div class="card">
+                <h3>➕ Create / Edit Kit</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label>Kit Name:</label>
+                        <input type="text" id="kit-name" placeholder="e.g., Starter, Warrior, VIP">
+                    </div>
+                    <div>
+                        <label>Icon (Material):</label>
+                        <input type="text" id="kit-icon" placeholder="e.g., DIAMOND_SWORD, CHEST" value="CHEST">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label>Cost (XP Levels):</label>
+                        <input type="number" id="kit-cost" min="0" value="0">
+                    </div>
+                    <div>
+                        <label>Cooldown (seconds):</label>
+                        <input type="number" id="kit-cooldown" min="0" value="0" placeholder="0 = no cooldown">
+                    </div>
+                    <div>
+                        <label>Permission (optional):</label>
+                        <input type="text" id="kit-permission" placeholder="e.g., kit.vip">
+                    </div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label>Description:</label>
+                    <input type="text" id="kit-description" placeholder="Kit description shown to players" style="width: 100%;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label>Items (one per line, format: <code>MATERIAL:amount</code>):</label>
+                    <textarea id="kit-items" placeholder="DIAMOND_SWORD:1&#10;DIAMOND_CHESTPLATE:1&#10;GOLDEN_APPLE:8&#10;COOKED_BEEF:32" style="width: 100%; height: 120px; font-family: monospace;"></textarea>
+                </div>
+                <button onclick="saveKit()" class="full-width btn-success">💾 Save Kit</button>
+            </div>
+
+            <!-- Kits List -->
+            <h3 style="color: #4ec9b0; margin-top: 30px;">📋 All Kits</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kit Name</th>
+                        <th>Icon</th>
+                        <th>Cost</th>
+                        <th>Cooldown</th>
+                        <th>Permission</th>
+                        <th>Items</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="kits-list"></tbody>
+            </table>
+
+            <div id="kits-status" style="margin-top: 20px; padding: 10px; background: #2d2d30; border-radius: 4px; color: #969696;"></div>
+        </div>
+
+        <!-- CRATES SYSTEM -->
+        <div id="crates" class="tab">
+            <h2>🎰 Crate Management</h2>
+            <div class="card">
+                <h3>➕ Create / Edit Crate</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div><label>Crate Name:</label><input type="text" id="crate-name" placeholder="e.g., Common, Rare, Legendary"></div>
+                    <div><label>Icon (Material):</label><input type="text" id="crate-icon" placeholder="e.g., CHEST, ENDER_CHEST"></div>
+                    <div><label>Description:</label><input type="text" id="crate-desc" placeholder="A rare crate..."></div>
+                    <div><label>Key Cost (XP Levels):</label><input type="number" id="crate-keycost" value="0" min="0"></div>
+                </div>
+                <div>
+                    <label>Rewards (one per line, format: MATERIAL:amount:weight):</label>
+                    <textarea id="crate-rewards" rows="5" placeholder="DIAMOND:1:50&#10;IRON_INGOT:16:100&#10;NETHERITE_INGOT:1:10" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;font-family:monospace;"></textarea>
+                </div>
+                <button class="action-btn" onclick="saveCrate()">💾 Save Crate</button>
+            </div>
+            <div class="card">
+                <h3>📦 Existing Crates</h3>
+                <table><thead><tr><th>Name</th><th>Icon</th><th>Cost</th><th>Rewards</th><th>Actions</th></tr></thead>
+                <tbody id="crates-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- BOUNTIES SYSTEM -->
+        <div id="bounties" class="tab">
+            <h2>☠️ Bounty Board</h2>
+            <div class="card">
+                <h3>Active Bounties</h3>
+                <p style="color:#969696;">Bounties are set by players in-game with <code>/bounty set &lt;player&gt; &lt;amount&gt;</code></p>
+                <table><thead><tr><th>Target</th><th>Set By</th><th>Reward (XP)</th><th>Actions</th></tr></thead>
+                <tbody id="bounties-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- PLAYER SHOPS -->
+        <div id="shops" class="tab">
+            <h2>🏪 Player Shops</h2>
+            <div class="card">
+                <h3>Active Listings</h3>
+                <p style="color:#969696;">Players create shops in-game with <code>/shop sell &lt;item&gt; &lt;amount&gt; &lt;price&gt;</code></p>
+                <table><thead><tr><th>Item</th><th>Amount</th><th>Price (XP)</th><th>Seller</th><th>Actions</th></tr></thead>
+                <tbody id="shops-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- QUESTS SYSTEM -->
+        <div id="quests" class="tab">
+            <h2>🎯 Quest Management</h2>
+            <div class="card">
+                <h3>➕ Create / Edit Quest</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div><label>Quest Name:</label><input type="text" id="quest-name" placeholder="e.g., Miner's Challenge"></div>
+                    <div><label>Type:</label>
+                        <select id="quest-type" style="width:100%;padding:6px;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;">
+                            <option value="break_blocks">Break Blocks</option>
+                            <option value="kill_mobs">Kill Mobs</option>
+                            <option value="mine_diamond_ore">Mine Diamond Ore</option>
+                            <option value="mine_iron_ore">Mine Iron Ore</option>
+                            <option value="kill_zombie">Kill Zombies</option>
+                            <option value="kill_skeleton">Kill Skeletons</option>
+                            <option value="kill_creeper">Kill Creepers</option>
+                        </select>
+                    </div>
+                    <div><label>Goal Amount:</label><input type="number" id="quest-goal" value="100" min="1"></div>
+                    <div><label>XP Reward:</label><input type="number" id="quest-reward" value="10" min="0"></div>
+                    <div><label>Description:</label><input type="text" id="quest-desc" placeholder="Break 100 blocks!"></div>
+                    <div><label>Reward Kit (optional):</label><input type="text" id="quest-rewardkit" placeholder="Leave empty for XP only"></div>
+                </div>
+                <label><input type="checkbox" id="quest-active" checked> Active</label>
+                <button class="action-btn" onclick="saveQuest()" style="margin-left:10px;">💾 Save Quest</button>
+            </div>
+            <div class="card">
+                <h3>📋 All Quests</h3>
+                <table><thead><tr><th>Name</th><th>Type</th><th>Goal</th><th>Reward</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="quests-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- CUSTOM ENCHANTMENTS -->
+        <div id="enchantments" class="tab">
+            <h2>✨ Custom Enchantments</h2>
+            <div class="card">
+                <h3>Apply Enchantment to Player's Held Item</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div><label>Player Name:</label><input type="text" id="enchant-player" placeholder="Player name"></div>
+                    <div><label>Enchantment:</label>
+                        <select id="enchant-name" style="width:100%;padding:6px;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;">
+                            <option value="Timber">Timber - Chops entire tree</option>
+                            <option value="Vein Miner">Vein Miner - Mines connected ores</option>
+                            <option value="Smelting Touch">Smelting Touch - Auto-smelt ores</option>
+                            <option value="Telepathy">Telepathy - Drops go to inventory</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="applyEnchant()">✨ Apply Enchantment</button>
+                <div id="enchant-status" style="margin-top:10px;color:#969696;"></div>
+            </div>
+            <div class="card">
+                <h3>📖 Available Enchantments</h3>
+                <table><thead><tr><th>Name</th><th>Description</th></tr></thead>
+                <tbody id="enchantments-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- STAFF APPLICATIONS -->
+        <div id="applications" class="tab">
+            <h2>📝 Staff Applications</h2>
+            <div class="card">
+                <h3>Pending Applications</h3>
+                <p style="color:#969696;">Players submit with <code>/apply &lt;message&gt;</code> in-game</p>
+                <table><thead><tr><th>Player</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="applications-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- POLLS -->
+        <div id="polls" class="tab">
+            <h2>🗳️ Server Polls</h2>
+            <div class="card">
+                <h3>➕ Create Poll</h3>
+                <div style="margin-bottom:10px;">
+                    <label>Question:</label><input type="text" id="poll-question" placeholder="What gamemode should we add next?" style="width:100%;">
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Options (one per line):</label>
+                    <textarea id="poll-options" rows="4" placeholder="Skyblock&#10;Prison&#10;Factions" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;"></textarea>
+                </div>
+                <label><input type="checkbox" id="poll-active" checked> Active</label>
+                <button class="action-btn" onclick="savePoll()" style="margin-left:10px;">💾 Create Poll</button>
+            </div>
+            <div class="card">
+                <h3>📊 All Polls</h3>
+                <div id="polls-container"></div>
+            </div>
+        </div>
+
+        <!-- AUTO-MODERATION -->
+        <div id="automod" class="tab">
+            <h2>🤖 Auto-Moderation</h2>
+            <div class="card">
+                <h3>⚙️ Settings</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div><label>Spam Cooldown (seconds):</label><input type="number" id="automod-spam-cooldown" value="2" min="0"></div>
+                    <div><label>Caps Threshold (%):</label><input type="number" id="automod-caps-threshold" value="70" min="0" max="100"></div>
+                    <div><label>Violations to Auto-Mute:</label><input type="number" id="automod-violation-threshold" value="3" min="1"></div>
+                </div>
+                <button class="action-btn" onclick="saveAutomod()">💾 Save Settings</button>
+            </div>
+            <div class="card">
+                <h3>🚫 Word Filter</h3>
+                <div style="margin-bottom:10px;">
+                    <label>Filtered Words (one per line):</label>
+                    <textarea id="automod-filter-words" rows="6" placeholder="badword1&#10;badword2&#10;phrase to filter" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;font-family:monospace;"></textarea>
+                </div>
+                <button class="action-btn" onclick="saveAutomod()">💾 Save Filter</button>
+            </div>
+        </div>
+
+        <!-- PLAYTIME REWARDS -->
+        <div id="playtime-rewards" class="tab">
+            <h2>🏆 Playtime Rewards</h2>
+            <div class="card">
+                <h3>➕ Create Reward Milestone</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div><label>Name:</label><input type="text" id="ptr-name" placeholder="e.g., 1 Hour Played"></div>
+                    <div><label>Minutes Required:</label><input type="number" id="ptr-minutes" value="60" min="1"></div>
+                    <div><label>XP Reward:</label><input type="number" id="ptr-xp" value="5" min="0"></div>
+                    <div><label>Reward Kit (optional):</label><input type="text" id="ptr-kit" placeholder="Kit name"></div>
+                </div>
+                <button class="action-btn" onclick="savePlaytimeReward()">💾 Save Reward</button>
+            </div>
+            <div class="card">
+                <h3>📋 All Playtime Rewards</h3>
+                <table><thead><tr><th>Name</th><th>Minutes</th><th>XP</th><th>Kit</th><th>Actions</th></tr></thead>
+                <tbody id="playtime-rewards-list"></tbody></table>
+            </div>
+        </div>
+
+        <!-- MOTD EDITOR -->
+        <div id="motd" class="tab">
+            <h2>📝 MOTD Editor</h2>
+            <div class="card">
+                <h3>Server List Appearance</h3>
+                <p style="color:#969696;">Use &amp; color codes: &amp;a=green, &amp;b=aqua, &amp;c=red, &amp;d=pink, &amp;e=yellow, &amp;f=white, &amp;l=bold, &amp;o=italic, &amp;n=underline</p>
+                <div style="margin-bottom:10px;">
+                    <label>Line 1:</label><input type="text" id="motd-line1" placeholder="&amp;6Welcome to &amp;bDrowsyCraft" style="width:100%;">
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Line 2:</label><input type="text" id="motd-line2" placeholder="&amp;7A chill Minecraft survival server" style="width:100%;">
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Max Players Shown:</label><input type="number" id="motd-maxplayers" value="20" min="1">
+                </div>
+                <button class="action-btn" onclick="saveMotd()">💾 Save MOTD</button>
+                <div id="motd-status" style="margin-top:10px;color:#969696;"></div>
+                <div style="margin-top:15px;padding:15px;background:#1a1a1a;border-radius:6px;">
+                    <h4 style="color:#4ec9b0;margin-bottom:8px;">Preview:</h4>
+                    <div id="motd-preview" style="font-family:monospace;font-size:14px;line-height:1.5;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PLAYER ANALYTICS -->
+        <div id="player-analytics" class="tab">
+            <h2>📊 Player Analytics</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <div class="card">
+                    <div class="label">Total Players</div>
+                    <div class="stats" id="analytics-total-players">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Avg. Session Time</div>
+                    <div class="stats" id="analytics-avg-session">0h</div>
+                </div>
+                <div class="card">
+                    <div class="label">Most Active Player</div>
+                    <div class="stats" id="analytics-most-active">-</div>
+                </div>
+            </div>
+            <h3>Playtime Statistics</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Total Playtime</th>
+                        <th>Sessions</th>
+                        <th>Last Seen</th>
+                    </tr>
+                </thead>
+                <tbody id="analytics-table"></tbody>
+            </table>
+            <div id="analytics-status" style="margin-top: 20px; color: #969696;"></div>
+        </div>
+
+        <!-- LEADERBOARDS -->
+        <div id="leaderboards" class="tab">
+            <h2>🏆 Leaderboards</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3>Top Playtime</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Player</th>
+                                <th>Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-playtime"></tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3>Most Sessions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Player</th>
+                                <th>Sessions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-sessions"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ECONOMY -->
+        <div id="economy" class="tab">
+            <h2>💰 Economy Dashboard</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <div class="card">
+                    <div class="label">Total Currency</div>
+                    <div class="stats" id="economy-total">$0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Richest Player</div>
+                    <div class="stats" id="economy-richest">-</div>
+                </div>
+            </div>
+            <h3>Player Balances</h3>
+            <input type="text" placeholder="Search player..." style="width: 100%; margin-bottom: 15px;" id="economy-search" onkeyup="filterEconomyTable()">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Balance</th>
+                        <th>Total Earned</th>
+                        <th>Total Spent</th>
+                    </tr>
+                </thead>
+                <tbody id="economy-table"></tbody>
+            </table>
+        </div>
+
+        <!-- WARNINGS LOG -->
+        <div id="warnings" class="tab">
+            <h2>⚠️ Warnings Log</h2>
+            <h3>Issue Warning</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <input type="text" placeholder="Player name..." style="width: 100%;" list="players-datalist" id="warn-player">
+                <input type="text" placeholder="Reason..." style="width: 100%;" id="warn-reason">
+                <button onclick="issueWarning()" class="btn-warning" style="grid-column: 1/-1;">⚠️ Issue Warning</button>
+            </div>
+            <h3>Warning History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Warning #</th>
+                        <th>Reason</th>
+                        <th>Issued By</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="warnings-table"></tbody>
+            </table>
+            <div id="warnings-status" style="margin-top: 20px; color: #969696;"></div>
+        </div>
+
+        <!-- AUDIT LOG -->
+        <div id="auditlog" class="tab">
+            <h2>🔍 Audit Log</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <input type="text" placeholder="Filter by admin..." id="audit-admin-filter" onkeyup="filterAuditLog()">
+                <input type="text" placeholder="Filter by action..." id="audit-action-filter" onkeyup="filterAuditLog()">
+                <select id="audit-date-filter" onchange="filterAuditLog()">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Admin</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="auditlog-table"></tbody>
+            </table>
+        </div>
+
+        <!-- BULK ACTIONS -->
+        <div id="bulk" class="tab">
+            <h2>⚡ Bulk Actions</h2>
+            <h3>Perform Action on Multiple Players</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <select id="bulk-action-type">
+                    <option value="">Select Action</option>
+                    <option value="kick">Kick All</option>
+                    <option value="mute">Mute All</option>
+                    <option value="ban">Ban All (WITH REASON)</option>
+                </select>
+                <input type="text" placeholder="Reason (required for ban)" id="bulk-action-reason">
+                <input type="text" placeholder="Filter players (optional)" id="bulk-filter">
+                <button onclick="executeBulkAction()" class="btn-danger" style="grid-column: 1/-1;">⚡ Execute Bulk Action</button>
+            </div>
+            <h3>Bulk Action History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Admin</th>
+                        <th>Action</th>
+                        <th>Affected Players</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="bulk-actions-table"></tbody>
+            </table>
+        </div>
+
+        <!-- SERVER LOGS -->
+        <div id="serverlogs" class="tab">
+            <h2>📝 Server Logs</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <input type="text" placeholder="Search logs..." id="logs-search" onkeyup="filterLogs()">
+                <select id="logs-level-filter" onchange="filterLogs()">
+                    <option value="">All Levels</option>
+                    <option value="INFO">INFO</option>
+                    <option value="WARN">WARN</option>
+                    <option value="ERROR">ERROR</option>
+                </select>
+                <button onclick="clearLogs()" class="btn-danger">Clear Logs</button>
+            </div>
+            <div style="background: #1a1a1a; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; height: 500px; overflow-y: auto; font-family: monospace; font-size: 11px;" id="logs-viewer"></div>
+        </div>
+
+        <!-- PLAYER APPEALS -->
+        <div id="appeals" class="tab">
+            <h2>📬 Player Appeals</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <div class="card">
+                    <div class="label">Pending Appeals</div>
+                    <div class="stats" id="appeals-pending">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Approved</div>
+                    <div class="stats" id="appeals-approved">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Denied</div>
+                    <div class="stats" id="appeals-denied">0</div>
+                </div>
+            </div>
+            <h3>Appeals Queue</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Ban Reason</th>
+                        <th>Appeal Message</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="appeals-table"></tbody>
+            </table>
+            <div id="appeals-status" style="margin-top: 20px; color: #969696;"></div>
+        </div>
+
+        <!-- ANNOUNCEMENTS -->
+        <div id="announcements" class="tab">
+            <h2>📢 Announcements</h2>
+            <h3>Schedule Announcement</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <input type="text" placeholder="Announcement message..." id="announce-msg" style="grid-column: 1/-1;">
+                <input type="datetime-local" id="announce-time">
+                <button onclick="scheduleAnnouncement()" class="btn-success" style="grid-column: 1/-1;">📢 Schedule Announcement</button>
+            </div>
+            <h3>Scheduled Announcements</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Message</th>
+                        <th>Scheduled Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="announcements-table"></tbody>
+            </table>
+        </div>
+
+        <!-- BACKUPS -->
+        <div id="backups" class="tab">
+            <h2>💾 Backups</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <button onclick="createBackup()" class="btn-success">💾 Create Backup Now</button>
+                <button onclick="loadBackups()" class="btn-info">🔄 Refresh List</button>
+            </div>
+            <h3>Backup History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Backup Date</th>
+                        <th>File Size</th>
+                        <th>Server Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="backups-table"></tbody>
+            </table>
+            <div id="backups-status" style="margin-top: 20px; color: #969696;"></div>
+        </div>
+
+        <!-- COMMAND SCHEDULER -->
+        <div id="scheduler" class="tab">
+            <h2>⏰ Command Scheduler</h2>
+            <h3>Schedule Command</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <input type="text" placeholder="Command (without /)..." id="scheduler-cmd" style="grid-column: 1/-1;">
+                <input type="datetime-local" id="scheduler-time">
+                <button onclick="scheduleCommand()" class="btn-success" style="grid-column: 1/-1;">⏰ Schedule Command</button>
+            </div>
+            <h3>Scheduled Commands</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Scheduled Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduler-table"></tbody>
+            </table>
+        </div>
+
+        <!-- MAINTENANCE MODE -->
+        <div id="maintenance" class="tab">
+            <h2>🔧 Maintenance Mode</h2>
+            <div style="background: #252526; border: 1px solid #3e3e42; border-radius: 4px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>Maintenance Status</label>
+                        <select id="maintenance-status">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Maintenance Message</label>
+                        <input type="text" placeholder="Server is under maintenance..." id="maintenance-msg">
+                    </div>
+                </div>
+                <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <input type="datetime-local" id="maintenance-end" placeholder="End time">
+                    <button onclick="setMaintenance()" class="btn-warning" style="grid-column: 1/-1;">🔧 Apply Maintenance Mode</button>
+                </div>
+            </div>
+            <h3>Whitelist Exempt Players</h3>
+            <input type="text" placeholder="Add player to whitelist..." id="maintenance-whitelist-player">
+            <button onclick="addMaintenanceWhitelist()" class="btn-success">✅ Add</button>
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenance-whitelist-table"></tbody>
+            </table>
+        </div>
+
+        <!-- PERMISSION GROUPS -->
+        <div id="permissions" class="tab">
+            <h2>🔐 Permission Groups</h2>
+            <h3>Create Group</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <input type="text" placeholder="Group name..." id="perm-group-name">
+                <input type="text" placeholder="Chat prefix (optional)..." id="perm-group-prefix">
+                <input type="color" id="perm-group-color" value="#0e639c">
+                <button onclick="createPermissionGroup()" class="btn-success" style="grid-column: 1/-1;">➕ Create Group</button>
+            </div>
+
+            <h3>Assign Player to Group</h3>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 30px;">
+                <input type="text" id="player-group-assign" placeholder="Player name..." list="players-datalist" style="flex-grow: 1;">
+                <select id="group-select" style="flex-grow: 1;"><option value="">Select Group</option></select>
+                <button onclick="assignPlayerToGroup()">Assign to Group</button>
+            </div>
+
+            <h3>Manage Groups</h3>
+            <div id="groups-container"></div>
+        </div>
+
+        <!-- LAND CLAIMS -->
+        <div id="landc-claims" class="tab">
+            <h2>🏗️ Land Claims</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <div class="card">
+                    <div class="label">Total Claims</div>
+                    <div class="stats" id="claims-total">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Players with Claims</div>
+                    <div class="stats" id="claims-disputed">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Largest Claim</div>
+                    <div class="stats" id="claims-largest">0 blks</div>
+                </div>
+            </div>
+            <h3>Claims List</h3>
+            <input type="text" placeholder="Search player..." id="claims-search" onkeyup="filterClaimsTable()">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Owner</th>
+                        <th>Location</th>
+                        <th>Size</th>
+                        <th>Members</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="claims-table"></tbody>
+            </table>
+        </div>
+
+        <!-- ROLEPLAY COMMANDS -->
+        <div id="roleplay" class="tab">
+            <h2>🎭 Roleplay Commands</h2>
+            <h3>Create Command</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <input type="text" placeholder="Command name..." id="rp-cmd-name">
+                <input type="text" placeholder="Command trigger..." id="rp-cmd-trigger">
+                <textarea placeholder="Response message..." id="rp-cmd-response" style="grid-column: 1/-1; height: 100px;"></textarea>
+                <button onclick="createRoleplayCommand()" class="btn-success" style="grid-column: 1/-1;">➕ Create Command</button>
+            </div>
+            <h3>Custom Commands</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Trigger</th>
+                        <th>Response</th>
+                        <th>Uses</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="roleplay-table"></tbody>
+            </table>
+        </div>
+
+        <!-- VOTE REWARDS -->
+        <div id="voterewards" class="tab">
+            <h2>🗳️ Vote Rewards</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <div class="card">
+                    <div class="label">Total Votes</div>
+                    <div class="stats" id="votes-total">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">This Month</div>
+                    <div class="stats" id="votes-month">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Top Voter</div>
+                    <div class="stats" id="votes-top">-</div>
+                </div>
+            </div>
+            <h3>Reward Configuration</h3>
+            <div style="background: #252526; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <input type="text" placeholder="Reward command (with {player})..." id="vote-reward-cmd">
+                    <input type="number" placeholder="Reward amount" id="vote-reward-amount">
+                    <button onclick="setVoteReward()" class="btn-success" style="grid-column: 1/-1;">💾 Save Reward</button>
+                </div>
+            </div>
+            <h3>Vote Leaderboard</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Votes</th>
+                        <th>Last Vote</th>
+                    </tr>
+                </thead>
+                <tbody id="votes-table"></tbody>
+            </table>
+        </div>
+
+        <!-- EVENTS -->
+        <div id="events" class="tab">
+            <h2>🎄 Event Manager</h2>
+            <p style="color: #999; margin-bottom: 20px;">Create seasonal and special events with visual effects on the map!</p>
+            
+            <h3>Active Events</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Status</th>
+                        <th>Started</th>
+                        <th>Players Online</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="active-events-table"></tbody>
+            </table>
+
+            <h3>Available Events</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div class="card" style="cursor: pointer;" onclick="startEvent('christmas')">
+                    <h4 style="color: #4ec9b0;">🎄 Christmas</h4>
+                    <p style="font-size: 12px; color: #999;">Falling snow everywhere on the map</p>
+                    <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('christmas')">Enable Event</button>
+                </div>
+                <div class="card" style="cursor: pointer;">
+                    <h4 style="color: #ff9800;">🎃 Halloween</h4>
+                    <p style="font-size: 12px; color: #999;">Dark sky, spiders, and creepy effects</p>
+                    <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="startEvent('halloween')">Enable Event</button>
+                </div>
+                <div class="card" style="cursor: pointer;">
+                    <h4 style="color: #9c27b0;">🎆 New Year</h4>
+                    <p style="font-size: 12px; color: #999;">Fireworks and confetti particles</p>
+                    <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="startEvent('newyear')">Enable Event</button>
+                </div>
+                <div class="card" style="cursor: pointer;">
+                    <h4 style="color: #f44336;">❤️ Valentine's Day</h4>
+                    <p style="font-size: 12px; color: #999;">Floating hearts and romantic particles</p>
+                    <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="startEvent('valentine')">Enable Event</button>
+                </div>
+                <div class="card" style="cursor: pointer;">
+                    <h4 style="color: #4ec9b0;">🌸 Spring</h4>
+                    <p style="font-size: 12px; color: #999;">Falling cherry blossom petals</p>
+                    <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="startEvent('spring')">Enable Event</button>
+                </div>
+                <div class="card" style="cursor: pointer;">
+                    <h4 style="color: #ffc107;">☀️ Summer</h4>
+                    <p style="font-size: 12px; color: #999;">Bright sun, heat waves, and particles</p>
+                    <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="startEvent('summer')">Enable Event</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVENT LOG -->
+        <div id="eventlog" class="tab">
+            <h2>📋 Event History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Started By</th>
+                        <th>Start Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="event-history-table"></tbody>
+            </table>
+        </div>
+
+        <!-- DAILY LOGIN REWARDS -->
+        <div id="daily-login" class="tab">
+            <h2>📅 Daily Login Rewards</h2>
+            <div class="card">
+                <h3>Settings</h3>
+                <div style="margin-bottom:10px;">
+                    <label><input type="checkbox" id="daily-login-enabled"> Enable Daily Login Rewards</label>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Base XP Reward:</label><input type="number" id="daily-login-base-xp" value="10" min="1" style="width:80px;">
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Streak Bonus (per day):</label><input type="number" id="daily-login-streak-bonus" value="2" min="0" style="width:80px;">
+                </div>
+                <button class="action-btn" onclick="saveDailyLogin()">💾 Save Settings</button>
+                <div id="daily-login-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Player Streaks</h3>
+                <table><thead><tr><th>Player</th><th>Streak</th><th>Total Logins</th><th>Last Login</th></tr></thead>
+                <tbody id="daily-login-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- AUCTION HOUSE -->
+        <div id="auction-house" class="tab">
+            <h2>🏪 Auction House</h2>
+            <div class="card">
+                <h3>Create Server Auction</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Item:</label><input type="text" id="auction-item" placeholder="DIAMOND_SWORD"></div>
+                    <div><label>Amount:</label><input type="number" id="auction-amount" value="1" min="1"></div>
+                    <div><label>Starting Bid:</label><input type="number" id="auction-start-bid" value="5" min="0"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Bid Increment:</label><input type="number" id="auction-bid-inc" value="5" min="1"></div>
+                    <div><label>Duration (min):</label><input type="number" id="auction-duration" value="60" min="1"></div>
+                </div>
+                <button class="action-btn" onclick="createAuction()">📦 Create Auction</button>
+                <div id="auction-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Active Auctions</h3>
+                <table><thead><tr><th>Item</th><th>Seller</th><th>Current Bid</th><th>High Bidder</th><th>Time Left</th><th>Actions</th></tr></thead>
+                <tbody id="auction-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- NICKNAMES -->
+        <div id="nicknames" class="tab">
+            <h2>📛 Nicknames</h2>
+            <div class="card">
+                <h3>Set Player Nickname</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Player:</label><input type="text" id="nick-player" placeholder="PlayerName"></div>
+                    <div><label>Nickname (& color codes):</label><input type="text" id="nick-value" placeholder="&amp;b&amp;lCoolNick"></div>
+                </div>
+                <button class="action-btn" onclick="setNickname()">Set Nickname</button>
+                <button class="action-btn" onclick="clearNickname()" style="background:#e74c3c;">Clear Nickname</button>
+                <div id="nick-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Current Nicknames</h3>
+                <table><thead><tr><th>Player</th><th>Nickname</th></tr></thead>
+                <tbody id="nick-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- CHAT TAGS -->
+        <div id="chat-tags" class="tab">
+            <h2>🏷️ Chat Tags</h2>
+            <div class="card">
+                <h3>Manage Available Tags</h3>
+                <div style="margin-bottom:10px;">
+                    <label>New Tag (& color codes):</label><input type="text" id="tag-new" placeholder="&amp;6[&amp;eVIP&amp;6]" style="width:200px;">
+                    <button class="action-btn" onclick="addAvailableTag()">Add Tag</button>
+                </div>
+                <div id="available-tags-list" style="margin-bottom:15px;"></div>
+                <h3>Assign Tag to Player</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Player:</label><input type="text" id="tag-player" placeholder="PlayerName"></div>
+                    <div><label>Tag:</label><input type="text" id="tag-value" placeholder="&amp;6[&amp;eVIP&amp;6]"></div>
+                </div>
+                <button class="action-btn" onclick="setPlayerTag()">Set Tag</button>
+                <button class="action-btn" onclick="clearPlayerTag()" style="background:#e74c3c;">Clear Tag</button>
+                <div id="tag-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Player Tags</h3>
+                <table><thead><tr><th>Player</th><th>Tag</th></tr></thead>
+                <tbody id="tag-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- SERVER RULES -->
+        <div id="server-rules" class="tab">
+            <h2>📜 Server Rules</h2>
+            <div class="card">
+                <h3>Edit Rules</h3>
+                <p style="color:#969696;">One rule per line. Players see these with /rules.</p>
+                <textarea id="rules-textarea" style="width:100%;height:300px;font-family:monospace;" placeholder="Be respectful&#10;No griefing&#10;No hacking"></textarea>
+                <button class="action-btn" style="margin-top:10px;" onclick="saveRules()">💾 Save Rules</button>
+                <div id="rules-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+        </div>
+
+        <!-- PLAYER WARPS -->
+        <div id="player-warps" class="tab">
+            <h2>🌀 Player Warps</h2>
+            <div class="card">
+                <h3>Settings</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>XP Cost to Create:</label><input type="number" id="pwarp-cost" value="5" min="0"></div>
+                    <div><label>Max Warps Per Player:</label><input type="number" id="pwarp-max" value="3" min="1"></div>
+                </div>
+                <button class="action-btn" onclick="savePwarpSettings()">💾 Save Settings</button>
+                <div id="pwarp-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>All Player Warps</h3>
+                <table><thead><tr><th>Name</th><th>Owner</th><th>Location</th><th>Visits</th><th>Actions</th></tr></thead>
+                <tbody id="pwarp-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- CUSTOM RECIPES -->
+        <div id="custom-recipes" class="tab">
+            <h2>🧪 Custom Recipes</h2>
+            <div class="card">
+                <h3>Create Shapeless Recipe</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Recipe Name:</label><input type="text" id="recipe-name" placeholder="Super Sword"></div>
+                    <div><label>Result Item:</label><input type="text" id="recipe-result" placeholder="DIAMOND_SWORD"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Result Amount:</label><input type="number" id="recipe-amount" value="1" min="1"></div>
+                    <div><label>Ingredients (comma-sep):</label><input type="text" id="recipe-ingredients" placeholder="DIAMOND,STICK,GOLD_INGOT"></div>
+                </div>
+                <button class="action-btn" onclick="createRecipe()">🧪 Create Recipe</button>
+                <div id="recipe-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Custom Recipes</h3>
+                <table><thead><tr><th>Name</th><th>Result</th><th>Ingredients</th><th>Actions</th></tr></thead>
+                <tbody id="recipe-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- PVP STATS -->
+        <div id="pvp-stats" class="tab">
+            <h2>⚔️ PvP Stats & Leaderboard</h2>
+            <div class="card">
+                <h3>Kill/Death Leaderboard</h3>
+                <table><thead><tr><th>#</th><th>Player</th><th>Kills</th><th>Deaths</th><th>K/D</th><th>Current Streak</th><th>Best Streak</th></tr></thead>
+                <tbody id="pvp-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- ACHIEVEMENTS -->
+        <div id="achievements-tab" class="tab">
+            <h2>🏆 Achievements & Titles</h2>
+            <div class="card">
+                <h3>Create Achievement</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>ID:</label><input type="text" id="ach-id" placeholder="kills_100"></div>
+                    <div><label>Name:</label><input type="text" id="ach-name" placeholder="Master Slayer"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Description:</label><input type="text" id="ach-desc" placeholder="Get 100 PvP kills"></div>
+                    <div><label>Title Reward (& codes):</label><input type="text" id="ach-title" placeholder="&amp;4[&amp;cSlayer&amp;4]"></div>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>XP Reward:</label><input type="number" id="ach-xp" value="50" min="0" style="width:80px;">
+                </div>
+                <button class="action-btn" onclick="createAchievement()">🏆 Create Achievement</button>
+                <div id="ach-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Defined Achievements</h3>
+                <table><thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Title</th><th>XP</th><th>Actions</th></tr></thead>
+                <tbody id="ach-def-table"></tbody></table>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Player Progress</h3>
+                <table><thead><tr><th>Player</th><th>Unlocked Achievements</th></tr></thead>
+                <tbody id="ach-progress-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- DUELS -->
+        <div id="duels" class="tab">
+            <h2>⚔️ Duels</h2>
+            <div class="card">
+                <h3>Active Duels</h3>
+                <table><thead><tr><th>Player 1</th><th>Player 2</th><th>Wager</th></tr></thead>
+                <tbody id="duel-table"></tbody></table>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>PvP Leaderboard</h3>
+                <table><thead><tr><th>Player</th><th>Kills</th><th>Deaths</th></tr></thead>
+                <tbody id="duel-stats-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- WELCOME SETTINGS -->
+        <div id="welcome-settings" class="tab">
+            <h2>🎉 First Join Welcome</h2>
+            <div class="card">
+                <h3>Welcome Settings</h3>
+                <div style="margin-bottom:10px;">
+                    <label>Welcome Message (& color codes, {player} = name):</label>
+                    <input type="text" id="welcome-msg" style="width:100%;" placeholder="&amp;6Welcome to the server, &amp;e{player}&amp;6!">
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label><input type="checkbox" id="welcome-broadcast" checked> Broadcast welcome to server</label>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Starter Items (MATERIAL:amount, one per line):</label>
+                    <textarea id="welcome-items" style="width:100%;height:80px;" placeholder="WOODEN_SWORD:1&#10;BREAD:16&#10;LEATHER_BOOTS:1"></textarea>
+                </div>
+                <button class="action-btn" onclick="saveWelcome()">💾 Save Welcome Settings</button>
+                <div id="welcome-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>First Join History</h3>
+                <table><thead><tr><th>Player</th><th>First Joined</th></tr></thead>
+                <tbody id="welcome-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- INACTIVE ALERTS -->
+        <div id="inactive-alerts" class="tab">
+            <h2>⏰ Inactive Player Alerts</h2>
+            <div class="card">
+                <h3>Settings</h3>
+                <div style="margin-bottom:10px;">
+                    <label>Inactive Threshold (days):</label>
+                    <input type="number" id="inactive-days" value="14" min="1" style="width:80px;">
+                    <button class="action-btn" onclick="saveInactiveSettings()">💾 Save</button>
+                </div>
+                <div id="inactive-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>Inactive Players</h3>
+                <table><thead><tr><th>Player</th><th>Last Seen</th><th>Days Inactive</th></tr></thead>
+                <tbody id="inactive-table"></tbody></table>
+            </div>
+        </div>
+
+        <!-- SCHEDULED ANNOUNCEMENTS -->
+        <div id="sched-announcements" class="tab">
+            <h2>📢 Scheduled Announcements</h2>
+            <div class="card">
+                <h3>Settings</h3>
+                <div style="margin-bottom:10px;">
+                    <label><input type="checkbox" id="announce-enabled"> Enable Scheduled Announcements</label>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div><label>Interval (minutes):</label><input type="number" id="announce-interval" value="5" min="1"></div>
+                    <div><label>Prefix:</label><input type="text" id="announce-prefix" value="&amp;6[&amp;eAnnouncement&amp;6]&amp;r "></div>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Messages (one per line, & color codes):</label>
+                    <textarea id="announce-messages" style="width:100%;height:200px;" placeholder="&amp;aRemember to /vote for daily rewards!&#10;&amp;bJoin our Discord: discord.gg/example"></textarea>
+                </div>
+                <button class="action-btn" onclick="saveAnnouncements()">💾 Save Announcements</button>
+                <div id="announce-status" style="margin-top:8px;color:#969696;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/scripts/realm.js"></script>
+</body>
+</html>
