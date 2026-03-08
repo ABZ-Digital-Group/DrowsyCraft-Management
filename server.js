@@ -22,7 +22,11 @@ app.use('/api', createProxyMiddleware({
     target: MINECRAFT_SERVER_URL,
     changeOrigin: true,
     ws: true, // Enable Websockets for Console
-    logLevel: 'error'
+    logLevel: 'debug',
+    onError: (err, req, res) => {
+        console.error('Proxy Error:', err);
+        res.status(503).send('Minecraft Server Unreachable: ' + err.message);
+    }
 }));
 
 // --- ROUTES ---
