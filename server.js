@@ -24,8 +24,9 @@ app.use('/api', createProxyMiddleware({
     ws: true, // Enable Websockets for Console
     logLevel: 'debug',
     onError: (err, req, res) => {
-        console.error('Proxy Error:', err);
-        res.status(503).send('Minecraft Server Unreachable: ' + err.message);
+        console.error(`[Proxy Error] Could not connect to ${MINECRAFT_SERVER_URL}${req.url}`);
+        console.error(`Reason: ${err.code || err.message}`);
+        res.status(503).send(`Minecraft Server Unreachable (${err.code}): ${err.message}`);
     }
 }));
 
