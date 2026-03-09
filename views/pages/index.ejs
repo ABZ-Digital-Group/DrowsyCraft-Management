@@ -69,18 +69,27 @@
     </div>
 
     <script>
+        // Check if already logged in
         window.addEventListener('load', () => {
             const token = localStorage.getItem('authToken');
-            if (token) window.location.href = '/dashboard';
+            if (token) {
+                window.location.href = '/dashboard';
+            }
         });
 
         async function handleLogin(event) {
             event.preventDefault();
+            
             const username = document.getElementById('username').value;
             const errorMsg = document.getElementById('error-message');
             const successMsg = document.getElementById('success-message');
             
-            if (!username) return;
+            if (!username) {
+                errorMsg.textContent = 'Username is required';
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                return;
+            }
             
             try {
                 const response = await fetch('/api/login', {
@@ -92,17 +101,25 @@
                 if (response.ok) {
                     const data = await response.json();
                     successMsg.textContent = 'Login successful! Redirecting...';
-                    successMsg.style.display = 'block'; errorMsg.style.display = 'none';
+                    successMsg.style.display = 'block';
+                    errorMsg.style.display = 'none';
+                    
                     localStorage.setItem('authToken', data.token);
-                    setTimeout(() => { window.location.href = '/dashboard'; }, 500);
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 500);
                 } else {
                     const errorText = await response.text();
                     errorMsg.textContent = `Login failed: ${errorText}`;
-                    errorMsg.style.display = 'block'; successMsg.style.display = 'none';
+                    errorMsg.style.display = 'block';
+                    successMsg.style.display = 'none';
+                    document.getElementById('username').value = '';
                 }
             } catch (e) {
                 errorMsg.textContent = 'Connection error. Is the server running?';
-                errorMsg.style.display = 'block'; successMsg.style.display = 'none';
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
             }
         }
     </script>
