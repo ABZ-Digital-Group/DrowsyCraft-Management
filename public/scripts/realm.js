@@ -6,6 +6,7 @@ if (!localStorage.getItem('authToken')) {
 const AUTH_TOKEN = localStorage.getItem('authToken');
 const API_URL = `/api`;
 let userPermissions = new Set();
+    let currentUserName = "WebAdmin";
 
 async function loadUserDetails() {
     try {
@@ -13,6 +14,7 @@ async function loadUserDetails() {
         if (userDetails && userDetails.permissions) {
             userPermissions = new Set(userDetails.permissions);
             document.title = `Realm Tool - ${userDetails.username}`;
+                currentUserName = userDetails.username;
             applyPermissions();
         } else {
             // If we can't get user details, the token is likely invalid
