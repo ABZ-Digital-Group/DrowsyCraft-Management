@@ -188,6 +188,7 @@ async function apiCall(endpoint, method = 'GET', params = null) {
 }
 
 async function updateOverview() {
+    console.log("updateOverview executing...");
     const response = await apiCall('/players');
     const players = response && response.players ? response.players : [];
     const tickets = await apiCall('/tickets');
