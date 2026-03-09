@@ -174,7 +174,13 @@ async function apiCall(endpoint, method = 'GET', params = null) {
             logout();
             return null;
         }
-        return await response.json();
+        
+        const text = await response.text();
+        if (!response.ok) {
+            console.warn(`API Request to ${endpoint} failed: ${response.status} ${response.statusText}`);
+            return null;
+        }
+        return text ? JSON.parse(text) : null;
     } catch (e) {
         console.error('API Error:', e);
         return null;
