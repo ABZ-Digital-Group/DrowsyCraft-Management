@@ -174,7 +174,6 @@ async function apiCall(endpoint, method = 'GET', params = null) {
             logout();
             return null;
         }
-        return await response.json();
         
         const text = await response.text();
         if (!response.ok) {
