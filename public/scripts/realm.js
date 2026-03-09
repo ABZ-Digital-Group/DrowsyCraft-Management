@@ -157,10 +157,10 @@ function logout() {
 }
 
 async function apiCall(endpoint, method = 'GET', params = null) {
-    const url = (method === 'GET' && params) ? `?${new URLSearchParams(params).toString()}` : ``;
+    const url = (method === 'GET' && params) ? `${API_URL}${endpoint}?${new URLSearchParams(params).toString()}` : `${API_URL}${endpoint}`;
     const options = {
         method,
-        headers: { 'Authorization': `Bearer ` }
+        headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
     };
     
     if ((method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE') && params) {
@@ -238,7 +238,7 @@ function updatePlayerDatalist(playerNames) {
         console.warn('No player names to add to datalist');
         return;
     }
-    datalist.innerHTML = playerNames.map(name => `<option value="">`).join('');
+    datalist.innerHTML = playerNames.map(name => `<option value="${name}">`).join('');
     console.log('Updated datalist with players:', playerNames);
 }
 
@@ -279,7 +279,7 @@ async function loadTickets() {
     
     const getStatusBadge = (s) => {
         const colors = { open: '#FF9800', in_progress: '#2196F3', resolved: '#4CAF50', closed: '#666' };
-        return `<span style="background: ${colors[s] || '#999'}; padding: 2px 6px; border-radius: 3px; font-size: 11px;"></span>`;
+        return `<span style="background: ${colors[s] || '#999'}; padding: 2px 6px; border-radius: 3px; font-size: 11px;">${s}</span>`;
     };
 
     const html = tickets ? tickets.map(t => `
@@ -355,7 +355,7 @@ async function addTicketResponse() {
     
     const admin = document.getElementById('modal-admin-name').value || 'Admin';
     
-    await apiCall(`/ticket//response`, 'POST', { admin, message });
+    await apiCall(`/ticket/${ticketId}/response`, 'POST', { admin, message });
     document.getElementById('modal-response-text').value = '';
     openTicketModal(ticketId);
 }
@@ -366,13 +366,13 @@ async function resolveTicket() {
     
     if (!reason) return alert('Select a resolution reason');
     
-    await apiCall(`/ticket//resolve`, 'POST', { reason });
+    await apiCall(`/ticket/${ticketId}/resolve`, 'POST', { reason });
     document.getElementById('ticket-modal').style.display = 'none';
     loadTickets();
 }
 
 async function closeTicket(id) {
-    await apiCall(`/ticket/close/`, 'POST');
+    await apiCall(`/ticket/close/${id}`, 'POST');
     loadTickets();
 }
 
@@ -442,14 +442,14 @@ async function searchNotes() {
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding: 10px; background: #252526; border-radius: 6px;">
             <img src="https://mc-heads.net/avatar/${encodeURIComponent(player)}/40" style="width:40px;height:40px;border-radius:6px;" onerror="this.style.display='none'">
             <div>
-                <div style="color: #4ec9b0; font-weight: bold; font-size: 16px;"></div>
+                <div style="color: #4ec9b0; font-weight: bold; font-size: 16px;">${player}</div>
                 <div style="color: #999; font-size: 12px;">${notes.length} note${notes.length !== 1 ? 's' : ''}</div>
             </div>
         </div>
         ${notes.map(n => {
             const s = getCategoryStyle(n.category);
             return `
-            <div class="note-card" data-player="" data-index="${n.index}" 
+            <div class="note-card" data-player="${player}" data-index="${n.index}" 
                  style="background: ${s.bg}; padding: 14px; margin: 8px 0; border-radius: 6px; border-left: 4px solid ${s.border}; transition: all 0.2s;"
                  onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -458,8 +458,8 @@ async function searchNotes() {
                 </div>
                 <p style="margin: 0; color: #ddd; line-height: 1.5;">${n.text}</p>
                 <div style="margin-top: 8px; display: flex; gap: 8px;">
-                    <span style="color: #999; font-size: 11px; cursor: pointer; text-decoration: underline;" onclick="openNoteModal('', ${n.index})">Edit</span>
-                    <span style="color: #d32f2f; font-size: 11px; cursor: pointer; text-decoration: underline;" onclick="quickDeleteNote('', ${n.index})">Delete</span>
+                    <span style="color: #999; font-size: 11px; cursor: pointer; text-decoration: underline;" onclick="openNoteModal('${player}', ${n.index})">Edit</span>
+                    <span style="color: #d32f2f; font-size: 11px; cursor: pointer; text-decoration: underline;" onclick="quickDeleteNote('${player}', ${n.index})">Delete</span>
                 </div>
             </div>`;
         }).join('')}`;
@@ -468,7 +468,7 @@ async function searchNotes() {
 
 async function quickDeleteNote(player, index) {
     if (!confirm('Delete this note?')) return;
-    await apiCall(`/note//`, 'DELETE');
+    await apiCall(`/note/${player}/${index}`, 'DELETE');
     searchNotes();
 }
 
@@ -488,7 +488,7 @@ async function saveNoteEdit() {
     const newText = document.getElementById('modal-note-text').value;
     if (!newText) return alert('Note cannot be empty');
     const params = new URLSearchParams({ text: newText });
-    await apiCall(`/note//?`, 'PATCH');
+    await apiCall(`/note/${player}/${index}?${params}`, 'PATCH');
     document.getElementById('note-modal').style.display = 'none';
     searchNotes();
 }
@@ -497,7 +497,7 @@ async function deleteNoteFromModal() {
     const player = window.currentNotePlayer;
     const index = window.currentNoteIndex;
     if (!confirm('Are you sure you want to delete this note?')) return;
-    await apiCall(`/note//`, 'DELETE');
+    await apiCall(`/note/${player}/${index}`, 'DELETE');
     document.getElementById('note-modal').style.display = 'none';
     searchNotes();
 }
@@ -565,10 +565,10 @@ async function warnPlayer() {
 }
 
 async function punishPlayer(minutes) {
-    const player = document.getElementById(`mod-punishm-player`).value;
+    const player = document.getElementById(`mod-punish${minutes}m-player`).value;
     if (!player) return alert('Enter player name');
     await apiCall('/actions/punish', 'POST', { player, minutes });
-    document.getElementById(`mod-punishm-player`).value = '';
+    document.getElementById(`mod-punish${minutes}m-player`).value = '';
     alert('Player punished!');
 }
 
@@ -576,9 +576,9 @@ async function loadBanned() {
     const banned = await apiCall('/banned');
     const html = banned ? banned.map(b => `
         <tr>
-            <td></td>
+            <td>${b}</td>
             <td>N/A</td>
-            <td><button onclick="unbanPlayer('')" style="padding: 4px 8px; font-size: 11px;" class="btn-success">Unban</button></td>
+            <td><button onclick="unbanPlayer('${b}')" style="padding: 4px 8px; font-size: 11px;" class="btn-success">Unban</button></td>
         </tr>
     `).join('') : '<tr><td colspan="3">No banned players</td></tr>';
     document.getElementById('banned-list').innerHTML = html;
@@ -602,8 +602,8 @@ async function loadWhitelist() {
     const whitelist = await apiCall('/whitelist');
     const html = whitelist ? whitelist.map(p => `
         <tr>
-            <td></td>
-            <td><button onclick="removeFromWhitelist('')" style="padding: 4px 8px; font-size: 11px;" class="btn-danger">Remove</button></td>
+            <td>${p}</td>
+            <td><button onclick="removeFromWhitelist('${p}')" style="padding: 4px 8px; font-size: 11px;" class="btn-danger">Remove</button></td>
         </tr>
     `).join('') : '<tr><td colspan="2">Whitelist empty</td></tr>';
     document.getElementById('whitelist-list').innerHTML = html;
@@ -646,7 +646,7 @@ async function searchIPs() {
     const player = document.getElementById('ip-search-player').value;
     if (!player) return alert('Enter player name');
     const ips = await apiCall('/ips', 'GET', { player });
-    const html = ips && ips.length ? ips.map(ip => `<div style="background: #2d2d30; padding: 10px; margin: 5px 0; border-radius: 4px;"></div>`).join('') : 'No IPs recorded';
+    const html = ips && ips.length ? ips.map(ip => `<div style="background: #2d2d30; padding: 10px; margin: 5px 0; border-radius: 4px;">${ip}</div>`).join('') : 'No IPs recorded';
     document.getElementById('ips-display').innerHTML = html;
 }
 
@@ -654,7 +654,7 @@ async function searchSessions() {
     const player = document.getElementById('session-search-player').value;
     if (!player) return alert('Enter player name');
     const sessions = await apiCall('/sessions', 'GET', { player });
-    const html = sessions && sessions.length ? sessions.map(s => `<div style="background: #2d2d30; padding: 10px; margin: 5px 0; border-radius: 4px;"></div>`).join('') : 'No sessions found';
+    const html = sessions && sessions.length ? sessions.map(s => `<div style="background: #2d2d30; padding: 10px; margin: 5px 0; border-radius: 4px;">${s}</div>`).join('') : 'No sessions found';
     document.getElementById('sessions-display').innerHTML = html;
 }
 
@@ -676,8 +676,8 @@ async function loadTemplates() {
         html = Object.entries(templates).map(([name, content]) => `
             <div style="background: #2d2d30; padding: 15px; margin: 10px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h4 style="margin-bottom: 5px;"></h4>
-                    <p style="color: #ccc;"></p>
+                    <h4 style="margin-bottom: 5px;">${name}</h4>
+                    <p style="color: #ccc;">${content}</p>
                 </div>
                 <div style="display: flex; gap: 5px; flex-shrink: 0;">
                     <button onclick="useTemplate('${content.replace(/'/g, "\'")}')" class="btn-success" style="padding: 6px 12px; font-size: 11px;">📋 Use</button>
@@ -705,10 +705,10 @@ function useTemplate(content) {
 async function deleteTemplate(name) {
     if (!confirm('Delete template "' + name + '"?')) return;
     try {
-        const url = `/template/delete`;
+        const url = `${API_URL}/template/delete`;
         await fetch(url, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer `, 'Content-Type': 'application/json' },
+            headers: { 'Authorization': `Bearer ${AUTH_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ name })
         });
         loadTemplates();
@@ -774,7 +774,7 @@ async function submitReport() {
 
 async function loadReports() {
     const reports = await apiCall('/reports');
-    const html = reports ? reports.map(r => `<div style="background: #2d2d30; padding: 10px; margin: 5px 0; border-radius: 4px;"></div>`).join('') : 'No reports';
+    const html = reports ? reports.map(r => `<div style="background: #2d2d30; padding: 10px; margin: 5px 0; border-radius: 4px;">${r}</div>`).join('') : 'No reports';
     document.getElementById('reports-display').innerHTML = html;
 }
 
@@ -782,7 +782,7 @@ async function scheduleRestart() {
     const delay = document.getElementById('restart-delay').value;
     if (!delay) return alert('Enter delay');
     await apiCall('/restart', 'POST', { delay });
-    document.getElementById('restart-status').textContent = `Restart scheduled in  minutes!`;
+    document.getElementById('restart-status').textContent = `Restart scheduled in ${delay} minutes!`;
 }
 
 async function triggerBackup() {
@@ -795,7 +795,7 @@ async function executeCommand() {
     if (!cmd) return;
     await apiCall('/command', 'POST', { command: cmd });
     document.getElementById('console-cmd').value = '';
-    document.getElementById('console-output').innerHTML += `<div>&gt; </div>`;
+    document.getElementById('console-output').innerHTML += `<div>&gt; ${cmd}</div>`;
 }
 
 // --- OVERVIEW MAP FUNCTIONS ---
@@ -1306,7 +1306,7 @@ async function loadPermissions() {
         }
         container.innerHTML = data.groups.map(g => {
             const permsList = g.permissions && g.permissions.length > 0
-                ? g.permissions.map(p => `<span style="display:inline-flex;align-items:center;background:#1e1e2e;padding:3px 8px;border-radius:4px;margin:2px;font-size:12px;"> <button onclick="removeGroupPermission('${g.name}','')" style="background:none;border:none;color:#e74c3c;cursor:pointer;margin-left:4px;font-size:14px;">&times;</button></span>`).join('')
+                ? g.permissions.map(p => `<span style="display:inline-flex;align-items:center;background:#1e1e2e;padding:3px 8px;border-radius:4px;margin:2px;font-size:12px;">${p} <button onclick="removeGroupPermission('${g.name}','${p}')" style="background:none;border:none;color:#e74c3c;cursor:pointer;margin-left:4px;font-size:14px;">&times;</button></span>`).join('')
                 : '<span style="color:#888;font-size:12px;">No permissions</span>';
             const membersList = g.members && g.members.length > 0
                 ? g.members.map(m => `<span style="display:inline-flex;align-items:center;background:#1e1e2e;padding:3px 8px;border-radius:4px;margin:2px;font-size:12px;">${m.name} <button onclick="removeGroupMember('${g.name}','${m.uuid}')" style="background:none;border:none;color:#e74c3c;cursor:pointer;margin-left:4px;font-size:14px;">&times;</button></span>`).join('')
@@ -2046,8 +2046,8 @@ async function loadAnnouncements() {
         return `<tr>
             <td>${a.message}</td>
             <td>${new Date(a.time).toLocaleString()}</td>
-            <td></td>
-            <td><button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="deleteScheduledAnnouncement()">Delete</button></td>
+            <td>${status}</td>
+            <td><button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="deleteScheduledAnnouncement(${i})">Delete</button></td>
         </tr>`;
     }).join('') : '<tr><td colspan="4" style="text-align:center;color:#999;">No scheduled announcements</td></tr>';
     document.getElementById('announcements-table').innerHTML = html;
@@ -2113,7 +2113,7 @@ async function loadMaintenanceMode() {
     document.getElementById('maintenance-end').value = data.endTime || '';
     const whitelist = data.whitelist || [];
     document.getElementById('maintenance-whitelist-table').innerHTML = whitelist.length > 0
-        ? whitelist.map(p => `<tr><td></td><td><button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="removeMaintenanceWhitelist('')">Remove</button></td></tr>`).join('')
+        ? whitelist.map(p => `<tr><td>${p}</td><td><button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="removeMaintenanceWhitelist('${p}')">Remove</button></td></tr>`).join('')
         : '<tr><td colspan="2" style="text-align:center;color:#999;">No exempt players</td></tr>';
 }
 
@@ -2122,10 +2122,10 @@ async function setMaintenance() {
     const msg = document.getElementById('maintenance-msg').value;
     const endTime = document.getElementById('maintenance-end').value;
     try {
-        const url = `/maintenance/set`;
+        const url = `${API_URL}/maintenance/set`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer `, 'Content-Type': 'application/json' },
+            headers: { 'Authorization': `Bearer ${AUTH_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ status, message: msg, endTime })
         });
         if (response.ok) {
@@ -2139,10 +2139,10 @@ async function addMaintenanceWhitelist() {
     const player = document.getElementById('maintenance-whitelist-player').value;
     if (!player) return;
     try {
-        const url = `/maintenance/whitelist/add`;
+        const url = `${API_URL}/maintenance/whitelist/add`;
         await fetch(url, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer `, 'Content-Type': 'application/json' },
+            headers: { 'Authorization': `Bearer ${AUTH_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ player })
         });
         document.getElementById('maintenance-whitelist-player').value = '';
@@ -2152,10 +2152,10 @@ async function addMaintenanceWhitelist() {
 
 async function removeMaintenanceWhitelist(player) {
     try {
-        const url = `/maintenance/whitelist/${encodeURIComponent(player)}`;
+        const url = `${API_URL}/maintenance/whitelist/${encodeURIComponent(player)}`;
         await fetch(url, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ` }
+            headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
         });
         loadMaintenanceMode();
     } catch (e) { console.error('Error removing from whitelist:', e); }
@@ -2232,7 +2232,7 @@ async function loadLandClaims() {
                 const locPreview = c.locations && c.locations.length > 0 ? c.locations[0] : 'N/A';
                 const moreCount = c.locations && c.locations.length > 1 ? ` (+${c.locations.length - 1} more)` : '';
                 tr.innerHTML = `<td>${c.owner}</td>` +
-                    `<td title="${c.locations ? c.locations.join('\n') : ''}"></td>` +
+                    `<td title="${c.locations ? c.locations.join('\n') : ''}">${locPreview}${moreCount}</td>` +
                     `<td>${c.chunks} chunks</td>` +
                     `<td>${c.trusted && c.trusted.length > 0 ? c.trusted.join(', ') : 'None'}</td>` +
                     `<td><button class="btn-danger" onclick="deleteClaim('${c.uuid}')">Remove</button></td>`;
@@ -2311,7 +2311,7 @@ async function startEvent(eventName) {
         
         if (response && response.status === 'success') {
             console.log('Event started successfully');
-            alert(` event started!`);
+            alert(`${eventName} event started!`);
             activeEffects[eventName] = true;
             console.log('activeEffects updated:', activeEffects);
             loadActiveEvents();
@@ -2327,10 +2327,10 @@ async function startEvent(eventName) {
 }
 
 async function stopEvent(eventName) {
-    if (!confirm(`Stop  event?`)) return;
+    if (!confirm(`Stop ${eventName} event?`)) return;
     const response = await apiCall('/events/stop', 'POST', { event: eventName });
     if (response && response.status === 'success') {
-        alert(` event stopped!`);
+        alert(`${eventName} event stopped!`);
         activeEffects[eventName] = false;
         loadActiveEvents();
     } else {
@@ -2699,11 +2699,11 @@ async function loadCrates() {
         for (const [name, c] of Object.entries(data)) {
             const rewards = (c.rewards || []);
             tbody.innerHTML += `<tr>
-                <td></td>
+                <td>${name}</td>
                 <td>${c.icon || 'CHEST'}</td>
                 <td>${c.key_cost || 0} XP</td>
                 <td>${rewards.length} rewards</td>
-                <td><button class="action-btn" onclick="editCrate('')">✏️</button> <button class="action-btn" style="background:#d32f2f;" onclick="deleteCrate('')">🗑️</button></td>
+                <td><button class="action-btn" onclick="editCrate('${name}')">✏️</button> <button class="action-btn" style="background:#d32f2f;" onclick="deleteCrate('${name}')">🗑️</button></td>
             </tr>`;
         }
     }
@@ -2956,7 +2956,7 @@ async function loadPlaytimeRewards() {
         for (const [id, r] of Object.entries(data)) {
             tbody.innerHTML += `<tr>
                 <td>${r.name}</td><td>${r.minutes}</td><td>${r.xp}</td><td>${r.kit || '-'}</td>
-                <td><button class="action-btn" style="background:#d32f2f;" onclick="deletePlaytimeReward('')">🗑️</button></td>
+                <td><button class="action-btn" style="background:#d32f2f;" onclick="deletePlaytimeReward('${id}')">🗑️</button></td>
             </tr>`;
         }
     }
@@ -3022,7 +3022,7 @@ function mcColorToHtml(text) {
         if (bold) style += 'font-weight:bold;';
         if (italic) style += 'font-style:italic;';
         if (underline) style += 'text-decoration:underline;';
-        result += `<span style="">${text[i]}</span>`;
+        result += `<span style="${style}">${text[i]}</span>`;
     }
     return result || '<span style="color:#555;">Empty</span>';
 }
@@ -3062,7 +3062,7 @@ async function loadAuctions() {
     tbody.innerHTML = '';
     (data || []).forEach(a => {
         const remaining = Math.max(0, Math.round((a.endTime - Date.now()) / 60000));
-        tbody.innerHTML += `<tr><td>${a.amount}x ${a.item}</td><td>${a.sellerName}</td><td>${a.currentBid} XP</td><td>${a.highBidderName}</td><td> min</td><td><button class="btn-danger" onclick="deleteAuction('${a.id}')">Delete</button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${a.amount}x ${a.item}</td><td>${a.sellerName}</td><td>${a.currentBid} XP</td><td>${a.highBidderName}</td><td>${remaining} min</td><td><button class="btn-danger" onclick="deleteAuction('${a.id}')">Delete</button></td></tr>`;
     });
 }
 async function createAuction() {
@@ -3215,7 +3215,7 @@ async function loadPvpStats() {
     tbody.innerHTML = '';
     (data || []).forEach((s, i) => {
         const kd = s.deaths > 0 ? (s.kills / s.deaths).toFixed(2) : s.kills;
-        tbody.innerHTML += `<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.kills}</td><td>${s.deaths}</td><td></td><td>${s.streak}</td><td>${s.bestStreak}</td></tr>`;
+        tbody.innerHTML += `<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.kills}</td><td>${s.deaths}</td><td>${kd}</td><td>${s.streak}</td><td>${s.bestStreak}</td></tr>`;
     });
 }
 
