@@ -6,9 +6,9 @@ const app = express();
 // --- CONFIGURATION ---
 const PORT = process.env.PORT || 3000;
 // TARGET: The Minecraft Server's API URL.
-// IMPORTANT: On Minehut, you CANNOT use 'drowsytest.minehut.gg:8091'. You MUST use a Playit.gg tunnel URL.
-// Example: 'http://123.456.78.90:14567'
-let MINECRAFT_SERVER_URL = process.env.MINECRAFT_API_URL || 'http://drowsytest.minehut.gg:8091'; 
+// If hosting on Hostinger, you MUST set MINECRAFT_API_URL to your Oracle Public IP.
+// Example: 'http://123.45.67.89:8091'
+let MINECRAFT_SERVER_URL = process.env.MINECRAFT_API_URL || 'http://132.145.47.61:8091'; 
 
 // Ensure protocol is present to prevent proxy errors
 if (!MINECRAFT_SERVER_URL.startsWith('http')) {
@@ -29,13 +29,14 @@ app.use('/api', createProxyMiddleware({
     changeOrigin: true,
     ws: true, // Enable Websockets for Console
     logLevel: 'debug',
+    onProxyRes: (proxyRes, req, res) => {
+        console.log(`[Proxy] ${req.method} ${req.url} -> Status: ${proxyRes.statusCode}`);
+    },
     onError: (err, req, res) => {
         console.error(`[Proxy Error] Could not connect to ${MINECRAFT_SERVER_URL}${req.url}`);
         console.error(`Reason: ${err.code || err.message}`);
         if (err.code === 'ECONNREFUSED') {
              console.error("Hint: Is the Minecraft server running? Is the plugin loaded?");
-        } else if (err.code === 'ECONNRESET') {
-             console.error("Hint: Connection Reset. Minehut/Cloud firewall is blocking port 8091. You MUST use a tunnel (like Playit.gg).");
         }
         res.status(503).send(`Minecraft Server Unreachable (${err.code}): ${err.message}`);
     }
