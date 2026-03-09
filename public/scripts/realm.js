@@ -6,6 +6,28 @@ if (!localStorage.getItem('authToken')) {
 const AUTH_TOKEN = localStorage.getItem('authToken');
 const API_URL = `/api`;
 let userPermissions = new Set();
+async function issueWarning() {
+    const player = document.getElementById('warn-player').value;
+    const reason = document.getElementById('warn-reason').value;
+    if (!player || !reason) {
+        alert('Please fill in all fields');
+        return;
+    }
+    try {
+        // CHANGE THIS LINE: Use currentUserName
+        const response = await apiCall('/warnings', 'POST', { player, reason, issuedBy: currentUserName });
+        
+        if (response && response.status) {
+            document.getElementById('warn-player').value = '';
+            document.getElementById('warn-reason').value = '';
+            await loadWarnings();
+            alert('Warning issued!');
+        }
+    } catch (e) {
+        console.error('Error issuing warning:', e);
+        alert('Failed to issue warning');
+    }
+}
     let currentUserName = "WebAdmin";
 
 async function loadUserDetails() {
