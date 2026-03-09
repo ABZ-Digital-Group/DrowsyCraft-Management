@@ -198,6 +198,21 @@ async function updateOverview() {
     document.getElementById('stat-muted').textContent = muted ? muted.length : 0;
 }
 
+function updatePlayerDatalist(playerNames) {
+    const datalist = document.getElementById('players-datalist');
+    if (!datalist) {
+        console.error('Datalist element not found');
+        return;
+    }
+    if (!playerNames || playerNames.length === 0) {
+        console.warn('No player names to add to datalist');
+        return;
+    }
+    datalist.innerHTML = playerNames.map(name => `<option value="${name}">`).join('');
+    console.log('Updated datalist with players:', playerNames);
+}
+
+
 async function broadcast() {
     const msg = document.getElementById('broadcast-msg').value;
     if (!msg) return alert('Enter a message');
