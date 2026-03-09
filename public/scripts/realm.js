@@ -19,10 +19,12 @@ async function loadUserDetails() {
         } else {
             // If we can't get user details, the token is likely invalid
             logout();
+            console.warn("Failed to load user details. Server might be unreachable.");
         }
     } catch (e) {
         console.error("Failed to load user details", e);
         logout();
+        console.warn("Error loading user details.");
     }
 }
 
