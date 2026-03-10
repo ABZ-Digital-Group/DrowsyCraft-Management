@@ -2401,17 +2401,17 @@ async function startEvent(eventName) {
         
         if (response && response.status === 'success') {
             console.log('Event started successfully');
-            alert(`${eventName} event started!`);
-            activeEffects[eventName] = true;
-            console.log('activeEffects updated:', activeEffects);
-            loadActiveEvents();
-            startEventVisualEffect(eventName);
-
             // For halloween, lock time to midnight
             if (eventName === 'halloween') {
                 await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
                 await apiCall('/command', 'POST', { command: 'time set midnight' });
             }
+
+            alert(`${eventName} event started!`);
+            activeEffects[eventName] = true;
+            console.log('activeEffects updated:', activeEffects);
+            loadActiveEvents();
+            startEventVisualEffect(eventName);
         } else {
             console.log('API response was not successful:', response);
             alert('Failed to start event: ' + (response?.error || 'Unknown error'));
@@ -2426,14 +2426,14 @@ async function stopEvent(eventName) {
     if (!confirm(`Stop ${eventName} event?`)) return;
     const response = await apiCall('/events/stop', 'POST', { event: eventName });
     if (response && response.status === 'success') {
-        alert(`${eventName} event stopped!`);
-        activeEffects[eventName] = false;
-        loadActiveEvents();
-
         // When halloween ends, restore daylight cycle
         if (eventName === 'halloween') {
             await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle true' });
         }
+
+        alert(`${eventName} event stopped!`);
+        activeEffects[eventName] = false;
+        loadActiveEvents();
     } else {
         alert('Failed to stop event');
     }
