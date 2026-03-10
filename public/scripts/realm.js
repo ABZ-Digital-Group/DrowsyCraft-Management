@@ -2406,6 +2406,12 @@ async function startEvent(eventName) {
             console.log('activeEffects updated:', activeEffects);
             loadActiveEvents();
             startEventVisualEffect(eventName);
+
+            // For halloween, lock time to midnight
+            if (eventName === 'halloween') {
+                await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
+                await apiCall('/command', 'POST', { command: 'time set midnight' });
+            }
         } else {
             console.log('API response was not successful:', response);
             alert('Failed to start event: ' + (response?.error || 'Unknown error'));
@@ -2423,6 +2429,11 @@ async function stopEvent(eventName) {
         alert(`${eventName} event stopped!`);
         activeEffects[eventName] = false;
         loadActiveEvents();
+
+        // When halloween ends, restore daylight cycle
+        if (eventName === 'halloween') {
+            await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle true' });
+        }
     } else {
         alert('Failed to stop event');
     }
