@@ -2404,14 +2404,33 @@ async function startEvent(eventName) {
             // For halloween, lock time to midnight
             if (eventName === 'halloween') {
                 console.warn('🎃 HALLOWEEN MODE ACTIVATING: Setting time to midnight...');
-                // Adding a small delay to ensure the event is fully active on the server
                 await new Promise(resolve => setTimeout(resolve, 500)); 
                 
-                const daylightResponse = await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
-                console.log('Response from doDaylightCycle false:', daylightResponse);
+                // 1. Try global commands (Main world)
+                await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
+                await apiCall('/command', 'POST', { command: 'minecraft:time set 18000' });
                 
-                const timeResponse = await apiCall('/command', 'POST', { command: 'time set 18000' });
-                console.log('Response from time set midnight:', timeResponse);
+                // 2. Try to apply to ALL worlds (Multiverse / Multi-world support)
+                try {
+                    const worlds = await apiCall('/worlds');
+                    if (worlds && Array.isArray(worlds)) {
+                        for (const w of worlds) {
+                            const name = w.name || w;
+                            console.log(`Applying Halloween time to world: ${name}`);
+                            // Try 1.13+ execute syntax
+                            await apiCall('/command', 'POST', { command: `execute in ${name} run time set 18000` });
+                            await apiCall('/command', 'POST', { command: `execute in ${name} run gamerule doDaylightCycle false` });
+                            // Try Multiverse syntax (if installed)
+                            await apiCall('/command', 'POST', { command: `mv time set midnight ${name}` });
+                            await apiCall('/command', 'POST', { command: `mv rule doDaylightCycle false ${name}` });
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to apply time to all worlds:', e);
+                }
+
+                // 3. Announce to chat (Visual confirmation that commands are running)
+                await apiCall('/command', 'POST', { command: 'say §c§lHalloween Event Started! Time locked to midnight.' });
             }
 
             alert(`${eventName} event started!`);
@@ -2437,8 +2456,20 @@ async function stopEvent(eventName) {
         // When halloween ends, restore daylight cycle
         if (eventName === 'halloween') {
             console.log('Restoring daylight cycle...');
-            const daylightResponse = await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle true' });
-            console.log('Response from doDaylightCycle true:', daylightResponse);
+            await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle true' });
+            
+            try {
+                const worlds = await apiCall('/worlds');
+                if (worlds && Array.isArray(worlds)) {
+                    for (const w of worlds) {
+                        const name = w.name || w;
+                        await apiCall('/command', 'POST', { command: `execute in ${name} run gamerule doDaylightCycle true` });
+                        await apiCall('/command', 'POST', { command: `mv rule doDaylightCycle true ${name}` });
+                    }
+                }
+            } catch (e) {}
+            
+            await apiCall('/command', 'POST', { command: 'say Halloween Event Ended! Daylight cycle restored.' });
         }
 
         alert(`${eventName} event stopped!`);
