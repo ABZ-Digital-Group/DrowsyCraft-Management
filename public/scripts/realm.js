@@ -579,13 +579,16 @@ async function warnPlayer() {
     alert('Player warned!');
 }
 
-async function punishPlayer(minutes, inputId) {
+async function punishPlayer(minutes, inputId, reasonInputId) {
     const playerInput = inputId ? document.getElementById(inputId) : document.getElementById(`mod-punish${minutes/60}h-player`);
+    const reasonInput = reasonInputId ? document.getElementById(reasonInputId) : null;
     if (!playerInput) return alert('Input field not found');
     const player = playerInput.value;
+    const reason = reasonInput ? reasonInput.value : 'No reason provided';
     if (!player) return alert('Enter player name');
-    await apiCall('/actions/punish', 'POST', { player, minutes });
+    await apiCall('/actions/punish', 'POST', { player, minutes, reason });
     playerInput.value = '';
+    if (reasonInput) reasonInput.value = '';
     alert('Player punished!');
 }
 
