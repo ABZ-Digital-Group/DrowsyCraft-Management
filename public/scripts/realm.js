@@ -158,7 +158,7 @@ function logout() {
     window.location.href = '/';
 }
 
-async function apiCall(endpoint, method = 'GET', params = null) {
+async function apiCall(endpoint, method = 'GET', params = null, suppressError = false) {
     const url = (method === 'GET' && params) ? `${API_URL}${endpoint}?${new URLSearchParams(params).toString()}` : `${API_URL}${endpoint}`;
     const options = {
         method,
@@ -179,7 +179,7 @@ async function apiCall(endpoint, method = 'GET', params = null) {
         
         const text = await response.text();
         if (!response.ok) {
-            console.warn(`API Request to ${endpoint} failed: ${response.status} ${response.statusText}`);
+            if (!suppressError) console.warn(`API Request to ${endpoint} failed: ${response.status} ${response.statusText}`);
             return null;
         }
         try {
@@ -1379,7 +1379,7 @@ async function assignPlayerToGroup() {
 }
 
 async function loadPunishments() {
-    let punishments = await apiCall('/punishments');
+    let punishments = await apiCall('/punishments', 'GET', null, true);
     
     // Fallback: If /punishments API is missing (404), check online players
     if (!punishments) {
