@@ -1379,11 +1379,27 @@ async function assignPlayerToGroup() {
 }
 
 async function loadPunishments() {
-    const punishments = await apiCall('/punishments');
+    let punishments = await apiCall('/punishments');
+    
+    // Fallback: If /punishments API is missing (404), check online players
+    if (!punishments) {
+        const response = await apiCall('/players');
+        if (response && response.players) {
+            punishments = response.players
+                .filter(p => p.punished)
+                .map(p => ({
+                    player: p.name,
+                    duration: 'Active',
+                    reason: 'Unknown (Check logs)',
+                    endsAt: 'Manual removal required'
+                }));
+        }
+    }
+
     const html = punishments && punishments.length ? punishments.map(p => `
         <tr>
             <td>${p.player}</td>
-            <td>${p.duration} min</td>
+            <td>${p.duration}${typeof p.duration === 'number' ? ' min' : ''}</td>
             <td>${p.reason}</td>
             <td>${p.endsAt}</td>
             <td><button onclick="removePunishment('${p.player}')" style="padding: 4px 8px; font-size: 11px; background: #d32f2f;">Remove</button></td>
