@@ -1399,27 +1399,40 @@ async function loadPunishments() {
     if (!punishments) {
         const response = await apiCall('/players');
         if (response && response.players) {
-            punishments = response.players
-                .filter(p => p.punished)
-                .map(p => {
-                    const cached = getCachedPunishment(p.name);
-                    let endsAt = 'Manual removal required';
-                    let duration = 'Active';
-                    const punishmentEnd = p.punishmentEnd || (cached ? cached.end : null);
-                    
-                    if (punishmentEnd) {
-                        const endDate = new Date(punishmentEnd);
-                        endsAt = endDate.toLocaleString();
-                        const minutesLeft = Math.max(0, Math.round((endDate - Date.now()) / 60000));
-                        duration = `${minutesLeft} min left`;
-                    }
-                    return {
-                        player: p.name,
-                        duration: duration,
-                        reason: p.punishmentReason || p.reason || (cached ? cached.reason : 'Unknown (Check logs)'),
-                        endsAt: endsAt
-                    };
-                });
+            const players = response.players.filter(p => p.punished);
+            const activeList = [];
+
+            for (const p of players) {
+                const cached = getCachedPunishment(p.name);
+                const punishmentEnd = p.punishmentEnd || (cached ? cached.end : null);
+
+                if (punishmentEnd && Date.now() > punishmentEnd) {
+                    await apiCall('/actions/unpunish', 'POST', { player: p.name });
+                    removeCachedPunishment(p.name);
+                } else {
+                    activeList.push(p);
+                }
+            }
+
+            punishments = activeList.map(p => {
+                const cached = getCachedPunishment(p.name);
+                let endsAt = 'Manual removal required';
+                let duration = 'Active';
+                const punishmentEnd = p.punishmentEnd || (cached ? cached.end : null);
+                
+                if (punishmentEnd) {
+                    const endDate = new Date(punishmentEnd);
+                    endsAt = endDate.toLocaleString();
+                    const minutesLeft = Math.max(0, Math.round((endDate - Date.now()) / 60000));
+                    duration = `${minutesLeft} min left`;
+                }
+                return {
+                    player: p.name,
+                    duration: duration,
+                    reason: p.punishmentReason || p.reason || (cached ? cached.reason : 'Unknown (Check logs)'),
+                    endsAt: endsAt
+                };
+            });
         }
     }
 
