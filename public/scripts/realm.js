@@ -7,6 +7,8 @@ const AUTH_TOKEN = localStorage.getItem('authToken');
 const API_URL = `/api`;
 let userPermissions = new Set();
 let currentUserName = "WebAdmin";
+let punishmentsInterval = null;
+let chatRefreshInterval = null;
 
 async function loadUserDetails() {
     try {
@@ -70,6 +72,12 @@ function toggleNavGroup(button) {
 }
 
 function switchTab(name, button) {
+    // Clear any running auto-refresh intervals from other tabs
+    if (punishmentsInterval) clearInterval(punishmentsInterval);
+    if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+    punishmentsInterval = null;
+    chatRefreshInterval = null;
+
     // Hide all tabs
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     
@@ -89,13 +97,19 @@ function switchTab(name, button) {
     if (button && button.classList) {
         button.classList.add('active');
     }
+
+    // Persist active tab in localStorage
+    localStorage.setItem('activeTab', name);
     
     // Load tab-specific data
     if (name === 'overview') updateOverview();
     if (name === 'players') loadPlayers();
     if (name === 'tickets') loadTickets();
     if (name === 'moderation') loadBanned();
-    if (name === 'chat') startChatAutoRefresh();
+    if (name === 'chat') {
+        refreshChat();
+        chatRefreshInterval = setInterval(refreshChat, 3000);
+    }
     if (name === 'whitelist') loadWhitelist();
     if (name === 'mutes') loadMuted();
     if (name === 'templates') loadTemplates();
@@ -108,7 +122,10 @@ function switchTab(name, button) {
     if (name === 'blocklog') loadBlockLog();
     if (name === 'reputation') loadReputation();
     if (name === 'permissions') loadPermissions();
-    if (name === 'punishments') loadPunishments();
+    if (name === 'punishments') {
+        loadPunishments();
+        punishmentsInterval = setInterval(loadPunishments, 5000);
+    }
     if (name === 'auditlog') loadAuditLog();
     if (name === 'afk') loadAFKPlayers();
     if (name === 'discord') loadDiscordSettings();
@@ -551,11 +568,6 @@ async function refreshChat() {
     const chatDisplay = document.getElementById('chat-display');
     chatDisplay.innerHTML = html || '<div style="padding: 8px; color: #999;">No chat messages yet</div>';
     chatDisplay.scrollTop = chatDisplay.scrollHeight;
-}
-
-function startChatAutoRefresh() {
-    refreshChat();
-    setInterval(refreshChat, 3000);
 }
 
 async function banPlayer() {
@@ -3405,7 +3417,21 @@ async function saveAnnouncements() {
 // Auto-load overview on page load
 (async () => {
     await loadUserDetails();
-    await updateOverview();
+
+    const savedTab = localStorage.getItem('activeTab');
+    const savedTabButton = savedTab ? document.querySelector(`.nav-btn[onclick*="'${savedTab}'"]`) : null;
+
+    if (savedTab && document.getElementById(savedTab) && savedTabButton) {
+        const parentGroup = savedTabButton.closest('.nav-group-items');
+        if (parentGroup && parentGroup.classList.contains('collapsed')) {
+            const groupBtn = parentGroup.previousElementSibling;
+            toggleNavGroup(groupBtn);
+        }
+        switchTab(savedTab, savedTabButton);
+    } else {
+        switchTab('overview', document.querySelector('.nav-btn[onclick*="\'overview\'"]'));
+    }
+
     const response = await apiCall('/players');
     if (response && response.players) {
         updatePlayerDatalist(response.players.map(p => p.name));
