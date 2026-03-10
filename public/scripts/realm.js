@@ -575,10 +575,11 @@ async function warnPlayer() {
 }
 
 async function punishPlayer(minutes) {
-    const player = document.getElementById(`mod-punish${minutes}m-player`).value;
+    const hours = minutes / 60;
+    const player = document.getElementById(`mod-punish${hours}h-player`).value;
     if (!player) return alert('Enter player name');
     await apiCall('/actions/punish', 'POST', { player, minutes });
-    document.getElementById(`mod-punish${minutes}m-player`).value = '';
+    document.getElementById(`mod-punish${hours}h-player`).value = '';
     alert('Player punished!');
 }
 
