@@ -2393,6 +2393,32 @@ async function loadActiveEvents() {
     document.getElementById('active-events-table').innerHTML = html;
 }
 
+async function forceHalloweenTime() {
+    if (!confirm('Force time to midnight in all worlds?')) return;
+    
+    console.warn('🎃 Forcing Midnight...');
+    // 1. Try global commands
+    await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
+    await apiCall('/command', 'POST', { command: 'time set 18000' });
+    
+    // 2. Try per-world
+    try {
+        const worlds = await apiCall('/worlds');
+        if (worlds && Array.isArray(worlds)) {
+            for (const w of worlds) {
+                const name = w.name || w;
+                await apiCall('/command', 'POST', { command: `execute in ${name} run time set 18000` });
+                await apiCall('/command', 'POST', { command: `execute in ${name} run gamerule doDaylightCycle false` });
+                await apiCall('/command', 'POST', { command: `mv time set midnight ${name}` });
+                await apiCall('/command', 'POST', { command: `mv rule doDaylightCycle false ${name}` });
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to apply time to all worlds:', e);
+    }
+    alert('Midnight commands sent to all worlds!');
+}
+
 async function startEvent(eventName) {
     console.log('startEvent called with:', eventName);
     try {
@@ -2431,6 +2457,17 @@ async function startEvent(eventName) {
 
                 // 3. Announce to chat (Visual confirmation that commands are running)
                 await apiCall('/command', 'POST', { command: 'say §c§lHalloween Event Started! Time locked to midnight.' });
+            }
+
+            // Play sound effect
+            const sounds = {
+                'halloween': 'minecraft:entity.wither.spawn',
+                'christmas': 'minecraft:block.bell.use',
+                'newyear': 'minecraft:entity.firework_rocket.launch',
+                'valentine': 'minecraft:entity.villager.yes'
+            };
+            if (sounds[eventName]) {
+                await apiCall('/command', 'POST', { command: `execute as @a run playsound ${sounds[eventName]} master @s ~ ~ ~ 1 1` });
             }
 
             alert(`${eventName} event started!`);
