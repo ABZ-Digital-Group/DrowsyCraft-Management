@@ -1387,12 +1387,22 @@ async function loadPunishments() {
         if (response && response.players) {
             punishments = response.players
                 .filter(p => p.punished)
-                .map(p => ({
-                    player: p.name,
-                    duration: 'Active',
-                    reason: 'Unknown (Check logs)',
-                    endsAt: 'Manual removal required'
-                }));
+                .map(p => {
+                    let endsAt = 'Manual removal required';
+                    let duration = 'Active';
+                    if (p.punishmentEnd) {
+                        const endDate = new Date(p.punishmentEnd);
+                        endsAt = endDate.toLocaleString();
+                        const minutesLeft = Math.max(0, Math.round((endDate - Date.now()) / 60000));
+                        duration = `${minutesLeft} min left`;
+                    }
+                    return {
+                        player: p.name,
+                        duration: duration,
+                        reason: p.punishmentReason || p.reason || 'Unknown (Check logs)',
+                        endsAt: endsAt
+                    };
+                });
         }
     }
 
