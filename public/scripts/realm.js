@@ -587,6 +587,7 @@ async function punishPlayer(minutes, inputId, reasonInputId) {
     const reason = reasonInput ? reasonInput.value : 'No reason provided';
     if (!player) return alert('Enter player name');
     await apiCall('/actions/punish', 'POST', { player, minutes, reason });
+    setCachedPunishment(player, reason, minutes);
     playerInput.value = '';
     if (reasonInput) reasonInput.value = '';
     alert('Player punished!');
@@ -1378,6 +1379,19 @@ async function assignPlayerToGroup() {
     loadPermissions();
 }
 
+function getCachedPunishment(player) {
+    try { return JSON.parse(localStorage.getItem('punish_cache_' + player)); } catch (e) { return null; }
+}
+
+function setCachedPunishment(player, reason, minutes) {
+    const data = { reason, end: Date.now() + (minutes * 60000) };
+    localStorage.setItem('punish_cache_' + player, JSON.stringify(data));
+}
+
+function removeCachedPunishment(player) {
+    localStorage.removeItem('punish_cache_' + player);
+}
+
 async function loadPunishments() {
     let punishments = await apiCall('/punishments', 'GET', null, true);
     
@@ -1388,10 +1402,13 @@ async function loadPunishments() {
             punishments = response.players
                 .filter(p => p.punished)
                 .map(p => {
+                    const cached = getCachedPunishment(p.name);
                     let endsAt = 'Manual removal required';
                     let duration = 'Active';
-                    if (p.punishmentEnd) {
-                        const endDate = new Date(p.punishmentEnd);
+                    const punishmentEnd = p.punishmentEnd || (cached ? cached.end : null);
+                    
+                    if (punishmentEnd) {
+                        const endDate = new Date(punishmentEnd);
                         endsAt = endDate.toLocaleString();
                         const minutesLeft = Math.max(0, Math.round((endDate - Date.now()) / 60000));
                         duration = `${minutesLeft} min left`;
@@ -1399,7 +1416,7 @@ async function loadPunishments() {
                     return {
                         player: p.name,
                         duration: duration,
-                        reason: p.punishmentReason || p.reason || 'Unknown (Check logs)',
+                        reason: p.punishmentReason || p.reason || (cached ? cached.reason : 'Unknown (Check logs)'),
                         endsAt: endsAt
                     };
                 });
@@ -1424,6 +1441,7 @@ async function createCustomPunishment() {
     const reason = document.getElementById('punish-reason').value;
     if (!player || !duration) return alert('Fill in all fields');
     await apiCall('/actions/punish', 'POST', { player, minutes: duration, reason });
+    setCachedPunishment(player, reason, duration);
     document.getElementById('punish-player').value = '';
     document.getElementById('punish-duration').value = '30';
     document.getElementById('punish-reason').value = '';
@@ -1434,6 +1452,7 @@ async function createCustomPunishment() {
 async function removePunishment(player) {
     if (!confirm('Remove this punishment?')) return;
     await apiCall('/actions/unpunish', 'POST', { player });
+    removeCachedPunishment(player);
     loadPunishments();
 }
 
