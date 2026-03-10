@@ -1397,7 +1397,7 @@ async function createCustomPunishment() {
     const duration = document.getElementById('punish-duration').value;
     const reason = document.getElementById('punish-reason').value;
     if (!player || !duration) return alert('Fill in all fields');
-    await apiCall('/punishments/create', 'POST', { player, duration, reason });
+    await apiCall('/actions/punish', 'POST', { player, minutes: duration, reason });
     document.getElementById('punish-player').value = '';
     document.getElementById('punish-duration').value = '30';
     document.getElementById('punish-reason').value = '';
@@ -1407,7 +1407,7 @@ async function createCustomPunishment() {
 
 async function removePunishment(player) {
     if (!confirm('Remove this punishment?')) return;
-    await apiCall('/punishments/remove', 'POST', { player });
+    await apiCall('/actions/unpunish', 'POST', { player });
     loadPunishments();
 }
 
