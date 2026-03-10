@@ -2397,14 +2397,21 @@ async function startEvent(eventName) {
     console.log('startEvent called with:', eventName);
     try {
         const response = await apiCall('/events/start', 'POST', { event: eventName });
-        console.log('API Response:', response);
+        console.log('API Response for /events/start:', response);
         
         if (response && response.status === 'success') {
             console.log('Event started successfully');
             // For halloween, lock time to midnight
             if (eventName === 'halloween') {
-                await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
-                await apiCall('/command', 'POST', { command: 'time set midnight' });
+                console.log('Setting time for Halloween event...');
+                // Adding a small delay to ensure the event is fully active on the server
+                await new Promise(resolve => setTimeout(resolve, 500)); 
+                
+                const daylightResponse = await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
+                console.log('Response from doDaylightCycle false:', daylightResponse);
+                
+                const timeResponse = await apiCall('/command', 'POST', { command: 'time set midnight' });
+                console.log('Response from time set midnight:', timeResponse);
             }
 
             alert(`${eventName} event started!`);
@@ -2425,10 +2432,13 @@ async function startEvent(eventName) {
 async function stopEvent(eventName) {
     if (!confirm(`Stop ${eventName} event?`)) return;
     const response = await apiCall('/events/stop', 'POST', { event: eventName });
+    console.log('API Response for /events/stop:', response);
     if (response && response.status === 'success') {
         // When halloween ends, restore daylight cycle
         if (eventName === 'halloween') {
-            await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle true' });
+            console.log('Restoring daylight cycle...');
+            const daylightResponse = await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle true' });
+            console.log('Response from doDaylightCycle true:', daylightResponse);
         }
 
         alert(`${eventName} event stopped!`);
