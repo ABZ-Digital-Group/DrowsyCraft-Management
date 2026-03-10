@@ -182,7 +182,12 @@ async function apiCall(endpoint, method = 'GET', params = null) {
             console.warn(`API Request to ${endpoint} failed: ${response.status} ${response.statusText}`);
             return null;
         }
-        return text ? JSON.parse(text) : null;
+        try {
+            return text ? JSON.parse(text) : null;
+        } catch (e) {
+            // If JSON parsing fails, return the raw text.
+            return text;
+        }
     } catch (e) {
         console.error('API Error:', e);
         return null;
