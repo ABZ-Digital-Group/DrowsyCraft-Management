@@ -2403,14 +2403,14 @@ async function startEvent(eventName) {
             console.log('Event started successfully');
             // For halloween, lock time to midnight
             if (eventName === 'halloween') {
-                console.log('Setting time for Halloween event...');
+                console.warn('🎃 HALLOWEEN MODE ACTIVATING: Setting time to midnight...');
                 // Adding a small delay to ensure the event is fully active on the server
                 await new Promise(resolve => setTimeout(resolve, 500)); 
                 
                 const daylightResponse = await apiCall('/command', 'POST', { command: 'gamerule doDaylightCycle false' });
                 console.log('Response from doDaylightCycle false:', daylightResponse);
                 
-                const timeResponse = await apiCall('/command', 'POST', { command: 'time set midnight' });
+                const timeResponse = await apiCall('/command', 'POST', { command: 'time set 18000' });
                 console.log('Response from time set midnight:', timeResponse);
             }
 
