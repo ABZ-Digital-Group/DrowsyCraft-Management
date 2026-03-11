@@ -2095,6 +2095,74 @@
     window.resolveTicket = function() { 
         document.getElementById('ticket-modal').style.display = 'none'; 
     };
+
+    // --- ANNOUNCEMENTS SYSTEM ---
+    // Implements logic for scheduling and viewing announcements
+    
+    window.scheduleAnnouncement = async function() {
+        const msgInput = document.getElementById('announce-msg');
+        const timeInput = document.getElementById('announce-time');
+        
+        if (!msgInput.value || !timeInput.value) {
+            alert("Please enter a message and select a date/time.");
+            return;
+        }
+
+        try {
+            const response = await apiCall('/api/announcements', 'POST', {
+                message: msgInput.value,
+                scheduledTime: new Date(timeInput.value).toISOString()
+            });
+
+            if (response && !response.error) {
+                alert("Announcement scheduled successfully!");
+                msgInput.value = '';
+                timeInput.value = '';
+                if (window.loadAnnouncements) window.loadAnnouncements();
+            } else {
+                throw new Error(response.error || "Unknown server error");
+            }
+        } catch (e) {
+            console.error("Schedule Error:", e);
+            alert("Failed to schedule announcement: " + e.message);
+        }
+    };
+
+    window.loadAnnouncements = async function() {
+        const tbody = document.getElementById('announcements-table');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+        
+        try {
+            const data = await apiCall('/api/announcements');
+            
+            if (data && Array.isArray(data) && data.length > 0) {
+                tbody.innerHTML = data.map(ann => `
+                    <tr>
+                        <td>${ann.message}</td>
+                        <td>${new Date(ann.scheduledTime).toLocaleString()}</td>
+                        <td>${ann.status || 'Pending'}</td>
+                        <td><button onclick="cancelAnnouncement('${ann.id}')" class="btn-danger action-btn">Cancel</button></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled announcements.</td></tr>';
+            }
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="4" style="color: #ff7675;">Failed to load announcements.</td></tr>';
+        }
+    };
+
+    window.cancelAnnouncement = async function(id) {
+        if (!confirm("Are you sure you want to cancel this announcement?")) return;
+        try {
+            await apiCall(`/api/announcements/${id}`, 'DELETE');
+            loadAnnouncements();
+        } catch (e) {
+            alert("Failed to cancel: " + e.message);
+        }
+    };
 </script>
 </body>
 </html>
