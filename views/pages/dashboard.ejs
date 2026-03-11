@@ -1947,7 +1947,14 @@
      * You should replace any existing `viewReputation` function in your realm.js with this one,
      * or ensure the 'View' button in the reputation table calls this function.
      */
-    async function viewReputation(playerName) {
+    window.viewReputation = async function(playerName) {
+        const modal = document.getElementById('reputation-modal');
+        // Show modal immediately with loading indicator
+        modal.style.display = 'block';
+        document.getElementById('modal-rep-player').textContent = playerName;
+        document.getElementById('modal-rep-status').textContent = 'Loading...';
+        document.getElementById('modal-rep-status').style.color = '#a0a0b8';
+
         try {
             // This assumes an API endpoint exists to fetch reputation data for a player.
             const response = await fetch(`/api/reputation/${playerName}`);
@@ -1955,7 +1962,7 @@
             const data = await response.json();
 
             // Populate the modal fields with the fetched data
-            document.getElementById('modal-rep-player').textContent = data.name || playerName;
+            if (data.name) document.getElementById('modal-rep-player').textContent = data.name;
             document.getElementById('modal-rep-score').textContent = data.score;
             document.getElementById('modal-rep-status').textContent = data.status;
             document.getElementById('modal-rep-warnings').textContent = data.warnings;
@@ -1966,13 +1973,12 @@
             // Dynamically set the color of the status text
             const statusEl = document.getElementById('modal-rep-status');
             statusEl.style.color = data.score > 80 ? '#00b894' : (data.score > 50 ? '#ff9800' : '#ff7675');
-
-            // Show the modal
-            document.getElementById('reputation-modal').style.display = 'block';
         } catch (error) {
             console.error('Failed to load reputation details:', error);
-            // Fallback to a simple alert if the API call fails
-            alert(`Could not load reputation details for ${playerName}.`);
+            // Show error in modal instead of alert
+            document.getElementById('modal-rep-status').textContent = 'Data Unavailable';
+            document.getElementById('modal-rep-status').style.color = '#ff7675';
+            document.getElementById('modal-rep-score').textContent = 'N/A';
         }
     }
 </script>
