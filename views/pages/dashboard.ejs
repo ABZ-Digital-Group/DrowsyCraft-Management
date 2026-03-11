@@ -1942,14 +1942,16 @@
 <script src="/scripts/realm.js?v=17"></script>
 <script>
     /**
-     * This function replaces the old browser alert for viewing player reputation.
-     * It fetches player reputation data and displays it in a nice popup modal.
-     * You should replace any existing `viewReputation` function in your realm.js with this one,
-     * or ensure the 'View' button in the reputation table calls this function.
+     * MODERN REPUTATION MODAL LOGIC
+     * This script aggressively intercepts calls to viewReputation to prevent
+     * the old browser alerts from showing.
      */
-    window.viewReputation = async function(playerName) {
+    
+    // 1. The Core Logic - fetching and showing the modal
+    async function openReputationModal(playerName) {
         const modal = document.getElementById('reputation-modal');
-        // Show modal immediately with loading indicator
+        
+        // Reset and show modal immediately
         modal.style.display = 'block';
         document.getElementById('modal-rep-player').textContent = playerName;
         document.getElementById('modal-rep-status').textContent = 'Loading...';
@@ -1964,7 +1966,7 @@
             // Populate the modal fields with the fetched data
             if (data.name) document.getElementById('modal-rep-player').textContent = data.name;
             document.getElementById('modal-rep-score').textContent = data.score;
-            document.getElementById('modal-rep-status').textContent = data.status;
+            document.getElementById('modal-rep-status').textContent = data.status || 'Unknown';
             document.getElementById('modal-rep-warnings').textContent = data.warnings;
             document.getElementById('modal-rep-mutes').textContent = data.mutes;
             document.getElementById('modal-rep-bans').textContent = data.bans;
@@ -1981,6 +1983,41 @@
             document.getElementById('modal-rep-score').textContent = 'N/A';
         }
     }
+
+    // 2. Force Global Override (runs immediately)
+    window.viewReputation = openReputationModal;
+
+    // 3. Force Global Override Again (runs after page load to beat realm.js)
+    window.addEventListener('load', function() {
+        window.viewReputation = openReputationModal;
+    });
+
+    // 4. THE NUCLEAR OPTION: Event Interception
+    // This captures the click event BEFORE it reaches the button's own onclick handler.
+    document.addEventListener('click', function(e) {
+        // Find if the clicked element or its parent is a button
+        const btn = e.target.closest('button');
+        
+        if (btn) {
+            // Check if this button is trying to call viewReputation
+            const onclickStr = btn.getAttribute('onclick');
+            
+            if (onclickStr && onclickStr.includes('viewReputation')) {
+                // Extract the player name from the string: viewReputation('Steve')
+                const match = onclickStr.match(/viewReputation\('"['"]\)/);
+                
+                if (match && match[1]) {
+                    // STOP the old alert from firing
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    // Fire our new modal
+                    openReputationModal(match[1]);
+                }
+            }
+        }
+    }, true); // 'true' enables Capture Phase (runs before standard events)
 </script>
 </body>
 </html>
