@@ -1,4 +1,4 @@
-/* DrowsyCraft Management - SKY GLASS ULTIMATE (V3 - Tab Fix)
+/* DrowsyCraft Management - SKY GLASS ULTIMATE (V4 - Global Button Fix)
     Primary Accent: #87CEEB
 */
 
@@ -34,18 +34,37 @@ body, html {
     background: transparent !important;
 }
 
+/* --- GLOBAL BUTTON RESET (Fixes the "View" buttons) --- */
+button, .nav-btn, .nav-group-btn, .action-btn {
+    background: var(--accent-sky) !important;
+    color: #060709 !important; /* Dark text on light background */
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-weight: 700 !important;
+    font-family: 'Inter', sans-serif !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    display: inline-block;
+    text-align: center;
+    text-transform: none;
+}
+
+button:hover, .action-btn:hover {
+    filter: brightness(1.1) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px var(--accent-glow) !important;
+}
+
 /* --- SIDEBAR & STICKY TITLE --- */
 .sidebar { 
     background: var(--sidebar-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--card-border) !important;
-    padding: 0 !important;
     height: 100vh;
     position: sticky;
     top: 0;
-    display: flex;
-    flex-direction: column;
     z-index: 100;
 }
 
@@ -61,112 +80,54 @@ body, html {
     text-transform: uppercase; 
     letter-spacing: 2px;
     text-align: center;
-    text-shadow: 0 0 15px var(--accent-glow);
     border-bottom: 2px solid var(--accent-sky) !important;
-    backdrop-filter: var(--glass-blur);
 }
 
 .navbar { 
     display: flex; 
     flex-direction: column; 
     gap: 8px; 
-    flex: 1; 
-    overflow-y: auto; 
     padding: 1.5rem 1.2rem !important;
 }
 
-/* --- TAB LOGIC (The fix for all pages showing) --- */
-.tab { 
-    display: none !important; /* Forces all tabs to hide by default */
-}
-
-.tab.active { 
-    display: block !important; /* Only shows the tab with the .active class */
-    animation: slideIn 0.4s ease-out; 
-}
-
-@keyframes slideIn { 
-    from { opacity: 0; transform: translateY(15px); } 
-    to { opacity: 1; transform: translateY(0); } 
-}
-
-/* --- NAVIGATION BUTTONS --- */
-.nav-group-btn {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--card-border) !important;
-    color: var(--text-main) !important;
-    padding: 12px !important;
-    border-radius: 12px !important;
-    margin-bottom: 8px !important;
-    font-weight: 600 !important;
-    cursor: pointer;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
-
-.nav-btn { 
+/* --- NAV SPECIFIC BUTTONS (Ghost/Transparent style) --- */
+.nav-btn, .nav-group-btn {
     background: transparent !important;
     color: var(--text-dim) !important;
-    padding: 10px 15px !important;
-    border-radius: 10px !important;
-    margin-bottom: 4px !important;
-    border: none !important;
-    width: 100%;
-    text-align: left;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-    cursor: pointer;
+    text-align: left !important;
+    width: 100% !important;
 }
 
-.nav-btn:hover, .nav-btn.active { 
+.nav-btn:hover, .nav-btn.active, .nav-group-btn:hover { 
     background: var(--accent-sky) !important; 
     color: #060709 !important; 
-    transform: translateX(10px) !important;
-    box-shadow: 0 5px 20px var(--accent-glow) !important;
+    transform: translateX(8px) !important;
 }
+
+.nav-btn-logout { 
+    color: #ff7675 !important;
+    border: 1px solid #ff7675 !important;
+    margin-top: 20px !important;
+}
+
+/* --- TAB LOGIC --- */
+.tab { display: none !important; }
+.tab.active { display: block !important; animation: slideIn 0.4s ease-out; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* --- TABLES (LEFT ALIGNED) --- */
-table { 
-    width: 100%; 
-    border-collapse: separate !important; 
-    border-spacing: 0 8px !important; 
-}
-
-table th { 
-    text-align: left !important; 
-    padding: 15px !important; 
-    color: var(--accent-sky) !important; 
-    font-size: 0.75rem !important; 
-    text-transform: uppercase; 
-    letter-spacing: 1px;
-}
-
-table td { 
-    text-align: left !important; 
-    padding: 15px !important; 
-    border-top: 1px solid rgba(135, 206, 235, 0.1) !important;
-    border-bottom: 1px solid rgba(135, 206, 235, 0.1) !important;
-}
-
-table tr { background: rgba(255, 255, 255, 0.02) !important; transition: 0.2s; }
-table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(135, 206, 235, 0.1) !important; }
-table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(135, 206, 235, 0.1) !important; }
+table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
+table th { text-align: left !important; padding: 15px !important; color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; }
+table td { text-align: left !important; padding: 15px !important; border-top: 1px solid var(--card-border) !important; border-bottom: 1px solid var(--card-border) !important; }
+table tr { background: rgba(255, 255, 255, 0.02) !important; }
+table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid var(--card-border) !important; }
+table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid var(--card-border) !important; }
 
 /* --- CARDS & STATS --- */
 .content { padding: 3rem !important; overflow-y: auto; }
-
-.card { 
-    background: var(--card-bg) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    -webkit-backdrop-filter: var(--glass-blur) !important;
-    border: 1px solid var(--card-border) !important;
-    border-radius: 20px !important;
-    padding: 2rem !important;
-    margin-bottom: 1.5rem;
-}
-
+.card { background: var(--card-bg) !important; backdrop-filter: var(--glass-blur) !important; border: 1px solid var(--card-border) !important; border-radius: 20px !important; padding: 2rem !important; margin-bottom: 1.5rem; }
 .stats { font-size: 2.8rem !important; font-weight: 800; color: white !important; }
-.label { color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+.label { color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; font-weight: 600; }
 
 /* --- INPUTS --- */
 input, select, textarea { 
