@@ -2109,13 +2109,10 @@
         }
 
         try {
-            console.log("Sending announcement request...");
             const response = await apiCall('/announcements', 'POST', {
                 message: msgInput.value,
                 scheduledTime: new Date(timeInput.value).toISOString()
             });
-
-            console.log("Announcement response:", response);
 
             if (response && !response.error) {
                 alert("Announcement scheduled successfully!");
@@ -2123,7 +2120,7 @@
                 timeInput.value = '';
                 if (window.loadAnnouncements) window.loadAnnouncements();
             } else {
-                let errorMsg = (response && response.error) || "Server returned invalid response (null)";
+                let errorMsg = (response && response.error) || "Unknown server error";
                 throw new Error(errorMsg);
             }
         } catch (e) {
@@ -2139,7 +2136,15 @@
         tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
         
         try {
-            const data = await apiCall('/announcements');
+            let data = await apiCall('/announcements');
+            console.log("Loaded announcements:", data); // Keep this to debug the list format
+
+            // FIX: Handle API wrappers (e.g. { success: true, data: [...] })
+            if (data && !Array.isArray(data)) {
+                if (Array.isArray(data.data)) data = data.data;
+                else if (Array.isArray(data.announcements)) data = data.announcements;
+                else if (Array.isArray(data.list)) data = data.list;
+            }
             
             if (data && Array.isArray(data) && data.length > 0) {
                 tbody.innerHTML = data.map(ann => `
