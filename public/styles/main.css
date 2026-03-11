@@ -1,6 +1,6 @@
-/* DrowsyCraft Management - SKY GLASS EDITION
-   Primary Color: #87CEEB (Sky Blue)
-   Redesigned by Gemini for ABZ Digital Group
+/* DrowsyCraft Management - SKY GLASS ULTIMATE
+    Primary Accent: #87CEEB
+    Features: Sticky Title, Left-Aligned Tables, Glassmorphism
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
@@ -17,12 +17,11 @@
     --glass-blur: blur(18px);
 }
 
-/* --- FORCE OVERRIDE BASE --- */
+/* --- Base Override --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body, html { 
     font-family: 'Inter', sans-serif !important; 
-    /* Gradient depth is required for glass to be visible */
     background: radial-gradient(circle at top right, #102030, var(--bg-dark)) !important;
     background-attachment: fixed !important;
     color: var(--text-main) !important;
@@ -36,32 +35,47 @@ body, html {
     background: transparent !important;
 }
 
-/* --- SIDEBAR GLASS --- */
+/* --- SIDEBAR & STICKY TITLE --- */
 .sidebar { 
     background: var(--sidebar-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--card-border) !important;
-    padding: 2rem 1.2rem !important;
+    padding: 0 !important; /* Managed by title and navbar internal padding */
     height: 100vh;
     position: sticky;
     top: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar-title { 
+    position: sticky !important;
+    top: 0;
+    z-index: 100;
+    background: var(--sidebar-bg) !important;
+    padding: 2rem 1rem 1.5rem !important;
     color: var(--accent-sky) !important;
     font-size: 1.1rem !important; 
     font-weight: 800 !important; 
     text-transform: uppercase; 
     letter-spacing: 2px;
     text-align: center;
-    margin-bottom: 3rem;
     text-shadow: 0 0 15px var(--accent-glow);
-    border-bottom: 2px solid var(--accent-sky);
-    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent-sky) !important;
+    backdrop-filter: var(--glass-blur);
 }
 
-/* --- NAV BUTTONS (Overriding the Blue Blocks) --- */
+.navbar { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 1.5rem 1.2rem !important;
+}
+
+/* --- NAVIGATION BUTTONS --- */
 .nav-group-btn {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--card-border) !important;
@@ -87,28 +101,56 @@ body, html {
 
 .nav-btn:hover, .nav-btn.active { 
     background: var(--accent-sky) !important; 
-    color: #060709 !important; /* Dark text on Sky Blue */
+    color: #060709 !important; 
     transform: translateX(10px) !important;
     box-shadow: 0 5px 20px var(--accent-glow) !important;
-    font-weight: 700;
 }
 
-.nav-btn-logout {
-    border: 1px solid #ff7675 !important;
-    color: #ff7675 !important;
-    margin-top: 30px;
+/* --- TABLES (LEFT ALIGNED) --- */
+table { 
+    width: 100%; 
+    border-collapse: separate !important; 
+    border-spacing: 0 8px !important; 
 }
 
-/* --- MAIN CONTENT & CARDS --- */
+table th { 
+    text-align: left !important; /* Forces Left Alignment */
+    padding: 15px !important; 
+    color: var(--accent-sky) !important; 
+    font-size: 0.75rem !important; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    background: transparent !important;
+}
+
+table td { 
+    text-align: left !important; /* Forces Left Alignment */
+    padding: 15px !important; 
+    border-top: 1px solid rgba(135, 206, 235, 0.1) !important;
+    border-bottom: 1px solid rgba(135, 206, 235, 0.1) !important;
+}
+
+table tr { background: rgba(255, 255, 255, 0.02) !important; transition: 0.2s; }
+
+table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(135, 206, 235, 0.1) !important; }
+table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(135, 206, 235, 0.1) !important; }
+
+table tr:hover { background: rgba(135, 206, 235, 0.08) !important; transform: scale(1.005); }
+
+/* --- ACTION BUTTONS (In Table) --- */
+.action-btn, button[onclick*="kick"], button[onclick*="heal"] {
+    background: var(--accent-sky) !important;
+    color: #08080a !important; 
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    padding: 6px 15px !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    transition: 0.2s !important;
+}
+
+/* --- CARDS & STATS --- */
 .content { padding: 3rem !important; }
-
-.tab { display: none; }
-.tab.active { display: block !important; animation: slideIn 0.4s ease-out; }
-
-@keyframes slideIn { 
-    from { opacity: 0; transform: translateY(15px); } 
-    to { opacity: 1; transform: translateY(0); } 
-}
 
 .card { 
     background: var(--card-bg) !important;
@@ -118,62 +160,18 @@ body, html {
     border-radius: 20px !important;
     padding: 2rem !important;
     margin-bottom: 1.5rem;
-    transition: transform 0.3s ease !important;
 }
-
-.card:hover { 
-    transform: translateY(-8px) !important; 
-    border-color: var(--accent-sky) !important;
-}
-
-h2 { color: #fff !important; font-weight: 800; margin-bottom: 1.5rem; }
 
 .stats { font-size: 2.8rem !important; font-weight: 800 !important; color: white !important; }
 .label { color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
 
-/* --- FORMS & INPUTS --- */
+/* --- INPUTS --- */
 input, select, textarea { 
     background: rgba(0, 0, 0, 0.4) !important; 
     border: 1px solid var(--card-border) !important;
     border-radius: 12px !important;
     color: white !important;
     padding: 12px 18px !important;
-}
-
-input:focus { border-color: var(--accent-sky) !important; box-shadow: 0 0 12px var(--accent-glow); outline: none; }
-
-button {
-    background: var(--accent-sky) !important;
-    color: #060709 !important;
-    border-radius: 10px !important;
-    font-weight: 800 !important;
-    border: none !important;
-    padding: 12px 24px !important;
-}
-
-/* --- TABLES --- */
-table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
-
-table tr { background: rgba(255, 255, 255, 0.02) !important; transition: 0.2s; }
-
-table td { 
-    padding: 15px !important; 
-    border-top: 1px solid rgba(135, 206, 235, 0.1) !important;
-    border-bottom: 1px solid rgba(135, 206, 235, 0.1) !important;
-}
-
-table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(135, 206, 235, 0.1) !important; }
-table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(135, 206, 235, 0.1) !important; }
-
-table tr:hover { background: rgba(135, 206, 235, 0.08) !important; transform: scale(1.005); }
-
-/* --- TERMINAL/CONSOLE VIEW --- */
-#console-output, #logs-viewer, #chat-display {
-    background: rgba(0,0,0,0.6) !important;
-    border: 1px solid var(--card-border) !important;
-    border-radius: 15px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    color: var(--accent-sky) !important;
 }
 
 /* --- SCROLLBAR --- */
