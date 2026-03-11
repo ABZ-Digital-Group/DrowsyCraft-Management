@@ -1,6 +1,5 @@
-/* DrowsyCraft Management - SKY GLASS ULTIMATE (V6)
-    Theme: Sky Blue (#87CEEB)
-    Fix: Global Input Styling & Forced Layout
+/* DrowsyCraft Management - SKY GLASS ULTIMATE (V7)
+    Fixes: Vertical Sidebar Alignment + Global Input Styling
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
@@ -36,39 +35,7 @@ body, html {
     overflow: hidden !important;
 }
 
-/* --- 🔑 INPUT BOX STYLING (The Fix) --- */
-input[type="text"], 
-input[type="number"], 
-input[type="password"], 
-input[type="datetime-local"],
-textarea, 
-select { 
-    background: rgba(0, 0, 0, 0.4) !important; 
-    border: 1px solid var(--card-border) !important;
-    border-radius: 10px !important;
-    color: white !important;
-    padding: 12px 18px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 14px !important;
-    width: 100% !important;
-    outline: none !important;
-    transition: all 0.3s ease !important;
-    margin: 10px 0 !important;
-}
-
-input:focus, select:focus, textarea:focus { 
-    border-color: var(--accent-sky) !important; 
-    box-shadow: 0 0 12px var(--accent-glow) !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-}
-
-/* Placeholder styling */
-::placeholder {
-    color: var(--text-dim) !important;
-    opacity: 0.7;
-}
-
-/* --- SIDEBAR --- */
+/* --- SIDEBAR STRUCTURE --- */
 .sidebar { 
     background: var(--sidebar-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
@@ -93,50 +60,79 @@ input:focus, select:focus, textarea:focus {
 }
 
 .navbar { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 8px; 
+    display: flex !important; 
+    flex-direction: column !important; /* Forces vertical list */
+    gap: 4px !important; 
     flex: 1 !important; 
     overflow-y: auto !important; 
-    padding: 1.5rem 1.2rem !important;
+    padding: 1rem !important;
 }
 
-/* --- BUTTONS --- */
-button, .nav-btn, .nav-group-btn, .action-btn {
-    background: var(--accent-sky) !important;
-    color: #060709 !important;
-    border-radius: 8px !important;
-    padding: 10px 18px !important;
-    font-weight: 700 !important;
-    border: none !important;
-    cursor: pointer !important;
+/* --- BUTTON & NAV ITEM FIXES --- */
+.nav-group {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    margin-bottom: 10px !important;
+}
+
+.nav-group-items {
+    display: flex !important;
+    flex-direction: column !important; /* Critical Fix for the screenshot */
+    gap: 2px !important;
+    padding-left: 10px !important;
 }
 
 .nav-btn, .nav-group-btn {
     background: transparent !important;
     color: var(--text-dim) !important;
+    padding: 10px 15px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    width: 100% !important; /* Ensures items take full width */
     text-align: left !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    display: block !important;
+    cursor: pointer !important;
 }
 
 .nav-btn:hover, .nav-btn.active, .nav-group-btn:hover { 
     background: var(--accent-sky) !important; 
     color: #060709 !important; 
-    transform: translateX(10px) !important;
+    transform: translateX(5px) !important;
 }
 
-/* --- TABLES --- */
-table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
-table th, table td { text-align: left !important; padding: 15px !important; }
-table th { color: var(--accent-sky) !important; text-transform: uppercase; font-size: 0.75rem; }
-table tr { background: rgba(255, 255, 255, 0.02) !important; }
-table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid var(--card-border) !important; }
-table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid var(--card-border) !important; }
+/* Global Actions Buttons (Kick, Heal, etc) */
+.action-btn, button:not(.nav-btn):not(.nav-group-btn) {
+    background: var(--accent-sky) !important;
+    color: #060709 !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+/* --- INPUT BOX STYLING --- */
+input[type="text"], input[type="number"], textarea, select { 
+    background: rgba(0, 0, 0, 0.4) !important; 
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 10px 15px !important;
+    width: 100% !important;
+    margin: 5px 0 !important;
+    outline: none !important;
+}
+
+input:focus { border-color: var(--accent-sky) !important; box-shadow: 0 0 10px var(--accent-glow) !important; }
 
 /* --- CONTENT AREA --- */
 .content { 
     height: 100vh !important;
     overflow-y: auto !important; 
-    padding: 3rem !important; 
+    padding: 2.5rem !important; 
 }
 
 .tab { display: none !important; }
@@ -146,10 +142,18 @@ table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid var(
     background: var(--card-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
     border: 1px solid var(--card-border) !important;
-    border-radius: 20px !important;
-    padding: 2rem !important;
-    margin-bottom: 1.5rem;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1rem;
 }
+
+/* --- TABLES --- */
+table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
+table th, table td { text-align: left !important; padding: 12px !important; }
+table th { color: var(--accent-sky) !important; text-transform: uppercase; font-size: 0.7rem; }
+table tr { background: rgba(255, 255, 255, 0.02) !important; }
+table td:first-child { border-radius: 10px 0 0 10px; border-left: 1px solid var(--card-border) !important; }
+table td:last-child { border-radius: 0 10px 10px 0; border-right: 1px solid var(--card-border) !important; }
 
 /* --- SCROLLBAR --- */
 ::-webkit-scrollbar { width: 6px; }
