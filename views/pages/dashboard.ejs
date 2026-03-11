@@ -2097,8 +2097,8 @@
     };
 
     // --- ANNOUNCEMENTS SYSTEM ---
-    // Implements logic for scheduling and viewing announcements
-    
+    // Handles scheduling, loading, and cancelling announcements
+
     window.scheduleAnnouncement = async function() {
         const msgInput = document.getElementById('announce-msg');
         const timeInput = document.getElementById('announce-time');
@@ -2114,18 +2114,18 @@
                 scheduledTime: new Date(timeInput.value).toISOString()
             });
 
-            if (response && !response.error) {
+            // Check for success: true OR just no error
+            if (response && (response.success || !response.error)) {
                 alert("Announcement scheduled successfully!");
                 msgInput.value = '';
                 timeInput.value = '';
-                if (window.loadAnnouncements) window.loadAnnouncements();
+                loadAnnouncements();
             } else {
-                let errorMsg = (response && response.error) || "Unknown server error";
-                throw new Error(errorMsg);
+                throw new Error((response && response.error) || "Unknown server error");
             }
         } catch (e) {
             console.error("Schedule Error:", e);
-            alert("Failed to schedule announcement: " + e.message);
+            alert("Failed to schedule: " + e.message);
         }
     };
 
@@ -2137,29 +2137,35 @@
         
         try {
             let data = await apiCall('/announcements');
-            console.log("Loaded announcements:", data); // Keep this to debug the list format
-
-            // FIX: Handle API wrappers (e.g. { success: true, data: [...] })
+            
+            // FIX: Parse the object structure you found in logs
             if (data && !Array.isArray(data)) {
                 if (Array.isArray(data.data)) data = data.data;
                 else if (Array.isArray(data.announcements)) data = data.announcements;
+                else if (Array.isArray(data.messages)) data = data.messages; // This matches your console output
                 else if (Array.isArray(data.list)) data = data.list;
             }
             
             if (data && Array.isArray(data) && data.length > 0) {
-                tbody.innerHTML = data.map(ann => `
+                tbody.innerHTML = data.map(ann => {
+                    // Handle simple strings (recurring config) vs objects (scheduled)
+                    if (typeof ann === 'string') {
+                         return `<tr><td>${ann}</td><td>Recurring Config</td><td>Active</td><td><button class="btn-small" disabled>Config Only</button></td></tr>`;
+                    }
+                    return `
                     <tr>
-                        <td>${ann.message}</td>
-                        <td>${new Date(ann.scheduledTime).toLocaleString()}</td>
+                        <td>${ann.message || 'No message'}</td>
+                        <td>${ann.scheduledTime ? new Date(ann.scheduledTime).toLocaleString() : 'N/A'}</td>
                         <td>${ann.status || 'Pending'}</td>
                         <td><button onclick="cancelAnnouncement('${ann.id}')" class="btn-danger action-btn">Cancel</button></td>
-                    </tr>
-                `).join('');
+                    </tr>`;
+                }).join('');
             } else {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled announcements.</td></tr>';
             }
         } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="4" style="color: #ff7675;">Failed to load announcements.</td></tr>';
+            console.error("Load Announcements Error:", e);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load announcements.</td></tr>';
         }
     };
 
@@ -2172,6 +2178,14 @@
             alert("Failed to cancel: " + e.message);
         }
     };
+
+    // Auto-load announcements when the tab is clicked
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('button');
+        if (target && target.getAttribute('onclick') && target.getAttribute('onclick').includes("switchTab('announcements'")) {
+            setTimeout(window.loadAnnouncements, 200);
+        }
+    });
 </script>
 </body>
 </html>
