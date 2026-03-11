@@ -2097,8 +2097,42 @@
     };
 
     // --- ANNOUNCEMENTS SYSTEM ---
-    // Implements logic for scheduling and viewing announcements
-    
+    // Handles scheduling, loading, and cancelling announcements
+
+    window.loadAnnouncements = async function() {
+        const tbody = document.getElementById('announcements-table');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #aaa;">Loading...</td></tr>';
+        
+        try {
+            // Fetch announcements
+            let data = await apiCall('/announcements');
+            
+            // Handle potential API wrappers (e.g. { data: [...] } or { announcements: [...] })
+            if (data && !Array.isArray(data)) {
+                if (Array.isArray(data.data)) data = data.data;
+                else if (Array.isArray(data.announcements)) data = data.announcements;
+            }
+            
+            if (data && Array.isArray(data) && data.length > 0) {
+                tbody.innerHTML = data.map(ann => `
+                    <tr>
+                        <td>${ann.message}</td>
+                        <td>${new Date(ann.scheduledTime).toLocaleString()}</td>
+                        <td>${ann.status || 'Pending'}</td>
+                        <td><button onclick="cancelAnnouncement('${ann.id}')" class="btn-danger action-btn">Cancel</button></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled announcements.</td></tr>';
+            }
+        } catch (e) {
+            console.error("Load Announcements Error:", e);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load announcements.</td></tr>';
+        }
+    };
+
     window.scheduleAnnouncement = async function() {
         const msgInput = document.getElementById('announce-msg');
         const timeInput = document.getElementById('announce-time');
@@ -2118,39 +2152,13 @@
                 alert("Announcement scheduled successfully!");
                 msgInput.value = '';
                 timeInput.value = '';
-                if (window.loadAnnouncements) window.loadAnnouncements();
+                loadAnnouncements(); // Refresh list immediately
             } else {
                 throw new Error((response && response.error) || "Unknown server error");
             }
         } catch (e) {
             console.error("Schedule Error:", e);
-            alert("Failed to schedule announcement: " + e.message);
-        }
-    };
-
-    window.loadAnnouncements = async function() {
-        const tbody = document.getElementById('announcements-table');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
-        
-        try {
-            const data = await apiCall('/announcements');
-            
-            if (data && Array.isArray(data) && data.length > 0) {
-                tbody.innerHTML = data.map(ann => `
-                    <tr>
-                        <td>${ann.message}</td>
-                        <td>${new Date(ann.scheduledTime).toLocaleString()}</td>
-                        <td>${ann.status || 'Pending'}</td>
-                        <td><button onclick="cancelAnnouncement('${ann.id}')" class="btn-danger action-btn">Cancel</button></td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled announcements.</td></tr>';
-            }
-        } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="4" style="color: #ff7675;">Failed to load announcements.</td></tr>';
+            alert("Failed to schedule: " + e.message);
         }
     };
 
@@ -2163,6 +2171,14 @@
             alert("Failed to cancel: " + e.message);
         }
     };
+
+    // Auto-load announcements when the tab is clicked
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('button');
+        if (target && target.getAttribute('onclick') && target.getAttribute('onclick').includes("switchTab('announcements'")) {
+            setTimeout(window.loadAnnouncements, 200); // Small delay to allow tab transition
+        }
+    });
 </script>
 </body>
 </html>
