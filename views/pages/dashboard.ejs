@@ -606,6 +606,38 @@
             </table>
         </div>
 
+        <!-- REPUTATION DETAIL MODAL -->
+        <div id="reputation-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(6, 7, 9, 0.7); z-index: 1000; overflow-y: auto; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
+            <div class="card" style="margin: 5% auto; width: 90%; max-width: 500px;">
+                <h2>⭐ Reputation for <span id="modal-rep-player">Player</span></h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                    <div class="card" style="text-align: center; padding: 1rem !important;">
+                        <div class="label">Reputation Score</div>
+                        <div class="stats" style="font-size: 3rem;" id="modal-rep-score">100</div>
+                    </div>
+                    <div class="card" style="text-align: center; padding: 1rem !important;">
+                        <div class="label">Status</div>
+                        <div class="stats" style="font-size: 2rem;" id="modal-rep-status">Good</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <h3 style="color: var(--text-dim); font-size: 1rem; margin-bottom: 10px;">Breakdown</h3>
+                    <ul style="list-style: none; padding-left: 0; font-size: 1rem;">
+                        <li style="padding: 10px 5px; display: flex; justify-content: space-between; border-top: 1px solid var(--card-border);"><span>Warnings:</span> <span id="modal-rep-warnings" style="font-weight: bold;">0</span></li>
+                        <li style="padding: 10px 5px; display: flex; justify-content: space-between; border-top: 1px solid var(--card-border);"><span>Mutes:</span> <span id="modal-rep-mutes" style="font-weight: bold;">0</span></li>
+                        <li style="padding: 10px 5px; display: flex; justify-content: space-between; border-top: 1px solid var(--card-border);"><span>Bans:</span> <span id="modal-rep-bans" style="font-weight: bold;">0</span></li>
+                        <li style="padding: 10px 5px; display: flex; justify-content: space-between; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);"><span>Positive Notes:</span> <span id="modal-rep-positive" style="font-weight: bold;">0</span></li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 30px; text-align: right;">
+                    <button onclick="document.getElementById('reputation-modal').style.display = 'none';">Close</button>
+                </div>
+            </div>
+        </div>
+
         <!-- CUSTOM PUNISHMENTS -->
         <div id="punishments" class="tab">
             <h2>⏱️ Custom Punishments</h2>
@@ -1908,5 +1940,41 @@
 </div>
 
 <script src="/scripts/realm.js?v=17"></script>
+<script>
+    /**
+     * This function replaces the old browser alert for viewing player reputation.
+     * It fetches player reputation data and displays it in a nice popup modal.
+     * You should replace any existing `viewReputation` function in your realm.js with this one,
+     * or ensure the 'View' button in the reputation table calls this function.
+     */
+    async function viewReputation(playerName) {
+        try {
+            // This assumes an API endpoint exists to fetch reputation data for a player.
+            const response = await fetch(`/api/reputation/${playerName}`);
+            if (!response.ok) throw new Error('Player reputation data not found');
+            const data = await response.json();
+
+            // Populate the modal fields with the fetched data
+            document.getElementById('modal-rep-player').textContent = data.name || playerName;
+            document.getElementById('modal-rep-score').textContent = data.score;
+            document.getElementById('modal-rep-status').textContent = data.status;
+            document.getElementById('modal-rep-warnings').textContent = data.warnings;
+            document.getElementById('modal-rep-mutes').textContent = data.mutes;
+            document.getElementById('modal-rep-bans').textContent = data.bans;
+            document.getElementById('modal-rep-positive').textContent = data.positiveNotes;
+
+            // Dynamically set the color of the status text
+            const statusEl = document.getElementById('modal-rep-status');
+            statusEl.style.color = data.score > 80 ? '#00b894' : (data.score > 50 ? '#ff9800' : '#ff7675');
+
+            // Show the modal
+            document.getElementById('reputation-modal').style.display = 'block';
+        } catch (error) {
+            console.error('Failed to load reputation details:', error);
+            // Fallback to a simple alert if the API call fails
+            alert(`Could not load reputation details for ${playerName}.`);
+        }
+    }
+</script>
 </body>
 </html>
