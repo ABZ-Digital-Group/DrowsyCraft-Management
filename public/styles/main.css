@@ -1,103 +1,181 @@
-/* 🧊 DROWSYCRAFT - SKY GLASS EDITION 🧊 */
-/* Primary Accent: #87CEEB (Sky Blue) */
+/* DrowsyCraft Management - SKY GLASS EDITION
+   Primary Color: #87CEEB (Sky Blue)
+   Redesigned by Gemini for ABZ Digital Group
+*/
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
 
 :root {
-    --bg-dark: #0a0c10;
-    --sidebar-bg: rgba(135, 206, 235, 0.05); /* Tinted with Sky Blue */
+    --bg-dark: #060709;
+    --sidebar-bg: rgba(10, 12, 16, 0.85);
     --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(135, 206, 235, 0.15);
     --accent-sky: #87CEEB;
-    --accent-glow: rgba(135, 206, 235, 0.4);
-    --glass-blur: blur(20px);
+    --accent-glow: rgba(135, 206, 235, 0.35);
+    --text-main: #e1e1e6;
+    --text-dim: #94a3b8;
+    --glass-blur: blur(18px);
 }
 
+/* --- FORCE OVERRIDE BASE --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-#override, body { 
+body, html { 
     font-family: 'Inter', sans-serif !important; 
-    /* Gradient transition from Deep Navy to Sky Blue shadow */
-    background: radial-gradient(circle at top right, #1a2a3a, #08080a) !important;
+    /* Gradient depth is required for glass to be visible */
+    background: radial-gradient(circle at top right, #102030, var(--bg-dark)) !important;
     background-attachment: fixed !important;
-    color: #e1e1e6 !important;
+    color: var(--text-main) !important;
     min-height: 100vh;
 }
 
-/* --- SIDEBAR --- */
+.container { 
+    display: grid !important; 
+    grid-template-columns: 280px 1fr !important; 
+    min-height: 100vh !important; 
+    background: transparent !important;
+}
+
+/* --- SIDEBAR GLASS --- */
 .sidebar { 
-    background: rgba(10, 12, 15, 0.8) !important;
+    background: var(--sidebar-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
-    border-right: 1px solid rgba(135, 206, 235, 0.1) !important;
+    border-right: 1px solid var(--card-border) !important;
+    padding: 2rem 1.2rem !important;
+    height: 100vh;
+    position: sticky;
+    top: 0;
 }
 
 .sidebar-title { 
     color: var(--accent-sky) !important;
-    text-shadow: 0 0 15px var(--accent-glow);
-    text-align: center;
-    font-weight: 800;
-    text-transform: uppercase;
+    font-size: 1.1rem !important; 
+    font-weight: 800 !important; 
+    text-transform: uppercase; 
     letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 3rem;
+    text-shadow: 0 0 15px var(--accent-glow);
+    border-bottom: 2px solid var(--accent-sky);
+    padding-bottom: 10px;
 }
 
-/* --- BUTTONS & NAV --- */
-.nav-btn, .nav-group-btn, button {
+/* --- NAV BUTTONS (Overriding the Blue Blocks) --- */
+.nav-group-btn {
     background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(135, 206, 235, 0.1) !important;
-    color: #a0a0b8 !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-main) !important;
+    padding: 12px !important;
     border-radius: 12px !important;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
 }
 
-.nav-btn:hover, .nav-btn.active, button:hover {
-    background: var(--accent-sky) !important;
-    color: #0a0c10 !important; /* Dark text on light blue looks premium */
-    transform: translateX(10px);
-    box-shadow: 0 8px 25px var(--accent-glow) !important;
+.nav-btn { 
+    background: transparent !important;
+    color: var(--text-dim) !important;
+    padding: 10px 15px !important;
+    border-radius: 10px !important;
+    margin-bottom: 4px !important;
+    border: none !important;
+    width: 100%;
+    text-align: left;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-/* --- CARDS --- */
-.card, .nav-group {
+.nav-btn:hover, .nav-btn.active { 
+    background: var(--accent-sky) !important; 
+    color: #060709 !important; /* Dark text on Sky Blue */
+    transform: translateX(10px) !important;
+    box-shadow: 0 5px 20px var(--accent-glow) !important;
+    font-weight: 700;
+}
+
+.nav-btn-logout {
+    border: 1px solid #ff7675 !important;
+    color: #ff7675 !important;
+    margin-top: 30px;
+}
+
+/* --- MAIN CONTENT & CARDS --- */
+.content { padding: 3rem !important; }
+
+.tab { display: none; }
+.tab.active { display: block !important; animation: slideIn 0.4s ease-out; }
+
+@keyframes slideIn { 
+    from { opacity: 0; transform: translateY(15px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+.card { 
     background: var(--card-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
-    border: 1px solid rgba(135, 206, 235, 0.15) !important;
+    border: 1px solid var(--card-border) !important;
     border-radius: 20px !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+    padding: 2rem !important;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease !important;
 }
 
-.stats { 
-    color: #fff !important; 
-    font-size: 2.5rem !important;
-    font-weight: 800;
+.card:hover { 
+    transform: translateY(-8px) !important; 
+    border-color: var(--accent-sky) !important;
 }
 
-.label { 
-    color: var(--accent-sky) !important;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+h2 { color: #fff !important; font-weight: 800; margin-bottom: 1.5rem; }
+
+.stats { font-size: 2.8rem !important; font-weight: 800 !important; color: white !important; }
+.label { color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+
+/* --- FORMS & INPUTS --- */
+input, select, textarea { 
+    background: rgba(0, 0, 0, 0.4) !important; 
+    border: 1px solid var(--card-border) !important;
+    border-radius: 12px !important;
+    color: white !important;
+    padding: 12px 18px !important;
+}
+
+input:focus { border-color: var(--accent-sky) !important; box-shadow: 0 0 12px var(--accent-glow); outline: none; }
+
+button {
+    background: var(--accent-sky) !important;
+    color: #060709 !important;
+    border-radius: 10px !important;
+    font-weight: 800 !important;
+    border: none !important;
+    padding: 12px 24px !important;
 }
 
 /* --- TABLES --- */
-table tr {
-    background: rgba(255, 255, 255, 0.02) !important;
-    transition: 0.3s;
+table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
+
+table tr { background: rgba(255, 255, 255, 0.02) !important; transition: 0.2s; }
+
+table td { 
+    padding: 15px !important; 
+    border-top: 1px solid rgba(135, 206, 235, 0.1) !important;
+    border-bottom: 1px solid rgba(135, 206, 235, 0.1) !important;
 }
 
-table tr:hover {
-    background: rgba(135, 206, 235, 0.08) !important;
+table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(135, 206, 235, 0.1) !important; }
+table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(135, 206, 235, 0.1) !important; }
+
+table tr:hover { background: rgba(135, 206, 235, 0.08) !important; transform: scale(1.005); }
+
+/* --- TERMINAL/CONSOLE VIEW --- */
+#console-output, #logs-viewer, #chat-display {
+    background: rgba(0,0,0,0.6) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 15px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    color: var(--accent-sky) !important;
 }
 
-/* --- INPUTS --- */
-input, select, textarea {
-    background: rgba(0, 0, 0, 0.3) !important;
-    border: 1px solid rgba(135, 206, 235, 0.2) !important;
-    border-radius: 10px !important;
-    color: white !important;
-}
-
-input:focus {
-    border-color: var(--accent-sky) !important;
-    box-shadow: 0 0 15px var(--accent-glow);
-}
+/* --- SCROLLBAR --- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--accent-sky); border-radius: 10px; }
