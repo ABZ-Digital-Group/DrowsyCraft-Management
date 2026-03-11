@@ -2,8 +2,8 @@
 
 :root {
     --bg-dark: #0f0f12;
-    --sidebar-bg: #16161e;
-    --card-bg: #1f1f2e;
+    --sidebar-bg: rgba(22, 22, 30, 0.85);
+    --card-bg: rgba(31, 31, 46, 0.6);
     --text-main: #e1e1e6;
     --text-dim: #a0a0b8;
     --accent-purple: #6c5ce7;
@@ -30,6 +30,8 @@ body {
     overflow: hidden; 
     display: flex; 
     flex-direction: column; 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .sidebar-title { 
@@ -135,6 +137,8 @@ table tr:hover { background: rgba(255, 255, 255, 0.02); }
     border-radius: 12px; 
     border: 1px solid rgba(255, 255, 255, 0.05); 
     border-left: none; /* Removed specific border */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .card:hover { border-color: var(--accent-purple); transform: translateY(-5px); transition: transform 0.2s; }
 
