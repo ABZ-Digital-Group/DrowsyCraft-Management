@@ -1,5 +1,6 @@
-/* DrowsyCraft Management - SKY GLASS ULTIMATE (V4 - Global Button Fix)
-    Primary Accent: #87CEEB
+/* DrowsyCraft Management - SKY GLASS ULTIMATE (V5)
+    Theme: Sky Blue (#87CEEB)
+    Layout: Independent Sidebar Scroll + Sticky Header + Left Aligned Tables
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
@@ -24,55 +25,33 @@ body, html {
     background: radial-gradient(circle at top right, #102030, var(--bg-dark)) !important;
     background-attachment: fixed !important;
     color: var(--text-main) !important;
-    min-height: 100vh;
+    height: 100vh !important;
+    overflow: hidden !important; /* Prevents the body itself from scrolling */
 }
 
 .container { 
     display: grid !important; 
     grid-template-columns: 280px 1fr !important; 
-    min-height: 100vh !important; 
+    height: 100vh !important; 
     background: transparent !important;
+    overflow: hidden !important;
 }
 
-/* --- GLOBAL BUTTON RESET (Fixes the "View" buttons) --- */
-button, .nav-btn, .nav-group-btn, .action-btn {
-    background: var(--accent-sky) !important;
-    color: #060709 !important; /* Dark text on light background */
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 8px 16px !important;
-    font-weight: 700 !important;
-    font-family: 'Inter', sans-serif !important;
-    cursor: pointer !important;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-    display: inline-block;
-    text-align: center;
-    text-transform: none;
-}
-
-button:hover, .action-btn:hover {
-    filter: brightness(1.1) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px var(--accent-glow) !important;
-}
-
-/* --- SIDEBAR & STICKY TITLE --- */
+/* --- SIDEBAR: Independent Scroll Fix --- */
 .sidebar { 
     background: var(--sidebar-bg) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--card-border) !important;
-    height: 100vh;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important; /* Sidebar container stays fixed */
 }
 
 .sidebar-title { 
-    position: sticky !important;
-    top: 0;
-    z-index: 110;
-    background: var(--sidebar-bg) !important;
+    flex-shrink: 0; /* Prevents title from shrinking */
     padding: 2rem 1rem 1.5rem !important;
     color: var(--accent-sky) !important;
     font-size: 1.1rem !important; 
@@ -80,64 +59,118 @@ button:hover, .action-btn:hover {
     text-transform: uppercase; 
     letter-spacing: 2px;
     text-align: center;
+    text-shadow: 0 0 15px var(--accent-glow);
     border-bottom: 2px solid var(--accent-sky) !important;
+    z-index: 10;
 }
 
 .navbar { 
     display: flex; 
     flex-direction: column; 
     gap: 8px; 
+    flex: 1 !important; 
+    overflow-y: auto !important; /* Independent Scroll for Navigation */
     padding: 1.5rem 1.2rem !important;
+    scrollbar-width: thin;
 }
 
-/* --- NAV SPECIFIC BUTTONS (Ghost/Transparent style) --- */
-.nav-btn, .nav-group-btn {
+/* --- NAVIGATION BUTTONS --- */
+.nav-group-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-main) !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-btn { 
     background: transparent !important;
     color: var(--text-dim) !important;
-    text-align: left !important;
-    width: 100% !important;
+    padding: 10px 15px !important;
+    border-radius: 10px !important;
+    margin-bottom: 4px !important;
+    border: none !important;
+    width: 100%;
+    text-align: left;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    cursor: pointer;
 }
 
-.nav-btn:hover, .nav-btn.active, .nav-group-btn:hover { 
+.nav-btn:hover, .nav-btn.active { 
     background: var(--accent-sky) !important; 
     color: #060709 !important; 
-    transform: translateX(8px) !important;
+    transform: translateX(10px) !important;
+    box-shadow: 0 5px 20px var(--accent-glow) !important;
 }
 
 .nav-btn-logout { 
-    color: #ff7675 !important;
+    flex-shrink: 0;
+    margin: 10px 1.2rem 20px !important;
     border: 1px solid #ff7675 !important;
-    margin-top: 20px !important;
+    color: #ff7675 !important;
+    text-align: center !important;
+}
+
+/* --- MAIN CONTENT: Independent Scroll --- */
+.content { 
+    height: 100vh !important;
+    overflow-y: auto !important; /* Main content scrolls separately */
+    padding: 3rem !important; 
 }
 
 /* --- TAB LOGIC --- */
 .tab { display: none !important; }
-.tab.active { display: block !important; animation: slideIn 0.4s ease-out; }
-@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.tab.active { display: block !important; }
 
 /* --- TABLES (LEFT ALIGNED) --- */
 table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
-table th { text-align: left !important; padding: 15px !important; color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; }
-table td { text-align: left !important; padding: 15px !important; border-top: 1px solid var(--card-border) !important; border-bottom: 1px solid var(--card-border) !important; }
-table tr { background: rgba(255, 255, 255, 0.02) !important; }
-table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid var(--card-border) !important; }
-table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid var(--card-border) !important; }
 
-/* --- CARDS & STATS --- */
-.content { padding: 3rem !important; overflow-y: auto; }
-.card { background: var(--card-bg) !important; backdrop-filter: var(--glass-blur) !important; border: 1px solid var(--card-border) !important; border-radius: 20px !important; padding: 2rem !important; margin-bottom: 1.5rem; }
-.stats { font-size: 2.8rem !important; font-weight: 800; color: white !important; }
-.label { color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; font-weight: 600; }
-
-/* --- INPUTS --- */
-input, select, textarea { 
-    background: rgba(0, 0, 0, 0.4) !important; 
-    border: 1px solid var(--card-border) !important;
-    border-radius: 12px !important;
-    color: white !important;
-    padding: 12px 18px !important;
+table th { 
+    text-align: left !important; 
+    padding: 15px !important; 
+    color: var(--accent-sky) !important; 
+    font-size: 0.75rem !important; 
+    text-transform: uppercase; 
 }
 
-/* --- SCROLLBAR --- */
+table td { 
+    text-align: left !important; 
+    padding: 15px !important; 
+    border-top: 1px solid rgba(135, 206, 235, 0.1) !important;
+    border-bottom: 1px solid rgba(135, 206, 235, 0.1) !important;
+}
+
+table tr { background: rgba(255, 255, 255, 0.02) !important; }
+table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(135, 206, 235, 0.1) !important; }
+table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(135, 206, 235, 0.1) !important; }
+
+/* --- GLOBAL BUTTONS (Fix for "View" and others) --- */
+button, .action-btn {
+    background: var(--accent-sky) !important;
+    color: #060709 !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+/* --- CARDS --- */
+.card { 
+    background: var(--card-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 20px !important;
+    padding: 2rem !important;
+    margin-bottom: 1.5rem;
+}
+
+/* --- SCROLLBAR STYLING --- */
 ::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--accent-sky); border-radius: 10px; }
