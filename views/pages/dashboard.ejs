@@ -2020,7 +2020,7 @@
     }, true); // 'true' enables Capture Phase (runs before standard events)
 
     // --- TICKET SYSTEM FIX ---
-    // Defines the viewTicket function to ensure the popup opens correctly.
+    // Defines the openTicketModal function to ensure the popup opens correctly with Auth.
     
     async function openTicketModal(ticketId) {
         const modal = document.getElementById('ticket-modal');
@@ -2031,12 +2031,16 @@
         document.getElementById('modal-message').textContent = 'Loading details...';
         document.getElementById('modal-responses').innerHTML = '';
         document.getElementById('modal-player').textContent = '...';
+        
+        // IMPORTANT: Set this global ID so the 'Resolve' and 'Reply' buttons know which ticket to target
+        window.currentTicketId = ticketId;
 
         try {
-            // Try to fetch real data
-            const res = await fetch(`/api/tickets/${ticketId}`);
-            if (!res.ok) throw new Error("Ticket not found");
-            const data = await res.json();
+            // Use apiCall() instead of fetch() to ensure Auth Token is sent
+            // Using /ticket/:id endpoint based on realm.js patterns
+            const data = await apiCall(`/ticket/${ticketId}`);
+            
+            if (!data || data.error) throw new Error("Ticket data could not be loaded");
 
             // Populate Modal Fields
             document.getElementById('modal-player').textContent = data.player || 'Unknown';
@@ -2049,7 +2053,9 @@
             // Show location if available
             if (data.location) {
                 document.getElementById('modal-location-row').style.display = 'block';
-                document.getElementById('modal-location').textContent = data.location;
+                // Handle location object or string
+                let locStr = typeof data.location === 'object' ? `${data.location.world} (${data.location.x}, ${data.location.y}, ${data.location.z})` : data.location;
+                document.getElementById('modal-location').textContent = locStr;
             } else {
                 document.getElementById('modal-location-row').style.display = 'none';
             }
@@ -2058,9 +2064,9 @@
             if (data.responses && data.responses.length) {
                 document.getElementById('modal-responses').innerHTML = data.responses.map(r => `
                     <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
-                        <strong style="color: var(--accent-sky);">${r.author || 'Staff'}</strong>: 
+                        <strong style="color: var(--accent-sky);">${r.admin || r.author || 'Staff'}</strong>: 
                         <span style="color: #ccc;">${r.message}</span>
-                        <div style="font-size: 0.7rem; color: #666;">${new Date(r.timestamp).toLocaleString()}</div>
+                        <div style="font-size: 0.7rem; color: #666;">${r.timestamp ? new Date(r.timestamp).toLocaleString() : ''}</div>
                     </div>
                 `).join('');
             } else {
@@ -2069,15 +2075,15 @@
 
         } catch (e) {
             console.error("Ticket Load Error:", e);
-            document.getElementById('modal-message').textContent = 'Could not load ticket details. (API might be missing)';
+            document.getElementById('modal-message').innerHTML = '<span style="color: #ff7675;">Could not load ticket details.</span><br><small>Error: ' + e.message + '</small>';
         }
     }
 
-    // Assign globally and enforce loading
-    window.viewTicket = openTicketModal;
+    // Assign globally to window.openTicketModal to override the one in realm.js
+    window.openTicketModal = openTicketModal;
     
     window.addEventListener('load', function() {
-        window.viewTicket = openTicketModal;
+        window.openTicketModal = openTicketModal;
     });
 
     // Stub functions for modal buttons so they don't error out
