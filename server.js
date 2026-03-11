@@ -38,7 +38,7 @@ app.use('/api', createProxyMiddleware({
         if (err.code === 'ECONNREFUSED') {
              console.error("Hint: Is the Minecraft server running? Is the plugin loaded?");
         }
-        res.status(503).send(`Minecraft Server Unreachable (${err.code}): ${err.message}`);
+        res.status(503).json({ error: `Minecraft Server Unreachable (${err.code}): ${err.message}` });
     }
 }));
 
