@@ -2107,6 +2107,12 @@
         try {
             // Use generic endpoint
             let data = await apiCall('/scheduler');
+
+            // Gracefully handle if Scheduler is missing (404)
+            if (!data) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">Scheduler not supported by server.</td></tr>';
+                return;
+            }
             
             // Unpack data if wrapped
             let tasks = data;
@@ -2126,8 +2132,12 @@
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled commands.</td></tr>';
             }
         } catch (e) {
-            console.error("Load Scheduler Error:", e);
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load scheduler.</td></tr>';
+            if (e.message && e.message.includes('404')) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">Scheduler feature not available.</td></tr>';
+            } else {
+                console.error("Load Scheduler Error:", e);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load scheduler.</td></tr>';
+            }
         }
     };
 
@@ -2161,23 +2171,23 @@
     };
 
     // --- ANNOUNCEMENTS SYSTEM ---
-    // Now uses the Scheduler for one-time announcements to ensure they work
+    // Reverted to standard Announcements API since Scheduler is missing
 
     window.scheduleAnnouncement = async function() {
         const msgInput = document.getElementById('announce-msg');
         const timeInput = document.getElementById('announce-time');
         
-        if (!msgInput.value || !timeInput.value) {
-            alert("Please enter a message and select a date/time.");
+        if (!msgInput.value) {
+            alert("Please enter a message.");
             return;
         }
 
         try {
-            // LOGIC FIX: We schedule a 'broadcast' command instead of hitting the recurring config
-            const cmd = `broadcast ${msgInput.value}`;
-            const response = await apiCall('/scheduler', 'POST', {
-                command: cmd,
-                scheduledTime: new Date(timeInput.value).toISOString()
+            // Use the standard /announcements endpoint which returned 200 OK before
+            const response = await apiCall('/announcements', 'POST', {
+                message: msgInput.value,
+                // If time is provided, send it, otherwise it might just be added to the queue
+                scheduledTime: timeInput.value ? new Date(timeInput.value).toISOString() : null
             });
 
             if (response && (response.success || !response.error)) {
@@ -2199,52 +2209,74 @@
         if (!tbody) return;
         
         tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
-        let html = '';
         
-        // 1. Fetch Scheduled Broadcasts (from Scheduler)
-        try {
-            let schedData = await apiCall('/scheduler');
-            let tasks = schedData;
-            if (schedData && schedData.tasks) tasks = schedData.tasks;
-            
-            if (Array.isArray(tasks)) {
-                const broadcasts = tasks.filter(t => t.command.startsWith('broadcast') || t.command.startsWith('say'));
-                if (broadcasts.length > 0) {
-                    html += broadcasts.map(task => `
-                        <tr>
-                            <td>${task.command.replace(/^(broadcast|say) /, '')}</td>
-                            <td>${new Date(task.scheduledTime).toLocaleString()}</td>
-                            <td>${task.status || 'Pending'}</td>
-                            <td><button onclick="cancelCommand('${task.id}')" class="btn-danger action-btn">Cancel</button></td>
-                        </tr>
-                    `).join('');
-                }
-            }
-        } catch(e) { console.warn("Scheduler fetch failed", e); }
-
-        // 2. Fetch Recurring Messages (from Config)
         try {
             let data = await apiCall('/announcements');
-            if (data && !Array.isArray(data)) {
-                 if (Array.isArray(data.messages)) data = data.messages;
+            let list = [];
+
+            // Handle various API response formats
+            if (Array.isArray(data)) {
+                list = data;
+            } else if (data && data.messages && Array.isArray(data.messages)) {
+                // This handles the "Recurring Config" format { messages: [...] }
+                list = data.messages.map(msg => ({
+                    message: msg,
+                    status: 'Active (Recurring)',
+                    id: msg // Use content as ID for deletion if needed
+                }));
+            } else if (data && Array.isArray(data.data)) {
+                list = data.data;
             }
             
-            if (data && Array.isArray(data) && data.length > 0) {
-                html += data.map(msg => `
+            if (list.length > 0) {
+                tbody.innerHTML = list.map(ann => `
                     <tr>
-                        <td>${msg}</td>
-                        <td>Recurring (Interval)</td>
-                        <td>Active</td>
-                        <td><button class="btn-small" disabled title="Go to 'New Features' > 'Announcements' to edit">Config</button></td>
+                        <td>${ann.message || ann}</td>
+                        <td>${ann.scheduledTime ? new Date(ann.scheduledTime).toLocaleString() : 'Recurring Cycle'}</td>
+                        <td>${ann.status || 'Active'}</td>
+                        <td><button onclick="cancelAnnouncement('${ann.id || ann.message || ann}')" class="btn-danger action-btn">Remove</button></td>
                     </tr>
                 `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No announcements found.</td></tr>';
             }
-        } catch(e) { console.warn("Recurring fetch failed", e); }
+        } catch(e) { 
+            console.warn("Announcements fetch failed", e);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load announcements.</td></tr>';
+        }
+    };
 
-        if (html === '') {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No announcements found.</td></tr>';
-        } else {
-            tbody.innerHTML = html;
+    window.cancelAnnouncement = function(id) {
+         if(!confirm("Remove this announcement?")) return;
+         // Try DELETE method on the ID (or message content)
+         apiCall(`/announcements/${encodeURIComponent(id)}`, 'DELETE')
+            .then(() => loadAnnouncements())
+            .catch(e => alert("Failed: " + e.message));
+    };
+
+    // --- MISSING SAVE FUNCTION ---
+    // This was called by the HTML but missing in script
+    window.saveAnnouncements = async function() {
+        try {
+            const interval = document.getElementById('announce-interval').value;
+            const prefix = document.getElementById('announce-prefix').value;
+            const messagesRaw = document.getElementById('announce-messages').value;
+            const enabled = document.getElementById('announce-enabled').checked;
+
+            const messages = messagesRaw.split('\n').filter(line => line.trim() !== '');
+
+            await apiCall('/announcements', 'POST', {
+                intervalMinutes: parseInt(interval),
+                prefix: prefix,
+                messages: messages,
+                enabled: enabled
+            });
+            
+            alert("Announcement settings saved!");
+            document.getElementById('announce-status').textContent = "Settings saved successfully.";
+            loadAnnouncements(); // Refresh the list
+        } catch(e) {
+            alert("Error saving: " + e.message);
         }
     };
 
