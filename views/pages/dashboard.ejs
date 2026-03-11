@@ -2096,8 +2096,72 @@
         document.getElementById('ticket-modal').style.display = 'none'; 
     };
 
+    // --- SCHEDULER SYSTEM (Generic) ---
+    // Handles the Command Scheduler tab
+
+    window.loadScheduler = async function() {
+        const tbody = document.getElementById('scheduler-table');
+        if (!tbody) return;
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #aaa;">Loading...</td></tr>';
+        
+        try {
+            // Use generic endpoint
+            let data = await apiCall('/scheduler');
+            
+            // Unpack data if wrapped
+            let tasks = data;
+            if (data && data.tasks) tasks = data.tasks;
+            if (data && data.data) tasks = data.data;
+
+            if (Array.isArray(tasks) && tasks.length > 0) {
+                tbody.innerHTML = tasks.map(task => `
+                    <tr>
+                        <td><code>/${task.command}</code></td>
+                        <td>${new Date(task.scheduledTime).toLocaleString()}</td>
+                        <td>${task.status || 'Pending'}</td>
+                        <td><button onclick="cancelCommand('${task.id}')" class="btn-danger action-btn">Cancel</button></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled commands.</td></tr>';
+            }
+        } catch (e) {
+            console.error("Load Scheduler Error:", e);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load scheduler.</td></tr>';
+        }
+    };
+
+    window.scheduleCommand = async function() {
+        const cmdInput = document.getElementById('scheduler-cmd');
+        const timeInput = document.getElementById('scheduler-time');
+        if (!cmdInput.value || !timeInput.value) { alert("Enter command and time."); return; }
+        
+        try {
+            await apiCall('/scheduler', 'POST', {
+                command: cmdInput.value,
+                scheduledTime: new Date(timeInput.value).toISOString()
+            });
+            alert("Command scheduled!");
+            cmdInput.value = '';
+            timeInput.value = '';
+            loadScheduler();
+        } catch(e) {
+            alert("Error: " + e.message);
+        }
+    };
+
+    window.cancelCommand = async function(id) {
+        if(!confirm("Cancel this scheduled task?")) return;
+        try {
+            await apiCall(`/scheduler/${id}`, 'DELETE');
+            // Refresh both lists just in case
+            if(document.getElementById('scheduler').style.display === 'block') loadScheduler();
+            if(document.getElementById('announcements').style.display === 'block') loadAnnouncements();
+        } catch(e) { alert("Error cancelling: " + e.message); }
+    };
+
     // --- ANNOUNCEMENTS SYSTEM ---
-    // Handles scheduling, loading, and cancelling announcements
+    // Now uses the Scheduler for one-time announcements to ensure they work
 
     window.scheduleAnnouncement = async function() {
         const msgInput = document.getElementById('announce-msg');
@@ -2109,12 +2173,13 @@
         }
 
         try {
-            const response = await apiCall('/announcements', 'POST', {
-                message: msgInput.value,
+            // LOGIC FIX: We schedule a 'broadcast' command instead of hitting the recurring config
+            const cmd = `broadcast ${msgInput.value}`;
+            const response = await apiCall('/scheduler', 'POST', {
+                command: cmd,
                 scheduledTime: new Date(timeInput.value).toISOString()
             });
 
-            // Check for success: true OR just no error
             if (response && (response.success || !response.error)) {
                 alert("Announcement scheduled successfully!");
                 msgInput.value = '';
@@ -2134,56 +2199,66 @@
         if (!tbody) return;
         
         tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+        let html = '';
         
+        // 1. Fetch Scheduled Broadcasts (from Scheduler)
+        try {
+            let schedData = await apiCall('/scheduler');
+            let tasks = schedData;
+            if (schedData && schedData.tasks) tasks = schedData.tasks;
+            
+            if (Array.isArray(tasks)) {
+                const broadcasts = tasks.filter(t => t.command.startsWith('broadcast') || t.command.startsWith('say'));
+                if (broadcasts.length > 0) {
+                    html += broadcasts.map(task => `
+                        <tr>
+                            <td>${task.command.replace(/^(broadcast|say) /, '')}</td>
+                            <td>${new Date(task.scheduledTime).toLocaleString()}</td>
+                            <td>${task.status || 'Pending'}</td>
+                            <td><button onclick="cancelCommand('${task.id}')" class="btn-danger action-btn">Cancel</button></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        } catch(e) { console.warn("Scheduler fetch failed", e); }
+
+        // 2. Fetch Recurring Messages (from Config)
         try {
             let data = await apiCall('/announcements');
-            
-            // FIX: Parse the object structure you found in logs
             if (data && !Array.isArray(data)) {
-                if (Array.isArray(data.data)) data = data.data;
-                else if (Array.isArray(data.announcements)) data = data.announcements;
-                else if (Array.isArray(data.messages)) data = data.messages; // This matches your console output
-                else if (Array.isArray(data.list)) data = data.list;
+                 if (Array.isArray(data.messages)) data = data.messages;
             }
             
             if (data && Array.isArray(data) && data.length > 0) {
-                tbody.innerHTML = data.map(ann => {
-                    // Handle simple strings (recurring config) vs objects (scheduled)
-                    if (typeof ann === 'string') {
-                         return `<tr><td>${ann}</td><td>Recurring Config</td><td>Active</td><td><button class="btn-small" disabled>Config Only</button></td></tr>`;
-                    }
-                    return `
+                html += data.map(msg => `
                     <tr>
-                        <td>${ann.message || 'No message'}</td>
-                        <td>${ann.scheduledTime ? new Date(ann.scheduledTime).toLocaleString() : 'N/A'}</td>
-                        <td>${ann.status || 'Pending'}</td>
-                        <td><button onclick="cancelAnnouncement('${ann.id}')" class="btn-danger action-btn">Cancel</button></td>
-                    </tr>`;
-                }).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled announcements.</td></tr>';
+                        <td>${msg}</td>
+                        <td>Recurring (Interval)</td>
+                        <td>Active</td>
+                        <td><button class="btn-small" disabled title="Go to 'New Features' > 'Announcements' to edit">Config</button></td>
+                    </tr>
+                `).join('');
             }
-        } catch (e) {
-            console.error("Load Announcements Error:", e);
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load announcements.</td></tr>';
+        } catch(e) { console.warn("Recurring fetch failed", e); }
+
+        if (html === '') {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No announcements found.</td></tr>';
+        } else {
+            tbody.innerHTML = html;
         }
     };
 
-    window.cancelAnnouncement = async function(id) {
-        if (!confirm("Are you sure you want to cancel this announcement?")) return;
-        try {
-            await apiCall(`/announcements/${id}`, 'DELETE');
-            loadAnnouncements();
-        } catch (e) {
-            alert("Failed to cancel: " + e.message);
-        }
+    window.cancelAnnouncement = function(id) {
+         window.cancelCommand(id);
     };
 
     // Auto-load announcements when the tab is clicked
     document.addEventListener('click', function(e) {
         const target = e.target.closest('button');
-        if (target && target.getAttribute('onclick') && target.getAttribute('onclick').includes("switchTab('announcements'")) {
-            setTimeout(window.loadAnnouncements, 200);
+        if (target && target.getAttribute('onclick')) {
+             const onclick = target.getAttribute('onclick');
+             if (onclick.includes("switchTab('announcements'")) setTimeout(window.loadAnnouncements, 200);
+             if (onclick.includes("switchTab('scheduler'")) setTimeout(window.loadScheduler, 200);
         }
     });
 </script>
