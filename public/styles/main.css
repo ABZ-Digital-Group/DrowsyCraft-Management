@@ -1,6 +1,5 @@
-/* DrowsyCraft Management - SKY GLASS ULTIMATE
+/* DrowsyCraft Management - SKY GLASS ULTIMATE (V3 - Tab Fix)
     Primary Accent: #87CEEB
-    Features: Sticky Title, Left-Aligned Tables, Glassmorphism
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
@@ -41,18 +40,19 @@ body, html {
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--card-border) !important;
-    padding: 0 !important; /* Managed by title and navbar internal padding */
+    padding: 0 !important;
     height: 100vh;
     position: sticky;
     top: 0;
     display: flex;
     flex-direction: column;
+    z-index: 100;
 }
 
 .sidebar-title { 
     position: sticky !important;
     top: 0;
-    z-index: 100;
+    z-index: 110;
     background: var(--sidebar-bg) !important;
     padding: 2rem 1rem 1.5rem !important;
     color: var(--accent-sky) !important;
@@ -75,6 +75,21 @@ body, html {
     padding: 1.5rem 1.2rem !important;
 }
 
+/* --- TAB LOGIC (The fix for all pages showing) --- */
+.tab { 
+    display: none !important; /* Forces all tabs to hide by default */
+}
+
+.tab.active { 
+    display: block !important; /* Only shows the tab with the .active class */
+    animation: slideIn 0.4s ease-out; 
+}
+
+@keyframes slideIn { 
+    from { opacity: 0; transform: translateY(15px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
 /* --- NAVIGATION BUTTONS --- */
 .nav-group-btn {
     background: rgba(255, 255, 255, 0.05) !important;
@@ -85,6 +100,9 @@ body, html {
     margin-bottom: 8px !important;
     font-weight: 600 !important;
     cursor: pointer;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .nav-btn { 
@@ -97,6 +115,7 @@ body, html {
     width: 100%;
     text-align: left;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    cursor: pointer;
 }
 
 .nav-btn:hover, .nav-btn.active { 
@@ -114,43 +133,27 @@ table {
 }
 
 table th { 
-    text-align: left !important; /* Forces Left Alignment */
+    text-align: left !important; 
     padding: 15px !important; 
     color: var(--accent-sky) !important; 
     font-size: 0.75rem !important; 
     text-transform: uppercase; 
     letter-spacing: 1px;
-    background: transparent !important;
 }
 
 table td { 
-    text-align: left !important; /* Forces Left Alignment */
+    text-align: left !important; 
     padding: 15px !important; 
     border-top: 1px solid rgba(135, 206, 235, 0.1) !important;
     border-bottom: 1px solid rgba(135, 206, 235, 0.1) !important;
 }
 
 table tr { background: rgba(255, 255, 255, 0.02) !important; transition: 0.2s; }
-
 table td:first-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(135, 206, 235, 0.1) !important; }
 table td:last-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(135, 206, 235, 0.1) !important; }
 
-table tr:hover { background: rgba(135, 206, 235, 0.08) !important; transform: scale(1.005); }
-
-/* --- ACTION BUTTONS (In Table) --- */
-.action-btn, button[onclick*="kick"], button[onclick*="heal"] {
-    background: var(--accent-sky) !important;
-    color: #08080a !important; 
-    font-weight: 800 !important;
-    border-radius: 8px !important;
-    padding: 6px 15px !important;
-    font-size: 11px !important;
-    text-transform: uppercase;
-    transition: 0.2s !important;
-}
-
 /* --- CARDS & STATS --- */
-.content { padding: 3rem !important; }
+.content { padding: 3rem !important; overflow-y: auto; }
 
 .card { 
     background: var(--card-bg) !important;
@@ -162,7 +165,7 @@ table tr:hover { background: rgba(135, 206, 235, 0.08) !important; transform: sc
     margin-bottom: 1.5rem;
 }
 
-.stats { font-size: 2.8rem !important; font-weight: 800 !important; color: white !important; }
+.stats { font-size: 2.8rem !important; font-weight: 800; color: white !important; }
 .label { color: var(--accent-sky) !important; font-size: 0.75rem !important; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
 
 /* --- INPUTS --- */
