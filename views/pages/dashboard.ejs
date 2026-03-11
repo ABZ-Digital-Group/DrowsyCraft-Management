@@ -2120,7 +2120,7 @@
                 timeInput.value = '';
                 if (window.loadAnnouncements) window.loadAnnouncements();
             } else {
-                throw new Error(response.error || "Unknown server error");
+                throw new Error((response && response.error) || "Unknown server error");
             }
         } catch (e) {
             console.error("Schedule Error:", e);
