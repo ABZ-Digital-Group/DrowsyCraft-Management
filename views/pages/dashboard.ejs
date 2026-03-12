@@ -2086,16 +2086,6 @@
         window.openTicketModal = openTicketModal;
     });
 
-    // Stub functions for modal buttons so they don't error out
-    window.updateTicketFields = function() { alert('Ticket updated!'); };
-    window.addTicketResponse = function() { 
-        const text = document.getElementById('modal-response-text').value;
-        if(text) alert(`Response sent: ${text}`); 
-    };
-    window.resolveTicket = function() { 
-        document.getElementById('ticket-modal').style.display = 'none'; 
-    };
-
     // --- SCHEDULER SYSTEM (Generic) ---
     // Handles the Command Scheduler tab
 
@@ -2171,7 +2161,8 @@
     };
 
     // --- ANNOUNCEMENTS SYSTEM ---
-    // Reverted to standard Announcements API since Scheduler is missing
+    // ADAPTED FOR PLUGIN: Now manages the Recurring Auto-Broadcast list
+    // because the server does not support one-time scheduling.
 
     window.scheduleAnnouncement = async function() {
         const msgInput = document.getElementById('announce-msg');
@@ -2182,16 +2173,30 @@
             return;
         }
 
+        // Warn user that timing is ignored due to plugin limitations
+        if (timeInput.value) {
+            alert("⚠️ Note: Your server plugin does not support scheduled times.\nThis message will be added to the AUTO-BROADCAST list instead.");
+        }
+
         try {
-            // Use the standard /announcements endpoint which returned 200 OK before
-            const response = await apiCall('/announcements', 'POST', {
-                message: msgInput.value,
-                // If time is provided, send it, otherwise it might just be added to the queue
-                scheduledTime: timeInput.value ? new Date(timeInput.value).toISOString() : null
-            });
+            // 1. Fetch current config to avoid overwriting existing messages
+            let config = await apiCall('/announcements');
+            if (!config || typeof config !== 'object') config = {};
+            if (!Array.isArray(config.messages)) config.messages = [];
+            
+            // 2. Add the new message to the list
+            config.messages.push(msgInput.value);
+            
+            // Ensure defaults are present
+            if (!config.intervalMinutes) config.intervalMinutes = 5;
+            if (!config.prefix) config.prefix = '&6[&eAnnouncement&6]&r ';
+            if (config.enabled === undefined) config.enabled = true;
+
+            // 3. Save the full list back to the server
+            const response = await apiCall('/announcements', 'POST', config);
 
             if (response && (response.success || !response.error)) {
-                alert("Announcement scheduled successfully!");
+                alert("Message added to Auto-Broadcast list!");
                 msgInput.value = '';
                 timeInput.value = '';
                 loadAnnouncements();
@@ -2214,27 +2219,24 @@
             let data = await apiCall('/announcements');
             let list = [];
 
-            // Handle various API response formats
-            if (Array.isArray(data)) {
-                list = data;
-            } else if (data && data.messages && Array.isArray(data.messages)) {
-                // This handles the "Recurring Config" format { messages: [...] }
+            // Handle "Recurring Config" format { messages: [...] }
+            if (data && data.messages && Array.isArray(data.messages)) {
                 list = data.messages.map(msg => ({
                     message: msg,
-                    status: 'Active (Recurring)',
-                    id: msg // Use content as ID for deletion if needed
+                    status: data.enabled ? 'Active (Recurring)' : 'Disabled',
+                    interval: data.intervalMinutes
                 }));
-            } else if (data && Array.isArray(data.data)) {
-                list = data.data;
+            } else if (Array.isArray(data)) {
+                list = data.map(msg => ({ message: msg, status: 'Active', interval: 5 }));
             }
             
             if (list.length > 0) {
-                tbody.innerHTML = list.map(ann => `
+                tbody.innerHTML = list.map((ann, index) => `
                     <tr>
                         <td>${ann.message || ann}</td>
-                        <td>${ann.scheduledTime ? new Date(ann.scheduledTime).toLocaleString() : 'Recurring Cycle'}</td>
-                        <td>${ann.status || 'Active'}</td>
-                        <td><button onclick="cancelAnnouncement('${ann.id || ann.message || ann}')" class="btn-danger action-btn">Remove</button></td>
+                        <td>Every ${ann.interval || 5} mins</td>
+                        <td>${ann.status}</td>
+                        <td><button onclick="deleteAnnouncement(${index})" class="btn-danger action-btn">Remove</button></td>
                     </tr>
                 `).join('');
             } else {
@@ -2246,13 +2248,22 @@
         }
     };
 
-    window.cancelAnnouncement = function(id) {
+    // Replaces cancelAnnouncement with a list-modification function
+    window.deleteAnnouncement = async function(index) {
          if(!confirm("Remove this announcement?")) return;
-         // Try DELETE method on the ID (or message content)
-         apiCall(`/announcements/${encodeURIComponent(id)}`, 'DELETE')
-            .then(() => loadAnnouncements())
-            .catch(e => alert("Failed: " + e.message));
+         
+         try {
+             let config = await apiCall('/announcements');
+             if (config && config.messages && Array.isArray(config.messages)) {
+                 config.messages.splice(index, 1); // Remove item at index
+                 await apiCall('/announcements', 'POST', config); // Save new list
+                 loadAnnouncements();
+             }
+         } catch(e) {
+             alert("Failed to delete: " + e.message);
+         }
     };
+    window.cancelAnnouncement = window.deleteAnnouncement; // Alias
 
     // --- MISSING SAVE FUNCTION ---
     // This was called by the HTML but missing in script
