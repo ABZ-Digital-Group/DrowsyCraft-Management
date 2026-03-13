@@ -9,6 +9,7 @@ let userPermissions = new Set();
 let currentUserName = "WebAdmin";
 let punishmentsInterval = null;
 let chatRefreshInterval = null;
+let serverLogsInterval = null;
 
 async function loadUserDetails() {
     try {
@@ -75,8 +76,10 @@ function switchTab(name, button) {
     // Clear any running auto-refresh intervals from other tabs
     if (punishmentsInterval) clearInterval(punishmentsInterval);
     if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+    if (serverLogsInterval) clearInterval(serverLogsInterval);
     punishmentsInterval = null;
     chatRefreshInterval = null;
+    serverLogsInterval = null;
 
     // Hide all tabs
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -134,7 +137,10 @@ function switchTab(name, button) {
     if (name === 'player-analytics') loadPlayerAnalytics();
     if (name === 'leaderboards') loadLeaderboards();
     if (name === 'economy') loadEconomy();
-    if (name === 'serverlogs') loadServerLogs();
+    if (name === 'serverlogs') {
+        loadServerLogs();
+        serverLogsInterval = setInterval(loadServerLogs, 3000);
+    }
     if (name === 'appeals') loadAppeals();
     if (name === 'announcements') loadAnnouncements();
     if (name === 'backups') loadBackups();
@@ -2033,22 +2039,45 @@ function filterAuditLog() {
 }
 
 async function loadServerLogs() {
-    console.log('Loading server logs...');
-    // TODO: Fetch /api/logs and display in logs-viewer
-    document.getElementById('logs-viewer').innerHTML = '<span style="color: #969696;">Loading logs...</span>';
+    const data = await apiCall('/logs');
+    window.allServerLogs = data && data.logs ? data.logs : [];
+    renderLogs();
+}
+
+function renderLogs() {
+    const search = document.getElementById('logs-search').value.toLowerCase();
+    const level = document.getElementById('logs-level-filter').value;
+    
+    let filtered = window.allServerLogs || [];
+    if (level) filtered = filtered.filter(l => l.includes(`[${level}]`));
+    if (search) filtered = filtered.filter(l => l.toLowerCase().includes(search));
+    
+    const html = filtered.map(l => {
+        let color = '#ccc';
+        if (l.includes('[INFO]')) color = '#4ec9b0';
+        else if (l.includes('[WARNING]') || l.includes('[WARN]')) color = '#ff9800';
+        else if (l.includes('[SEVERE]') || l.includes('[ERROR]')) color = '#d32f2f';
+        return `<div style="color: ${color}; padding: 2px 0;">${l.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+    }).join('');
+    
+    const viewer = document.getElementById('logs-viewer');
+    const isScrolledToBottom = viewer.scrollHeight - viewer.clientHeight <= viewer.scrollTop + 50;
+    
+    viewer.innerHTML = html || '<div style="color: #999;">No logs to display</div>';
+    
+    if (isScrolledToBottom || viewer.scrollTop === 0) {
+        viewer.scrollTop = viewer.scrollHeight;
+    }
 }
 
 function filterLogs() {
-    const search = document.getElementById('logs-search').value.toLowerCase();
-    const level = document.getElementById('logs-level-filter').value;
-    const logs = document.getElementById('logs-viewer').innerText;
-    // TODO: Filter logs on client side
+    renderLogs();
 }
 
 function clearLogs() {
     if (confirm('Clear all server logs?')) {
-        console.log('Clearing logs...');
-        // TODO: POST /api/logs/clear
+        await apiCall('/logs/clear', 'POST');
+        loadServerLogs();
     }
 }
 
