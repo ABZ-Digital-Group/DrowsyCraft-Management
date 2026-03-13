@@ -786,8 +786,15 @@ async function executeBulkAction() {
     const action = document.getElementById('bulk-action').value;
     const reason = document.getElementById('bulk-reason').value;
     if (!players) return alert('Enter player list');
-    await apiCall('/bulk', 'POST', { players, action, reason: reason || 'Bulk action' });
-    alert('Bulk action executed!');
+    
+    const response = await apiCall('/bulk', 'POST', { players, action, reason: reason || 'Bulk action' });
+    if (response === 'OK' || (response && !response.error)) {
+        alert('Bulk action executed successfully!');
+        document.getElementById('bulk-players').value = '';
+        document.getElementById('bulk-reason').value = '';
+    } else {
+        alert('Failed to execute bulk action. Check server console.');
+    }
 }
 
 async function submitReport() {
