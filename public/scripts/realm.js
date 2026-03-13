@@ -2074,7 +2074,7 @@ function filterLogs() {
     renderLogs();
 }
 
-function clearLogs() {
+async function clearLogs() {
     if (confirm('Clear all server logs?')) {
         await apiCall('/logs/clear', 'POST');
         loadServerLogs();
