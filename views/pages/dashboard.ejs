@@ -515,6 +515,7 @@
                 <option value="kick">Kick All</option>
                 <option value="ban">Ban All</option>
                 <option value="warn">Warn All</option>
+                <option value="mute">Mute All</option>
             </select>
             <input type="text" id="bulk-reason" placeholder="Reason..." class="full-width">
             <button onclick="executeBulkAction()" class="full-width btn-danger">Execute Bulk Action</button>
@@ -1237,36 +1238,6 @@
                     </tr>
                 </thead>
                 <tbody id="economy-table"></tbody>
-            </table>
-        </div>
-
-        <!-- BULK ACTIONS -->
-        <div id="bulk" class="tab">
-            <h2>⚡ Bulk Actions</h2>
-            <h3>Perform Action on Multiple Players</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <select id="bulk-action-type">
-                    <option value="">Select Action</option>
-                    <option value="kick">Kick All</option>
-                    <option value="mute">Mute All</option>
-                    <option value="ban">Ban All (WITH REASON)</option>
-                </select>
-                <input type="text" placeholder="Reason (required for ban)" id="bulk-action-reason">
-                <input type="text" placeholder="Filter players (optional)" id="bulk-filter">
-                <button onclick="executeBulkAction()" class="btn-danger" style="grid-column: 1/-1;">⚡ Execute Bulk Action</button>
-            </div>
-            <h3>Bulk Action History</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Admin</th>
-                        <th>Action</th>
-                        <th>Affected Players</th>
-                        <th>Reason</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody id="bulk-actions-table"></tbody>
             </table>
         </div>
 

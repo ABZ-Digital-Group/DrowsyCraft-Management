@@ -134,7 +134,6 @@ function switchTab(name, button) {
     if (name === 'player-analytics') loadPlayerAnalytics();
     if (name === 'leaderboards') loadLeaderboards();
     if (name === 'economy') loadEconomy();
-    if (name === 'bulk') loadBulkActionsHistory();
     if (name === 'serverlogs') loadServerLogs();
     if (name === 'appeals') loadAppeals();
     if (name === 'announcements') loadAnnouncements();
@@ -2024,26 +2023,6 @@ function filterAuditLog() {
         const action = tr.cells[1].textContent.toLowerCase();
         tr.style.display = (admin.includes(adminFilter) && action.includes(actionFilter)) ? '' : 'none';
     });
-}
-
-async function executeBulkAction() {
-    const actionType = document.getElementById('bulk-action-type').value;
-    const reason = document.getElementById('bulk-action-reason').value;
-    if (!actionType) {
-        alert('Select an action');
-        return;
-    }
-    if (actionType === 'ban' && !reason) {
-        alert('Reason required for ban');
-        return;
-    }
-    console.log('Executing bulk', actionType, reason);
-    // TODO: POST /api/bulk-actions with {action, reason}
-}
-
-async function loadBulkActionsHistory() {
-    console.log('Loading bulk actions history...');
-    // TODO: Fetch /api/bulk-actions/history
 }
 
 async function loadServerLogs() {
