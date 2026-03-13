@@ -2224,19 +2224,56 @@ async function downloadBackup(name) {
 }
 
 async function loadScheduledCommands() {
-    console.log('Loading scheduled commands...');
-    // TODO: Fetch /api/scheduler
+    const tbody = document.getElementById('scheduler-table');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #aaa;">Loading...</td></tr>';
+    
+    try {
+        let data = await apiCall('/scheduler');
+        let tasks = data && data.tasks ? data.tasks : [];
+
+        if (Array.isArray(tasks) && tasks.length > 0) {
+            tbody.innerHTML = tasks.map(task => `
+                <tr>
+                    <td><code>/${task.command}</code></td>
+                    <td>${new Date(task.time).toLocaleString()}</td>
+                    <td>${task.sent ? '<span style="color:#4ec9b0">Sent</span>' : '<span style="color:#2196f3">Scheduled</span>'}</td>
+                    <td><button onclick="deleteScheduledCommand(${task.index})" class="btn-danger action-btn" style="padding:4px 8px;font-size:11px;">Delete</button></td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled commands.</td></tr>';
+        }
+    } catch (e) {
+        console.error("Load Scheduler Error:", e);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load scheduler.</td></tr>';
+    }
 }
 
 async function scheduleCommand() {
-    const cmd = document.getElementById('scheduler-cmd').value;
-    const time = document.getElementById('scheduler-time').value;
-    if (!cmd || !time) {
+    const cmdInput = document.getElementById('scheduler-cmd');
+    const timeInput = document.getElementById('scheduler-time');
+    if (!cmdInput.value || !timeInput.value) {
         alert('Please fill in all fields');
         return;
     }
-    console.log('Scheduling command', cmd, time);
-    // TODO: POST /api/scheduler/schedule
+    try {
+        const response = await apiCall('/scheduler', 'POST', { command: cmdInput.value, time: timeInput.value });
+        if (response && response.success) {
+            alert("Command scheduled!");
+            cmdInput.value = ''; timeInput.value = '';
+            loadScheduledCommands();
+        } else alert("Failed: " + (response && response.error ? response.error : 'Unknown server error'));
+    } catch(e) { alert("Error: " + e.message); }
+}
+
+async function deleteScheduledCommand(index) {
+    if(!confirm("Cancel this scheduled command?")) return;
+    try {
+        const response = await apiCall(`/scheduler/${index}`, 'DELETE');
+        if (response && response.success) loadScheduledCommands();
+        else alert("Failed to delete: " + (response && response.error ? response.error : 'Unknown error'));
+    } catch(e) { alert("Error cancelling: " + e.message); }
 }
 
 async function loadMaintenanceMode() {

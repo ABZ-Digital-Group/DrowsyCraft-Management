@@ -1857,7 +1857,7 @@
     </div>
 </div>
 
-<script src="/scripts/realm.js?v=22"></script>
+<script src="/scripts/realm.js?v=23"></script>
 <script>
     /**
      * MODERN REPUTATION MODAL LOGIC
@@ -2004,80 +2004,6 @@
         window.openTicketModal = openTicketModal;
     });
 
-    // --- SCHEDULER SYSTEM (Generic) ---
-    // Handles the Command Scheduler tab
-
-    window.loadScheduler = async function() {
-        const tbody = document.getElementById('scheduler-table');
-        if (!tbody) return;
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #aaa;">Loading...</td></tr>';
-        
-        try {
-            // Use generic endpoint
-            let data = await apiCall('/scheduler');
-
-            // Gracefully handle if Scheduler is missing (404)
-            if (!data) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">Scheduler not supported by server.</td></tr>';
-                return;
-            }
-            
-            // Unpack data if wrapped
-            let tasks = data;
-            if (data && data.tasks) tasks = data.tasks;
-            if (data && data.data) tasks = data.data;
-
-            if (Array.isArray(tasks) && tasks.length > 0) {
-                tbody.innerHTML = tasks.map(task => `
-                    <tr>
-                        <td><code>/${task.command}</code></td>
-                        <td>${new Date(task.scheduledTime).toLocaleString()}</td>
-                        <td>${task.status || 'Pending'}</td>
-                        <td><button onclick="cancelCommand('${task.id}')" class="btn-danger action-btn">Cancel</button></td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">No scheduled commands.</td></tr>';
-            }
-        } catch (e) {
-            if (e.message && e.message.includes('404')) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #888;">Scheduler feature not available.</td></tr>';
-            } else {
-                console.error("Load Scheduler Error:", e);
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load scheduler.</td></tr>';
-            }
-        }
-    };
-
-    window.scheduleCommand = async function() {
-        const cmdInput = document.getElementById('scheduler-cmd');
-        const timeInput = document.getElementById('scheduler-time');
-        if (!cmdInput.value || !timeInput.value) { alert("Enter command and time."); return; }
-        
-        try {
-            await apiCall('/scheduler', 'POST', {
-                command: cmdInput.value,
-                scheduledTime: new Date(timeInput.value).toISOString()
-            });
-            alert("Command scheduled!");
-            cmdInput.value = '';
-            timeInput.value = '';
-            loadScheduler();
-        } catch(e) {
-            alert("Error: " + e.message);
-        }
-    };
-
-    window.cancelCommand = async function(id) {
-        if(!confirm("Cancel this scheduled task?")) return;
-        try {
-            await apiCall(`/scheduler/${id}`, 'DELETE');
-            // Refresh both lists just in case
-            if(document.getElementById('scheduler').style.display === 'block') loadScheduler();
-            if(document.getElementById('announcements').style.display === 'block') loadAnnouncements();
-        } catch(e) { alert("Error cancelling: " + e.message); }
-    };
-
     // --- ANNOUNCEMENTS SYSTEM ---
     // Handles scheduling one-time announcements using the backend scheduler
 
@@ -2184,7 +2110,7 @@
     };
 
     window.cancelAnnouncement = function(id) {
-         window.cancelCommand(id);
+         window.deleteScheduledAnnouncement(id);
     };
 
     // Auto-load announcements when the tab is clicked
@@ -2193,7 +2119,7 @@
         if (target && target.getAttribute('onclick')) {
              const onclick = target.getAttribute('onclick');
              if (onclick.includes("switchTab('announcements'")) setTimeout(window.loadAnnouncements, 200);
-             if (onclick.includes("switchTab('scheduler'")) setTimeout(window.loadScheduler, 200);
+             if (onclick.includes("switchTab('scheduler'")) setTimeout(window.loadScheduledCommands, 200);
         }
     });
 </script>
