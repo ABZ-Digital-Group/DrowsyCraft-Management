@@ -2158,7 +2158,8 @@ async function loadBackups() {
                     <td>${sizeMB}</td>
                     <td><span style="color:#4ec9b0">Complete</span></td>
                     <td>
-                        <button class="btn-danger action-btn" onclick="deleteBackup('${b.name}')">Delete</button>
+                        <button class="btn-success action-btn" style="padding:4px 8px;font-size:11px;" onclick="downloadBackup('${b.name}')">Download</button>
+                        <button class="btn-danger action-btn" style="padding:4px 8px;font-size:11px;" onclick="deleteBackup('${b.name}')">Delete</button>
                     </td>
                 </tr>`;
             }).join('');
@@ -2191,6 +2192,34 @@ async function deleteBackup(name) {
         } else {
             alert('Failed to delete backup.');
         }
+    }
+}
+
+async function downloadBackup(name) {
+    try {
+        const url = `${API_URL}/backups/download/${encodeURIComponent(name)}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+        });
+        
+        if (!response.ok) {
+            alert('Failed to download backup.');
+            return;
+        }
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
+    } catch (e) {
+        console.error('Download error:', e);
+        alert('Error downloading backup.');
     }
 }
 
