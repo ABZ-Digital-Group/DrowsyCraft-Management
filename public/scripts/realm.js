@@ -2006,29 +2006,6 @@ async function loadWarnings() {
     }
 }
 
-async function issueWarning() {
-    const player = document.getElementById('warn-player').value;
-    const reason = document.getElementById('warn-reason').value;
-    if (!player || !reason) {
-        alert('Please fill in all fields');
-        return;
-    }
-    try {
-            const response = await apiCall('/actions/warn', 'POST', { player, reason });
-            if (response === 'OK' || (response && response.status)) {
-            document.getElementById('warn-player').value = '';
-            document.getElementById('warn-reason').value = '';
-            await loadWarnings();
-            alert('Warning issued!');
-            } else {
-                alert('Failed to issue warning: ' + (response.error || 'Unknown error'));
-        }
-    } catch (e) {
-        console.error('Error issuing warning:', e);
-        alert('Failed to issue warning');
-    }
-}
-
 async function loadAuditLog() {
     try {
         const adminFilter = document.getElementById('audit-admin-filter') ? document.getElementById('audit-admin-filter').value : '';
