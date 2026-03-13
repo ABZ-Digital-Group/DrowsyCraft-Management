@@ -2143,14 +2143,54 @@ async function deleteScheduledAnnouncement(index) {
 }
 
 async function loadBackups() {
-    console.log('Loading backups...');
-    // TODO: Fetch /api/backups
+    const tbody = document.getElementById('backups-table');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading backups...</td></tr>';
+    
+    try {
+        const backups = await apiCall('/backups');
+        if (backups && backups.length > 0) {
+            tbody.innerHTML = backups.map(b => {
+                const date = new Date(b.date).toLocaleString();
+                const sizeMB = (b.size / (1024 * 1024)).toFixed(2) + ' MB';
+                return `<tr>
+                    <td>${b.name}<br><small style="color:#969696">${date}</small></td>
+                    <td>${sizeMB}</td>
+                    <td><span style="color:#4ec9b0">Complete</span></td>
+                    <td>
+                        <button class="btn-danger action-btn" onclick="deleteBackup('${b.name}')">Delete</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#969696;">No backups found.</td></tr>';
+        }
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#d32f2f;">Failed to load backups.</td></tr>';
+    }
 }
 
 async function createBackup() {
-    if (confirm('Create full server backup?')) {
-        console.log('Creating backup...');
-        // TODO: POST /api/backups/create
+    if (confirm('Create a full world backup? This may take a minute and cause temporary lag on the server.')) {
+        document.getElementById('backups-status').innerHTML = '<span style="color: #ff9800;">⏳ Backup started... please check back in a few moments.</span>';
+        const res = await apiCall('/backups/create', 'POST');
+        if (res && res.success) {
+            document.getElementById('backups-status').innerHTML = '<span style="color: #4ec9b0;">✅ Backup process initiated!</span>';
+            setTimeout(loadBackups, 5000);
+        } else {
+            document.getElementById('backups-status').innerHTML = '<span style="color: #d32f2f;">❌ Failed to initiate backup.</span>';
+        }
+    }
+}
+
+async function deleteBackup(name) {
+    if (confirm(`Are you sure you want to delete backup: ${name}?`)) {
+        const res = await apiCall(`/backups/${name}`, 'DELETE');
+        if (res && res.success) {
+            loadBackups();
+        } else {
+            alert('Failed to delete backup.');
+        }
     }
 }
 
