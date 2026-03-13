@@ -134,7 +134,6 @@ function switchTab(name, button) {
     if (name === 'player-analytics') loadPlayerAnalytics();
     if (name === 'leaderboards') loadLeaderboards();
     if (name === 'economy') loadEconomy();
-    if (name === 'warnings') loadWarnings();
     if (name === 'bulk') loadBulkActionsHistory();
     if (name === 'serverlogs') loadServerLogs();
     if (name === 'appeals') loadAppeals();
@@ -1985,25 +1984,6 @@ async function loadLeaderboards() {
 async function loadEconomy() {
     console.log('Loading economy...');
     // TODO: Fetch economy data and populate economy-table
-}
-
-async function loadWarnings() {
-    try {
-        const response = await apiCall('/warnings');
-        const warnings = response && response.warnings ? response.warnings : [];
-        const html = warnings.length ? warnings.map(w => `
-            <tr>
-                    <td>${w.player || 'Unknown'}</td>
-                <td>${w.warningNumber || 'N/A'}</td>
-                <td>${w.reason}</td>
-                <td>${w.issuedBy}</td>
-                <td>${w.date ? new Date(w.date).toLocaleDateString() : 'Unknown'}</td>
-            </tr>
-            `).join('') : '<tr><td colspan="5">No warnings found</td></tr>';
-        document.getElementById('warnings-table').innerHTML = html;
-    } catch (e) {
-        console.error('Error loading warnings:', e);
-    }
 }
 
 async function loadAuditLog() {
