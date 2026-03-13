@@ -2176,7 +2176,7 @@
             // Use the one-time schedule endpoint
             const response = await apiCall('/announcements/schedule', 'POST', {
                 message: msgInput.value,
-                time: new Date(timeInput.value).toISOString()
+                time: timeInput.value
             });
 
             if (response && (response.success || !response.error)) {
