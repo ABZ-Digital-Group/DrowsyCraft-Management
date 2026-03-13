@@ -1993,12 +1993,13 @@ async function loadWarnings() {
         const warnings = response && response.warnings ? response.warnings : [];
         const html = warnings.length ? warnings.map(w => `
             <tr>
+                    <td>${w.player || 'Unknown'}</td>
                 <td>${w.warningNumber || 'N/A'}</td>
                 <td>${w.reason}</td>
                 <td>${w.issuedBy}</td>
                 <td>${w.date ? new Date(w.date).toLocaleDateString() : 'Unknown'}</td>
             </tr>
-        `).join('') : '<tr><td colspan="4">No warnings</td></tr>';
+            `).join('') : '<tr><td colspan="5">No warnings found</td></tr>';
         document.getElementById('warnings-table').innerHTML = html;
     } catch (e) {
         console.error('Error loading warnings:', e);
@@ -2013,12 +2014,14 @@ async function issueWarning() {
         return;
     }
     try {
-        const response = await apiCall('/warnings', 'POST', { player, reason, issuedBy: currentUserName });
-        if (response && response.status) {
+            const response = await apiCall('/actions/warn', 'POST', { player, reason });
+            if (response === 'OK' || (response && response.status)) {
             document.getElementById('warn-player').value = '';
             document.getElementById('warn-reason').value = '';
             await loadWarnings();
             alert('Warning issued!');
+            } else {
+                alert('Failed to issue warning: ' + (response.error || 'Unknown error'));
         }
     } catch (e) {
         console.error('Error issuing warning:', e);
