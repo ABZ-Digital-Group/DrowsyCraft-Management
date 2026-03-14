@@ -1362,7 +1362,7 @@ async function loadPermissions() {
                 </div>
                 <div style="margin-bottom:10px;">
                     <strong style="font-size:13px;">Permissions</strong>
-                    <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:2px;"></div>
+                    <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:2px;">${permsList}</div>
                     <div style="margin-top:8px;display:flex;gap:8px;">
                         <input type="text" placeholder="permission.node" id="add-perm-${g.name}" style="flex:1;padding:6px;font-size:12px;">
                         <button onclick="addGroupPermission('${g.name}')" class="btn-success" style="font-size:11px;padding:4px 10px;">+ Add</button>
@@ -1370,7 +1370,7 @@ async function loadPermissions() {
                 </div>
                 <div>
                     <strong style="font-size:13px;">Members</strong>
-                    <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:2px;"></div>
+                    <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:2px;">${membersList}</div>
                     <div style="margin-top:8px;display:flex;gap:8px;">
                         <input type="text" placeholder="Player name..." id="add-member-${g.name}" style="flex:1;padding:6px;font-size:12px;">
                         <button onclick="addGroupMember('${g.name}')" class="btn-success" style="font-size:11px;padding:4px 10px;">+ Add</button>
@@ -1386,19 +1386,20 @@ async function loadPermissions() {
     } catch (e) { console.error('Failed to load groups:', e); }
 }
 
-async function createGroup() {
-    const name = document.getElementById('group-name')?.value;
-    if (!name) return alert('Enter group name');
-    await apiCall('/groups/create', 'POST', { name });
-    document.getElementById('group-name').value = '';
-    loadPermissions();
-}
-
 async function assignPlayerToGroup() {
-    const player = document.getElementById('player-group-assign')?.value;
-    const group = document.getElementById('group-select')?.value;
+    const playerInput = document.getElementById('player-group-assign');
+    const groupSelect = document.getElementById('group-select');
+    const player = playerInput?.value;
+    const group = groupSelect?.value;
     if (!player || !group) return alert('Select player and group');
-    await apiCall('/groups/members/add', 'POST', { name: group, player });
+    
+    const res = await apiCall('/groups/members/add', 'POST', { name: group, player });
+    if (res && res.success) {
+        playerInput.value = '';
+        groupSelect.value = '';
+    } else {
+        alert('Failed to assign player: ' + (res?.error || 'Unknown error'));
+    }
     loadPermissions();
 }
 
