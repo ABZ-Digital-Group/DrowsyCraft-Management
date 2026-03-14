@@ -1630,12 +1630,12 @@ async function loadKits() {
             <td><strong>${kit.name}</strong>${kit.description ? '<br><small style="color:#969696">' + kit.description + '</small>' : ''}</td>
             <td><code>${kit.icon}</code></td>
             <td>${kit.cost > 0 ? kit.cost + ' XP' : '<span style="color:#4ec9b0">Free</span>'}</td>
-            <td></td>
+            <td>${cooldownStr}</td>
             <td>${kit.permission || '<span style="color:#969696">None</span>'}</td>
             <td>${kit.items.length} items</td>
             <td>
-                <button onclick="editKit('${kit.name}')" class="btn-small" style="padding:5px 10px;font-size:11px;">Edit</button>
-                <button onclick="deleteKit('${kit.name}')" class="btn-danger" style="padding:5px 10px;font-size:11px;background:#d32f2f;">Delete</button>
+                <button onclick="editKit('${kit.name.replace(/'/g, "\\'")}')" class="btn-small" style="padding:5px 10px;font-size:11px;">Edit</button>
+                <button onclick="deleteKit('${kit.name.replace(/'/g, "\\'")}')" class="btn-danger" style="padding:5px 10px;font-size:11px;background:#d32f2f;">Delete</button>
             </td>
         </tr>`;
     }
