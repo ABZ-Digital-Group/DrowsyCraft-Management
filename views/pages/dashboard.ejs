@@ -1376,8 +1376,15 @@
                     </div>
                 </div>
                 <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <input type="datetime-local" id="maintenance-end" placeholder="End time">
-                    <button onclick="setMaintenance()" class="btn-warning" style="grid-column: 1/-1;">🔧 Apply Maintenance Mode</button>
+                    <div>
+                        <label>Schedule Start (optional)</label>
+                        <input type="datetime-local" id="maintenance-start" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label>Schedule End (optional)</label>
+                        <input type="datetime-local" id="maintenance-end" style="width: 100%;">
+                    </div>
+                    <button onclick="setMaintenance()" class="btn-warning" style="grid-column: 1/-1;">🔧 Apply / Schedule Maintenance</button>
                 </div>
             </div>
             <h3>Whitelist Exempt Players</h3>
@@ -1857,7 +1864,7 @@
     </div>
 </div>
 
-<script src="/scripts/realm.js?v=23"></script>
+<script src="/scripts/realm.js?v=24"></script>
 <script>
     /**
      * MODERN REPUTATION MODAL LOGIC

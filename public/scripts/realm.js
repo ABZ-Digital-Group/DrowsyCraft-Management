@@ -2281,6 +2281,7 @@ async function loadMaintenanceMode() {
     if (!data) return;
     document.getElementById('maintenance-status').value = data.enabled ? 'on' : 'off';
     document.getElementById('maintenance-msg').value = data.message || '';
+    document.getElementById('maintenance-start').value = data.startTime || '';
     document.getElementById('maintenance-end').value = data.endTime || '';
     const whitelist = data.whitelist || [];
     document.getElementById('maintenance-whitelist-table').innerHTML = whitelist.length > 0
@@ -2291,16 +2292,21 @@ async function loadMaintenanceMode() {
 async function setMaintenance() {
     const status = document.getElementById('maintenance-status').value;
     const msg = document.getElementById('maintenance-msg').value;
+    const startTime = document.getElementById('maintenance-start').value;
     const endTime = document.getElementById('maintenance-end').value;
     try {
         const url = `${API_URL}/maintenance/set`;
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${AUTH_TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status, message: msg, endTime })
+            body: JSON.stringify({ status, message: msg, startTime, endTime })
         });
         if (response.ok) {
-            alert('Maintenance mode ' + (status === 'on' ? 'enabled' : 'disabled') + '!');
+            if (startTime) {
+                alert('Maintenance mode scheduled successfully!');
+            } else {
+                alert('Maintenance mode ' + (status === 'on' ? 'enabled' : 'disabled') + '!');
+            }
             loadMaintenanceMode();
         }
     } catch (e) { console.error('Error setting maintenance:', e); }
