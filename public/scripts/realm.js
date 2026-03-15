@@ -3316,7 +3316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== DAILY LOGIN REWARDS ==========
 async function loadDailyLogin() {
-    const data = await apiCall('/api/daily-login');
+    const data = await apiCall('/daily-login');
     document.getElementById('daily-login-enabled').checked = data.enabled;
     document.getElementById('daily-login-base-xp').value = data.baseXp || 10;
     document.getElementById('daily-login-streak-bonus').value = data.streakBonus || 2;
@@ -3327,7 +3327,7 @@ async function loadDailyLogin() {
     });
 }
 async function saveDailyLogin() {
-    await apiCall('/api/daily-login', 'POST', {
+    await apiCall('/daily-login', 'POST', {
         enabled: document.getElementById('daily-login-enabled').checked,
         baseXp: parseInt(document.getElementById('daily-login-base-xp').value),
         streakBonus: parseInt(document.getElementById('daily-login-streak-bonus').value)
@@ -3337,7 +3337,7 @@ async function saveDailyLogin() {
 
 // ========== AUCTION HOUSE ==========
 async function loadAuctions() {
-    const data = await apiCall('/api/auctions');
+    const data = await apiCall('/auctions');
     const tbody = document.getElementById('auction-table');
     tbody.innerHTML = '';
     (data || []).forEach(a => {
@@ -3346,7 +3346,7 @@ async function loadAuctions() {
     });
 }
 async function createAuction() {
-    await apiCall('/api/auctions', 'POST', {
+    await apiCall('/auctions', 'POST', {
         item: document.getElementById('auction-item').value,
         amount: parseInt(document.getElementById('auction-amount').value),
         startBid: parseInt(document.getElementById('auction-start-bid').value),
@@ -3357,13 +3357,13 @@ async function createAuction() {
     loadAuctions();
 }
 async function deleteAuction(id) {
-    await apiCall('/api/auctions/' + id, 'DELETE');
+    await apiCall('/auctions/' + id, 'DELETE');
     loadAuctions();
 }
 
 // ========== NICKNAMES ==========
 async function loadNicknames() {
-    const data = await apiCall('/api/nicknames');
+    const data = await apiCall('/nicknames');
     const tbody = document.getElementById('nick-table');
     tbody.innerHTML = '';
     (data || []).forEach(n => {
@@ -3371,7 +3371,7 @@ async function loadNicknames() {
     });
 }
 async function setNickname() {
-    await apiCall('/api/nicknames', 'POST', {
+    await apiCall('/nicknames', 'POST', {
         player: document.getElementById('nick-player').value,
         nick: document.getElementById('nick-value').value
     });
@@ -3379,7 +3379,7 @@ async function setNickname() {
     loadNicknames();
 }
 async function clearNickname() {
-    await apiCall('/api/nicknames', 'POST', {
+    await apiCall('/nicknames', 'POST', {
         player: document.getElementById('nick-player').value,
         nick: ''
     });
@@ -3389,7 +3389,7 @@ async function clearNickname() {
 
 // ========== CHAT TAGS ==========
 async function loadChatTags() {
-    const data = await apiCall('/api/chat-tags');
+    const data = await apiCall('/chat-tags');
     const tbody = document.getElementById('tag-table');
     tbody.innerHTML = '';
     (data.tags || []).forEach(t => {
@@ -3402,16 +3402,16 @@ async function loadChatTags() {
     });
 }
 async function addAvailableTag() {
-    await apiCall('/api/chat-tags', 'POST', { action: 'add_available', tag: document.getElementById('tag-new').value });
+    await apiCall('/chat-tags', 'POST', { action: 'add_available', tag: document.getElementById('tag-new').value });
     document.getElementById('tag-new').value = '';
     loadChatTags();
 }
 async function removeAvailableTag(tag) {
-    await apiCall('/api/chat-tags', 'POST', { action: 'remove_available', tag });
+    await apiCall('/chat-tags', 'POST', { action: 'remove_available', tag });
     loadChatTags();
 }
 async function setPlayerTag() {
-    await apiCall('/api/chat-tags', 'POST', {
+    await apiCall('/chat-tags', 'POST', {
         action: 'set',
         player: document.getElementById('tag-player').value,
         tag: document.getElementById('tag-value').value
@@ -3420,7 +3420,7 @@ async function setPlayerTag() {
     loadChatTags();
 }
 async function clearPlayerTag() {
-    await apiCall('/api/chat-tags', 'POST', {
+    await apiCall('/chat-tags', 'POST', {
         action: 'set',
         player: document.getElementById('tag-player').value,
         tag: ''
@@ -3431,18 +3431,18 @@ async function clearPlayerTag() {
 
 // ========== SERVER RULES ==========
 async function loadServerRules() {
-    const data = await apiCall('/api/rules');
+    const data = await apiCall('/rules');
     document.getElementById('rules-textarea').value = (data.rules || []).join('\n');
 }
 async function saveRules() {
     const rules = document.getElementById('rules-textarea').value.split('\n').filter(r => r.trim());
-    await apiCall('/api/rules', 'POST', { rules });
+    await apiCall('/rules', 'POST', { rules });
     document.getElementById('rules-status').textContent = 'Rules saved!';
 }
 
 // ========== PLAYER WARPS ==========
 async function loadPlayerWarps() {
-    const data = await apiCall('/api/player-warps');
+    const data = await apiCall('/player-warps');
     document.getElementById('pwarp-cost').value = data.cost || 5;
     document.getElementById('pwarp-max').value = data.max || 3;
     const tbody = document.getElementById('pwarp-table');
@@ -3452,20 +3452,20 @@ async function loadPlayerWarps() {
     });
 }
 async function savePwarpSettings() {
-    await apiCall('/api/player-warps/settings', 'POST', {
+    await apiCall('/player-warps/settings', 'POST', {
         cost: parseInt(document.getElementById('pwarp-cost').value),
         max: parseInt(document.getElementById('pwarp-max').value)
     });
     document.getElementById('pwarp-status').textContent = 'Settings saved!';
 }
 async function deletePwarp(id) {
-    await apiCall('/api/player-warps/' + id, 'DELETE');
+    await apiCall('/player-warps/' + id, 'DELETE');
     loadPlayerWarps();
 }
 
 // ========== CUSTOM RECIPES ==========
 async function loadCustomRecipes() {
-    const data = await apiCall('/api/custom-recipes');
+    const data = await apiCall('/custom-recipes');
     const tbody = document.getElementById('recipe-table');
     tbody.innerHTML = '';
     (data || []).forEach(r => {
@@ -3474,7 +3474,7 @@ async function loadCustomRecipes() {
 }
 async function createRecipe() {
     const ingredients = document.getElementById('recipe-ingredients').value.split(',').map(s => s.trim()).filter(s => s);
-    await apiCall('/api/custom-recipes', 'POST', {
+    await apiCall('/custom-recipes', 'POST', {
         name: document.getElementById('recipe-name').value,
         result: document.getElementById('recipe-result').value,
         resultAmount: parseInt(document.getElementById('recipe-amount').value),
@@ -3484,13 +3484,13 @@ async function createRecipe() {
     loadCustomRecipes();
 }
 async function deleteRecipe(id) {
-    await apiCall('/api/custom-recipes/' + id, 'DELETE');
+    await apiCall('/custom-recipes/' + id, 'DELETE');
     loadCustomRecipes();
 }
 
 // ========== PVP STATS ==========
 async function loadPvpStats() {
-    const data = await apiCall('/api/pvp-stats');
+    const data = await apiCall('/pvp-stats');
     const tbody = document.getElementById('pvp-table');
     tbody.innerHTML = '';
     (data || []).forEach((s, i) => {
@@ -3501,7 +3501,7 @@ async function loadPvpStats() {
 
 // ========== ACHIEVEMENTS ==========
 async function loadAchievements() {
-    const data = await apiCall('/api/achievements');
+    const data = await apiCall('/achievements');
     const defTbody = document.getElementById('ach-def-table');
     defTbody.innerHTML = '';
     (data.definitions || []).forEach(a => {
@@ -3514,7 +3514,7 @@ async function loadAchievements() {
     });
 }
 async function createAchievement() {
-    await apiCall('/api/achievements', 'POST', {
+    await apiCall('/achievements', 'POST', {
         id: document.getElementById('ach-id').value,
         name: document.getElementById('ach-name').value,
         description: document.getElementById('ach-desc').value,
@@ -3525,13 +3525,13 @@ async function createAchievement() {
     loadAchievements();
 }
 async function deleteAchievement(id) {
-    await apiCall('/api/achievements/' + id, 'DELETE');
+    await apiCall('/achievements/' + id, 'DELETE');
     loadAchievements();
 }
 
 // ========== DUELS ==========
 async function loadDuels() {
-    const data = await apiCall('/api/duels');
+    const data = await apiCall('/duels');
     const tbody = document.getElementById('duel-table');
     tbody.innerHTML = '';
     (data.active || []).forEach(d => {
@@ -3546,7 +3546,7 @@ async function loadDuels() {
 
 // ========== WELCOME SETTINGS ==========
 async function loadWelcomeSettings() {
-    const data = await apiCall('/api/welcome');
+    const data = await apiCall('/welcome');
     document.getElementById('welcome-msg').value = data.message || '';
     document.getElementById('welcome-broadcast').checked = data.broadcast !== false;
     document.getElementById('welcome-items').value = (data.starterItems || []).join('\n');
@@ -3558,7 +3558,7 @@ async function loadWelcomeSettings() {
 }
 async function saveWelcome() {
     const items = document.getElementById('welcome-items').value.split('\n').filter(s => s.trim());
-    await apiCall('/api/welcome', 'POST', {
+    await apiCall('/welcome', 'POST', {
         message: document.getElementById('welcome-msg').value,
         broadcast: document.getElementById('welcome-broadcast').checked,
         starterItems: items
@@ -3568,7 +3568,7 @@ async function saveWelcome() {
 
 // ========== INACTIVE ALERTS ==========
 async function loadInactiveAlerts() {
-    const data = await apiCall('/api/inactive-players');
+    const data = await apiCall('/inactive-players');
     document.getElementById('inactive-days').value = data.thresholdDays || 14;
     const tbody = document.getElementById('inactive-table');
     tbody.innerHTML = '';
@@ -3577,7 +3577,7 @@ async function loadInactiveAlerts() {
     });
 }
 async function saveInactiveSettings() {
-    await apiCall('/api/inactive-players/settings', 'POST', {
+    await apiCall('/inactive-players/settings', 'POST', {
         thresholdDays: parseInt(document.getElementById('inactive-days').value)
     });
     document.getElementById('inactive-status').textContent = 'Settings saved!';
