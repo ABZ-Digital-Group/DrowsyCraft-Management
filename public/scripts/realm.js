@@ -3056,7 +3056,7 @@ async function loadQuests() {
                 <td>${q.name}</td><td>${(q.type||'').replace(/_/g,' ')}</td><td>${q.goal}</td>
                 <td>${q.reward} XP${q.reward_kit ? ' + Kit: '+q.reward_kit : ''}</td>
                 <td style="color:${q.active?'#4ec9b0':'#d32f2f'}">${q.active?'Active':'Inactive'}</td>
-                <td><button class="action-btn" onclick="editQuest('')">✏️</button> <button class="action-btn" style="background:#d32f2f;" onclick="deleteQuest('')">🗑️</button></td>
+                <td><button class="action-btn" onclick="editQuest('${id}')">✏️</button> <button class="action-btn" style="background:#d32f2f;" onclick="deleteQuest('${id}')">🗑️</button></td>
             </tr>`;
         }
     }
@@ -3124,7 +3124,7 @@ async function loadApplications() {
             const statusColor = a.status === 'approved' ? '#4ec9b0' : a.status === 'denied' ? '#d32f2f' : '#d7ba7d';
             tbody.innerHTML += `<tr>
                 <td>${a.player}</td><td style="max-width:300px;word-break:break-word;">${a.message}</td><td>${a.date}</td>
-                <td style="color:;">${a.status}</td>
+                <td style="color:${statusColor};">${a.status}</td>
                 <td>
                     ${a.status === 'pending' ? `<button class="action-btn" style="background:#388e3c;" onclick="reviewApp('${a.id}','approved')">✅ Approve</button> 
                     <button class="action-btn" style="background:#d32f2f;" onclick="reviewApp('${a.id}','denied')">❌ Deny</button>` : ''}
@@ -3162,16 +3162,16 @@ async function loadPolls() {
                 const pct = totalVotes > 0 ? Math.round(count / totalVotes * 100) : 0;
                 optionsHtml += `<div style="margin:4px 0;"><span style="color:#d4d4d4;">${i+1}. </span> 
                     <div style="background:#333;border-radius:3px;margin-top:2px;overflow:hidden;">
-                        <div style="background:#0e639c;height:20px;width:%;min-width:${count>0?'20px':'0'};border-radius:3px;text-align:right;padding-right:5px;color:#fff;font-size:11px;line-height:20px;"> (%)</div>
+                        <div style="background:#0e639c;height:20px;width:${pct}%;min-width:${count>0?'20px':'0'};border-radius:3px;text-align:right;padding-right:5px;color:#fff;font-size:11px;line-height:20px;">${pct}% (${count})</div>
                     </div></span></div>`;
             });
             container.innerHTML += `<div class="card" style="margin-bottom:10px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <h4 style="color:${poll.active?'#4ec9b0':'#969696'};">${poll.active?'🟢':'⚫'} ${poll.question}</h4>
-                    <div><span style="color:#969696;font-size:11px;">ID:  |  votes</span>
-                    <button class="action-btn" style="background:#d32f2f;margin-left:8px;" onclick="deletePoll('')">🗑️</button></div>
+                    <div><span style="color:#969696;font-size:11px;">ID: ${id} | ${totalVotes} votes</span>
+                    <button class="action-btn" style="background:#d32f2f;margin-left:8px;" onclick="deletePoll('${id}')">🗑️</button></div>
                 </div>
-                
+                ${optionsHtml}
             </div>`;
         }
     }
