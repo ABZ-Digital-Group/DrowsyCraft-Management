@@ -1087,15 +1087,30 @@
             <h2>🤖 Auto-Moderation</h2>
             <div class="card">
                 <h3>⚙️ Settings</h3>
+                <div style="margin-bottom:15px; padding-bottom: 10px; border-bottom: 1px solid #3e3e42;">
+                    <label><input type="checkbox" id="automod-enabled"> <strong>Enable Auto-Moderation (Master Switch)</strong></label>
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                    <div><label>Spam Cooldown (seconds):</label><input type="number" id="automod-spam-cooldown" value="2" min="0"></div>
-                    <div><label>Caps Threshold (%):</label><input type="number" id="automod-caps-threshold" value="70" min="0" max="100"></div>
-                    <div><label>Violations to Auto-Mute:</label><input type="number" id="automod-violation-threshold" value="3" min="1"></div>
+                    <div>
+                        <label><input type="checkbox" id="automod-antispam-enabled"> Enable Spam Filter</label><br><br>
+                        <label>Message Cooldown (sec):</label><input type="number" id="automod-spam-cooldown" value="2" min="0" style="width: 100px;"><br>
+                        <label>Messages to warn:</label><input type="number" id="automod-spam-threshold" value="4" min="2" style="width: 100px;">
+                    </div>
+                    <div>
+                        <label><input type="checkbox" id="automod-caps-enabled"> Enable Caps Filter</label><br><br>
+                        <label>Caps Threshold (%):</label><input type="number" id="automod-caps-threshold" value="70" min="0" max="100" style="width: 100px;">
+                    </div>
                 </div>
                 <button class="action-btn" onclick="saveAutomod()">💾 Save Settings</button>
             </div>
             <div class="card">
                 <h3>🚫 Word Filter</h3>
+                <div style="margin-bottom:10px;">
+                    <label><input type="checkbox" id="automod-filter-enabled"> Enable Word Filter</label>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label>Violations to Auto-Mute:</label><input type="number" id="automod-violation-threshold" value="3" min="1" style="width:100px;">
+                </div>
                 <div style="margin-bottom:10px;">
                     <label>Filtered Words (one per line):</label>
                     <textarea id="automod-filter-words" rows="6" placeholder="badword1&#10;badword2&#10;phrase to filter" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;font-family:monospace;"></textarea>
@@ -1864,7 +1879,7 @@
     </div>
 </div>
 
-<script src="/scripts/realm.js?v=27"></script>
+<script src="/scripts/realm.js?v=28"></script>
 <script>
     /**
      * MODERN REPUTATION MODAL LOGIC

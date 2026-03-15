@@ -3197,7 +3197,13 @@ async function deletePoll(id) {
 async function loadAutomod() {
     const data = await apiCall('/automod');
     if (data) {
+        document.getElementById('automod-enabled').checked = data.enabled || false;
+        document.getElementById('automod-filter-enabled').checked = data.filter_enabled || false;
+        document.getElementById('automod-antispam-enabled').checked = data.antispam_enabled || false;
+        document.getElementById('automod-caps-enabled').checked = data.caps_filter || false;
+        
         document.getElementById('automod-spam-cooldown').value = data.spam_cooldown || 2;
+        document.getElementById('automod-spam-threshold').value = data.spam_threshold || 4;
         document.getElementById('automod-caps-threshold').value = data.caps_threshold || 70;
         document.getElementById('automod-violation-threshold').value = data.violation_mute_threshold || 3;
         document.getElementById('automod-filter-words').value = (data.filter_words || []).join('\n');
@@ -3206,8 +3212,13 @@ async function loadAutomod() {
 async function saveAutomod() {
     const filterWords = document.getElementById('automod-filter-words').value.split('\n').map(w => w.trim()).filter(w => w);
     await apiCall('/automod', 'POST', {
+        enabled: document.getElementById('automod-enabled').checked,
+        filter_enabled: document.getElementById('automod-filter-enabled').checked,
+        antispam_enabled: document.getElementById('automod-antispam-enabled').checked,
+        caps_filter: document.getElementById('automod-caps-enabled').checked,
         filter_words: filterWords,
         spam_cooldown: parseInt(document.getElementById('automod-spam-cooldown').value) || 2,
+        spam_threshold: parseInt(document.getElementById('automod-spam-threshold').value) || 4,
         caps_threshold: parseInt(document.getElementById('automod-caps-threshold').value) || 70,
         violation_mute_threshold: parseInt(document.getElementById('automod-violation-threshold').value) || 3
     });
