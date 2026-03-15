@@ -3201,6 +3201,7 @@ async function loadAutomod() {
         document.getElementById('automod-filter-enabled').checked = data.filter_enabled || false;
         document.getElementById('automod-antispam-enabled').checked = data.antispam_enabled || false;
         document.getElementById('automod-caps-enabled').checked = data.caps_filter || false;
+        document.getElementById('automod-bypass-admins').checked = data.bypass_admins !== false;
         
         document.getElementById('automod-spam-cooldown').value = data.spam_cooldown || 2;
         document.getElementById('automod-spam-threshold').value = data.spam_threshold || 4;
@@ -3216,6 +3217,7 @@ async function saveAutomod() {
         filter_enabled: document.getElementById('automod-filter-enabled').checked,
         antispam_enabled: document.getElementById('automod-antispam-enabled').checked,
         caps_filter: document.getElementById('automod-caps-enabled').checked,
+        bypass_admins: document.getElementById('automod-bypass-admins').checked,
         filter_words: filterWords,
         spam_cooldown: parseInt(document.getElementById('automod-spam-cooldown').value) || 2,
         spam_threshold: parseInt(document.getElementById('automod-spam-threshold').value) || 4,
