@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // TARGET: The Minecraft Server's API URL.
 // If hosting on Hostinger, you MUST set MINECRAFT_API_URL to your Oracle Public IP.
 // Example: 'http://123.45.67.89:8091'
-let MINECRAFT_SERVER_URL = process.env.MINECRAFT_API_URL || 'http://123.100.227.205'; 
+let MINECRAFT_SERVER_URL = process.env.MINECRAFT_API_URL || 'http://123.100.227.205:8091'; 
 
 // Ensure protocol is present to prevent proxy errors
 if (!MINECRAFT_SERVER_URL.startsWith('http')) {
