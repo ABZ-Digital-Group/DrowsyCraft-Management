@@ -15,6 +15,17 @@ if (!MINECRAFT_SERVER_URL.startsWith('http')) {
     MINECRAFT_SERVER_URL = `http://${MINECRAFT_SERVER_URL}`;
 }
 
+// Auto-append the default API port if it was omitted from the environment variable
+try {
+    const targetUrl = new URL(MINECRAFT_SERVER_URL);
+    if (!targetUrl.port) {
+        targetUrl.port = '8091';
+        MINECRAFT_SERVER_URL = targetUrl.origin;
+    }
+} catch (error) {
+    console.error("⚠️ Invalid MINECRAFT_API_URL provided:", error.message);
+}
+
 // --- VIEW ENGINE ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
