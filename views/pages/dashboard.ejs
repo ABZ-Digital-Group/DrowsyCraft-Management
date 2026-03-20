@@ -256,6 +256,14 @@
                 </div>
             </div>
 
+            <!-- Settings / Notifications -->
+            <div class="nav-group">
+                <button class="nav-group-btn expanded" onclick="toggleNavGroup(this)">⚙️ App Settings</button>
+                <div class="nav-group-items">
+                    <button class="nav-btn" onclick="requestPushPermissions()" id="btn-notifications">🔔 Enable Alerts</button>
+                </div>
+            </div>
+
             <button class="nav-btn nav-btn-logout" id="logout-btn" onclick="logout()">🚪 Logout</button>
         </div>
     </div>
@@ -2267,10 +2275,49 @@
         }
     });
     
+    // --- NATIVE PWA NOTIFICATIONS ---
+    window.requestPushPermissions = function() {
+        if (!("Notification" in window)) {
+            alert("This browser does not support native notifications.");
+            return;
+        }
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                alert("Notifications enabled! You will now receive alerts for important events.");
+                updateNotificationBtnState();
+                // Send a test notification
+                sendNotification("DrowsyCraft Alerts", "Notifications are successfully configured!");
+            } else {
+                alert("Notification permission denied.");
+            }
+        });
+    };
+
+    window.sendNotification = function(title, body) {
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(title, {
+                body: body,
+                icon: "/icons/icon-192x192.png",
+                badge: "/icons/icon-192x192.png"
+            });
+        }
+    };
+
+    function updateNotificationBtnState() {
+        if ("Notification" in window && Notification.permission === "granted") {
+            const btn = document.getElementById('btn-notifications');
+            if (btn) {
+                btn.textContent = "🔔 Alerts Enabled";
+                btn.style.color = "#10b981"; // Success green
+            }
+        }
+    }
+
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg failed:', err));
+            updateNotificationBtnState();
         });
     }
 </script>
