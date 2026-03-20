@@ -277,21 +277,21 @@
         <div id="tickets" class="tab">
             <h2>🎫 Tickets</h2>
             <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <select id="ticket-status-filter" style="padding: 6px 10px;">
+            <select id="ticket-status-filter">
                     <option value="">All Status</option>
                     <option value="open">Open</option>
                     <option value="in_progress">In Progress</option>
                     <option value="resolved">Resolved</option>
                     <option value="closed">Closed</option>
                 </select>
-                <select id="ticket-priority-filter" style="padding: 6px 10px;">
+            <select id="ticket-priority-filter">
                     <option value="">All Priority</option>
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
                     <option value="critical">Critical</option>
                 </select>
-                <button onclick="loadTickets()" style="padding: 6px 12px; background: #2196F3;">Apply Filters</button>
+            <button onclick="loadTickets()" class="btn-info" style="padding: 6px 12px;">Apply Filters</button>
             </div>
             <table>
                 <tr><th>ID</th><th>Player</th><th>Priority</th><th>Category</th><th>Status</th><th>Assignee</th><th>Message</th><th>Created</th><th>Action</th></tr>
@@ -301,12 +301,12 @@
 
         <!-- TICKET DETAIL MODAL -->
         <div id="ticket-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto;">
-            <div style="background: #222; margin: 40px auto; padding: 20px; width: 90%; max-width: 700px; border-radius: 8px; color: #ccc;">
+            <div style="background: var(--card-bg); border: 1px solid var(--card-border); margin: 40px auto; padding: 20px; width: 90%; max-width: 700px; border-radius: 12px; color: var(--text-main); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
                 <h2 id="modal-ticket-id">Ticket #0</h2>
                 <div style="margin-bottom: 15px;">
                     <p><strong>Player:</strong> <span id="modal-player">N/A</span></p>
                     <p><strong>Status:</strong> 
-                        <select id="modal-status" style="padding: 4px; margin-left: 10px;">
+                        <select id="modal-status" style="margin-left: 10px; display: inline-block; width: auto;">
                             <option value="open">Open</option>
                             <option value="in_progress">In Progress</option>
                             <option value="resolved">Resolved</option>
@@ -314,7 +314,7 @@
                         </select>
                     </p>
                     <p><strong>Priority:</strong>
-                        <select id="modal-priority" style="padding: 4px; margin-left: 10px;">
+                        <select id="modal-priority" style="margin-left: 10px; display: inline-block; width: auto;">
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
                             <option value="high">High</option>
@@ -322,7 +322,7 @@
                         </select>
                     </p>
                     <p><strong>Category:</strong>
-                        <select id="modal-category" style="padding: 4px; margin-left: 10px;">
+                        <select id="modal-category" style="margin-left: 10px; display: inline-block; width: auto;">
                             <option value="bug">Bug</option>
                             <option value="griefing">Griefing</option>
                             <option value="chat">Chat Abuse</option>
@@ -331,26 +331,26 @@
                             <option value="other">Other</option>
                         </select>
                     </p>
-                    <p><strong>Assignee:</strong> <input type="text" id="modal-assignee" style="padding: 4px; margin-left: 10px; width: 200px;"></p>
+                    <p><strong>Assignee:</strong> <input type="text" id="modal-assignee" style="margin-left: 10px; width: 200px; display: inline-block;"></p>
                     <p id="modal-location-row" style="display: none;"><strong>Location:</strong> <span id="modal-location">N/A</span></p>
                 </div>
-                <div style="background: #1a1a1a; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <p><strong>Message:</strong></p>
                     <p id="modal-message" style="margin: 5px 0;">N/A</p>
                 </div>
-                <div style="background: #1a1a1a; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <p><strong>Responses:</strong></p>
                     <div id="modal-responses" style="max-height: 200px; overflow-y: auto;"></div>
                 </div>
                 <div style="margin-bottom: 15px;">
                     <p><strong>Add Response:</strong></p>
-                    <input type="text" id="modal-admin-name" placeholder="Your name" style="width: 200px; padding: 8px; margin-bottom: 8px; background: #1a1a1a; border: 1px solid #444; color: #ccc;">
-                    <input type="text" id="modal-response-text" placeholder="Your response..." style="width: 100%; padding: 8px; margin-bottom: 8px; background: #1a1a1a; border: 1px solid #444; color: #ccc;">
-                    <button onclick="addTicketResponse()" style="padding: 6px 12px; background: #4CAF50;">Add Response</button>
+                    <input type="text" id="modal-admin-name" placeholder="Your name" style="width: 200px; margin-bottom: 8px;">
+                    <input type="text" id="modal-response-text" placeholder="Your response..." style="width: 100%; margin-bottom: 8px;">
+                    <button onclick="addTicketResponse()" class="btn-success" style="padding: 6px 12px;">Add Response</button>
                 </div>
                 <div style="margin-bottom: 15px;">
                     <p><strong>Resolution Reason:</strong></p>
-                    <select id="modal-resolution-reason" style="padding: 6px 10px; width: 200px;">
+                    <select id="modal-resolution-reason" style="width: 200px; display: inline-block;">
                         <option value="">Not Resolved</option>
                         <option value="fixed">Fixed</option>
                         <option value="false_report">False Report</option>
@@ -358,11 +358,11 @@
                         <option value="spam">Spam</option>
                         <option value="other">Other</option>
                     </select>
-                    <button onclick="resolveTicket()" style="padding: 6px 12px; margin-left: 10px; background: #F44336;">Resolve & Close</button>
+                    <button onclick="resolveTicket()" class="btn-danger" style="padding: 6px 12px; margin-left: 10px;">Resolve & Close</button>
                 </div>
                 <div>
-                    <button onclick="updateTicketFields()" style="padding: 6px 12px; background: #2196F3;">Save Changes</button>
-                    <button onclick="document.getElementById('ticket-modal').style.display = 'none';" style="padding: 6px 12px; background: #666; margin-left: 10px;">Close</button>
+                    <button onclick="updateTicketFields()" class="btn-info" style="padding: 6px 12px;">Save Changes</button>
+                    <button onclick="document.getElementById('ticket-modal').style.display = 'none';" class="btn-secondary" style="padding: 6px 12px; margin-left: 10px;">Close</button>
                 </div>
             </div>
         </div>
@@ -376,7 +376,7 @@
                 <h3 style="color: #8b5cf6; margin-bottom: 10px;">Add New Note</h3>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <input type="text" id="note-player" placeholder="Player name..." list="players-datalist" style="flex: 1; min-width: 150px;">
-                    <select id="note-category" style="width: 140px; background: #2d2d30; color: #e0e0e0; border: 1px solid #3e3e42; border-radius: 4px; padding: 8px;">
+                    <select id="note-category" style="width: 140px;">
                         <option value="info">ℹ️ Info</option>
                         <option value="warning">⚠️ Warning</option>
                         <option value="important">❗ Important</option>
@@ -400,16 +400,16 @@
 
         <!-- NOTE DETAIL MODAL -->
         <div id="note-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto;">
-            <div style="background: #222; margin: 40px auto; padding: 20px; width: 90%; max-width: 700px; border-radius: 8px; color: #ccc;">
+            <div style="background: var(--card-bg); border: 1px solid var(--card-border); margin: 40px auto; padding: 20px; width: 90%; max-width: 700px; border-radius: 12px; color: var(--text-main); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
                 <h2>📝 Note for <span id="modal-note-player">Player</span></h2>
-                <div style="background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <p><strong>Note Content:</strong></p>
-                    <textarea id="modal-note-text" style="width: 100%; height: 120px; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: #ccc; border-radius: 4px; font-family: monospace;"></textarea>
+                    <textarea id="modal-note-text" style="width: 100%; height: 120px; font-family: monospace;"></textarea>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="saveNoteEdit()" style="padding: 8px 16px; background: #4CAF50;">Save Changes</button>
-                    <button onclick="deleteNoteFromModal()" style="padding: 8px 16px; background: #F44336;">Delete Note</button>
-                    <button onclick="document.getElementById('note-modal').style.display = 'none';" style="padding: 8px 16px; background: #666; margin-left: auto;">Close</button>
+                    <button onclick="saveNoteEdit()" class="btn-success" style="padding: 8px 16px;">Save Changes</button>
+                    <button onclick="deleteNoteFromModal()" class="btn-danger" style="padding: 8px 16px;">Delete Note</button>
+                    <button onclick="document.getElementById('note-modal').style.display = 'none';" class="btn-secondary" style="padding: 8px 16px; margin-left: auto;">Close</button>
                 </div>
             </div>
         </div>
@@ -426,7 +426,7 @@
         <!-- CHAT -->
         <div id="chat" class="tab">
             <h2>💬 Chat Monitor</h2>
-            <div id="chat-display" style="background: #2d2d30; padding: 15px; border-radius: 4px; height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
+            <div id="chat-display" style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
             <button onclick="refreshChat()" class="full-width">Refresh Chat</button>
         </div>
 
@@ -436,31 +436,31 @@
         <div id="moderation" class="tab">
             <h2>⚖️ Moderation</h2>
             <div class="grid">
-                <div class="card" style="border-left: 4px solid #d32f2f;">
-                    <h3 style="color: #f44336; margin-bottom: 15px;">🚫 Ban Player</h3>
+                <div class="card" style="border-left: 4px solid #ef4444;">
+                    <h3 style="color: #ef4444; margin-bottom: 15px;">🚫 Ban Player</h3>
                     <input type="text" id="mod-ban-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
                     <textarea id="mod-ban-reason" placeholder="Ban reason..." rows="4" style="width: 100%; margin-top: 10px;"></textarea>
-                    <button onclick="banPlayer()" class="full-width btn-danger" style="margin-top: 10px; font-weight: bold;">BAN PLAYER</button>
+                    <button onclick="banPlayer()" class="full-width btn-danger" style="margin-top: 10px;">BAN PLAYER</button>
                 </div>
-                <div class="card" style="border-left: 4px solid #ff9800;">
-                    <h3 style="color: #ffb74d; margin-bottom: 15px;">⚠️ Warn Player</h3>
+                <div class="card" style="border-left: 4px solid #f59e0b;">
+                    <h3 style="color: #f59e0b; margin-bottom: 15px;">⚠️ Warn Player</h3>
                     <input type="text" id="mod-warn-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
                     <textarea id="mod-warn-reason" placeholder="Warning reason..." rows="4" style="width: 100%; margin-top: 10px;"></textarea>
-                    <button onclick="warnPlayer()" class="full-width" style="margin-top: 10px; background: #ff9800; font-weight: bold;">WARN PLAYER</button>
+                    <button onclick="warnPlayer()" class="full-width btn-warning" style="margin-top: 10px;">WARN PLAYER</button>
                 </div>
-                <div class="card" style="border-left: 4px solid #ff6b6b;">
-                    <h3 style="color: #ff7979; margin-bottom: 15px;">⏰ Punish 1 Hour</h3>
+                <div class="card" style="border-left: 4px solid #f43f5e;">
+                    <h3 style="color: #f43f5e; margin-bottom: 15px;">⏰ Punish 1 Hour</h3>
                     <input type="text" id="mod-punish1h-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
                     <input type="text" id="mod-punish1h-reason" placeholder="Reason..." style="width: 100%; margin-top: 5px;">
                     <p style="color: #969696; font-size: 12px; margin: 10px 0; font-style: italic;">Lock player in place for 1 hour</p>
-                    <button onclick="punishPlayer(60, 'mod-punish1h-player', 'mod-punish1h-reason')" class="full-width" style="margin-top: 5px; background: #d32f2f; font-weight: bold;">PUNISH 1H</button>
+                    <button onclick="punishPlayer(60, 'mod-punish1h-player', 'mod-punish1h-reason')" class="full-width btn-danger" style="margin-top: 5px;">PUNISH 1H</button>
                 </div>
-                <div class="card" style="border-left: 4px solid #e91e63;">
-                    <h3 style="color: #f06292; margin-bottom: 15px;">⏰ Punish 3 Hours</h3>
+                <div class="card" style="border-left: 4px solid #be123c;">
+                    <h3 style="color: #fb7185; margin-bottom: 15px;">⏰ Punish 3 Hours</h3>
                     <input type="text" id="mod-punish3h-player" placeholder="Player name..." list="players-datalist" style="width: 100%;">
                     <input type="text" id="mod-punish3h-reason" placeholder="Reason..." style="width: 100%; margin-top: 5px;">
                     <p style="color: #969696; font-size: 12px; margin: 10px 0; font-style: italic;">Lock player in place for 3 hours</p>
-                    <button onclick="punishPlayer(180, 'mod-punish3h-player', 'mod-punish3h-reason')" class="full-width" style="margin-top: 5px; background: #c2185b; font-weight: bold;">PUNISH 3H</button>
+                    <button onclick="punishPlayer(180, 'mod-punish3h-player', 'mod-punish3h-reason')" class="full-width btn-danger" style="margin-top: 5px;">PUNISH 3H</button>
                 </div>
             </div>
             <h3 style="margin-top: 40px; color: #8b5cf6; border-bottom: 2px solid #8b5cf6; padding-bottom: 10px;">🚷 Banned Players</h3>
@@ -603,7 +603,7 @@
             <h2>⌨️ Console Commands</h2>
             <input type="text" id="console-cmd" placeholder="Enter command..." class="full-width">
             <button onclick="executeCommand()" class="full-width">Execute</button>
-            <div id="console-output" style="background: #2d2d30; padding: 15px; margin-top: 20px; border-radius: 4px; font-family: monospace; height: 300px; overflow-y: auto;"></div>
+            <div id="console-output" style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; margin-top: 20px; border-radius: 8px; font-family: monospace; height: 300px; overflow-y: auto;"></div>
         </div>
 
         <!-- PERFORMANCE -->
@@ -628,7 +628,7 @@
                 </div>
             </div>
             <h3 style="margin-top: 30px; color: #8b5cf6;">Player Join History</h3>
-            <div id="join-history" style="background: #2d2d30; padding: 15px; border-radius: 4px; height: 300px; overflow-y: auto;"></div>
+            <div id="join-history" style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; height: 300px; overflow-y: auto;"></div>
         </div>
 
         <!-- BLOCK LOG -->
@@ -773,7 +773,7 @@
                 <input type="text" id="webhook-report" placeholder="Reports webhook URL" style="width: 100%; margin-top: 5px;" title="Optional: Separate webhook for reports">
                 
                 <button onclick="saveDiscordSettings()" class="full-width btn-success" style="margin-top: 15px;">💾 Save Settings</button>
-                <button onclick="testDiscordWebhook()" class="full-width" style="margin-top: 10px; background: #2196F3;">🧪 Test Webhook</button>
+                <button onclick="testDiscordWebhook()" class="full-width btn-info" style="margin-top: 10px;">🧪 Test Webhook</button>
             </div>
 
             <div class="card" style="margin-top: 20px;">
@@ -815,38 +815,38 @@
             <div class="card" style="margin-top: 20px;">
                 <h3>📈 Webhook Statistics</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Webhooks Sent</div>
                         <div style="font-size: 20px; color: #8b5cf6;" id="stat-webhooks-sent">0</div>
                     </div>
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Webhooks Failed</div>
-                        <div style="font-size: 20px; color: #d32f2f;" id="stat-webhooks-failed">0</div>
+                        <div style="font-size: 20px; color: #ef4444;" id="stat-webhooks-failed">0</div>
                     </div>
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Today's Joins</div>
                         <div style="font-size: 20px; color: #8b5cf6;" id="stat-joins-today">0</div>
                     </div>
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Today's Leaves</div>
-                        <div style="font-size: 20px; color: #888;" id="stat-leaves-today">0</div>
+                        <div style="font-size: 20px; color: #94a3b8;" id="stat-leaves-today">0</div>
                     </div>
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Today's Bans</div>
-                        <div style="font-size: 20px; color: #d32f2f;" id="stat-bans-today">0</div>
+                        <div style="font-size: 20px; color: #ef4444;" id="stat-bans-today">0</div>
                     </div>
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Today's Warns</div>
-                        <div style="font-size: 20px; color: #ff9800;" id="stat-warns-today">0</div>
+                        <div style="font-size: 20px; color: #f59e0b;" id="stat-warns-today">0</div>
                     </div>
-                    <div style="background: #2d2d30; padding: 10px; border-radius: 4px;">
+                    <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #969696;">Today's Reports</div>
-                        <div style="font-size: 20px; color: #2196F3;" id="stat-reports-today">0</div>
+                        <div style="font-size: 20px; color: #3b82f6;" id="stat-reports-today">0</div>
                     </div>
                 </div>
             </div>
 
-            <div id="discord-status" style="margin-top: 20px; padding: 10px; background: #2d2d30; border-radius: 4px; color: #969696;"></div>
+            <div id="discord-status" style="margin-top: 20px; padding: 10px; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 8px; color: #969696;"></div>
         </div>
 
         <!-- RANKS SYSTEM -->
@@ -929,7 +929,7 @@
                 <tbody id="player-ranks-list"></tbody>
             </table>
 
-            <div id="ranks-status" style="margin-top: 20px; padding: 10px; background: #2d2d30; border-radius: 4px; color: #969696;"></div>
+            <div id="ranks-status" style="margin-top: 20px; padding: 10px; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 8px; color: #969696;"></div>
         </div>
 
         <!-- KITS SYSTEM -->
@@ -991,7 +991,7 @@
                 <tbody id="kits-list"></tbody>
             </table>
 
-            <div id="kits-status" style="margin-top: 20px; padding: 10px; background: #2d2d30; border-radius: 4px; color: #969696;"></div>
+            <div id="kits-status" style="margin-top: 20px; padding: 10px; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 8px; color: #969696;"></div>
         </div>
 
         <!-- CRATES SYSTEM -->
@@ -1007,7 +1007,7 @@
                 </div>
                 <div>
                     <label>Rewards (one per line, format: MATERIAL:amount:weight):</label>
-                    <textarea id="crate-rewards" rows="5" placeholder="DIAMOND:1:50&#10;IRON_INGOT:16:100&#10;NETHERITE_INGOT:1:10" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;font-family:monospace;"></textarea>
+                    <textarea id="crate-rewards" rows="5" placeholder="DIAMOND:1:50&#10;IRON_INGOT:16:100&#10;NETHERITE_INGOT:1:10" style="width:100%;font-family:monospace;"></textarea>
                 </div>
                 <button class="action-btn" onclick="saveCrate()">💾 Save Crate</button>
             </div>
@@ -1048,7 +1048,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div><label>Quest Name:</label><input type="text" id="quest-name" placeholder="e.g., Miner's Challenge"></div>
                     <div><label>Type:</label>
-                        <select id="quest-type" style="width:100%;padding:6px;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;">
+                        <select id="quest-type" style="width:100%;">
                             <option value="break_blocks">Break Blocks</option>
                             <option value="kill_mobs">Kill Mobs</option>
                             <option value="mine_diamond_ore">Mine Diamond Ore</option>
@@ -1081,7 +1081,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div><label>Player Name:</label><input type="text" id="enchant-player" placeholder="Player name"></div>
                     <div><label>Enchantment:</label>
-                        <select id="enchant-name" style="width:100%;padding:6px;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;">
+                        <select id="enchant-name" style="width:100%;">
                             <option value="Timber">Timber - Chops entire tree</option>
                             <option value="Vein Miner">Vein Miner - Mines connected ores</option>
                             <option value="Smelting Touch">Smelting Touch - Auto-smelt ores</option>
@@ -1120,7 +1120,7 @@
                 </div>
                 <div style="margin-bottom:10px;">
                     <label>Options (one per line):</label>
-                    <textarea id="poll-options" rows="4" placeholder="Skyblock&#10;Prison&#10;Factions" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;"></textarea>
+                    <textarea id="poll-options" rows="4" placeholder="Skyblock&#10;Prison&#10;Factions" style="width:100%;"></textarea>
                 </div>
                 <label><input type="checkbox" id="poll-active" checked> Active</label>
                 <button class="action-btn" onclick="savePoll()" style="margin-left:10px;">💾 Create Poll</button>
@@ -1163,7 +1163,7 @@
                 </div>
                 <div style="margin-bottom:10px;">
                     <label>Filtered Words (one per line):</label>
-                    <textarea id="automod-filter-words" rows="6" placeholder="badword1&#10;badword2&#10;phrase to filter" style="width:100%;background:#1e1e1e;color:#d4d4d4;border:1px solid #3e3e42;padding:8px;font-family:monospace;"></textarea>
+                    <textarea id="automod-filter-words" rows="6" placeholder="badword1&#10;badword2&#10;phrase to filter" style="width:100%;font-family:monospace;"></textarea>
                 </div>
                 <button class="action-btn" onclick="saveAutomod()">💾 Save Filter</button>
             </div>
@@ -1319,7 +1319,7 @@
                 </select>
                 <button onclick="clearLogs()" class="btn-danger">Clear Logs</button>
             </div>
-            <div style="background: #1a1a1a; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; height: 500px; overflow-y: auto; font-family: monospace; font-size: 11px;" id="logs-viewer"></div>
+            <div style="background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 8px; padding: 15px; height: 500px; overflow-y: auto; font-family: monospace; font-size: 11px;" id="logs-viewer"></div>
         </div>
 
         <!-- PLAYER APPEALS -->
@@ -1612,18 +1612,18 @@
                     <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('christmas')">Enable Event</button>
                 </div>
                 <div class="card" style="cursor: pointer;">
-                    <h4 style="color: #ff9800;">🎃 Halloween</h4>
+                    <h4 style="color: #f59e0b;">🎃 Halloween</h4>
                     <p style="font-size: 12px; color: #999;">Dark sky, spiders, and creepy effects</p>
                     <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('halloween')">Enable Event</button>
                     <button class="btn-warning" style="width: 100%; margin-top: 5px;" onclick="event.stopPropagation(); forceHalloweenTime()">Force Midnight</button>
                 </div>
                 <div class="card" style="cursor: pointer;">
-                    <h4 style="color: #9c27b0;">🎆 New Year</h4>
+                    <h4 style="color: #a855f7;">🎆 New Year</h4>
                     <p style="font-size: 12px; color: #999;">Fireworks and confetti particles</p>
                     <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('newyear')">Enable Event</button>
                 </div>
                 <div class="card" style="cursor: pointer;">
-                    <h4 style="color: #f44336;">❤️ Valentine's Day</h4>
+                    <h4 style="color: #ef4444;">❤️ Valentine's Day</h4>
                     <p style="font-size: 12px; color: #999;">Floating hearts and romantic particles</p>
                     <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('valentine')">Enable Event</button>
                 </div>
@@ -1633,7 +1633,7 @@
                     <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('spring')">Enable Event</button>
                 </div>
                 <div class="card" style="cursor: pointer;">
-                    <h4 style="color: #ffc107;">☀️ Summer</h4>
+                    <h4 style="color: #eab308;">☀️ Summer</h4>
                     <p style="font-size: 12px; color: #999;">Bright sun, heat waves, and particles</p>
                     <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="event.stopPropagation(); startEvent('summer')">Enable Event</button>
                 </div>
@@ -1715,7 +1715,7 @@
                     <div><label>Nickname (& color codes):</label><input type="text" id="nick-value" placeholder="&amp;b&amp;lCoolNick"></div>
                 </div>
                 <button class="action-btn" onclick="setNickname()">Set Nickname</button>
-                <button class="action-btn" onclick="clearNickname()" style="background:#e74c3c;">Clear Nickname</button>
+                <button class="action-btn btn-danger" onclick="clearNickname()">Clear Nickname</button>
                 <div id="nick-status" style="margin-top:8px;color:#969696;"></div>
             </div>
             <div class="card" style="margin-top:15px;">
@@ -1741,7 +1741,7 @@
                     <div><label>Tag:</label><input type="text" id="tag-value" placeholder="&amp;6[&amp;eVIP&amp;6]"></div>
                 </div>
                 <button class="action-btn" onclick="setPlayerTag()">Set Tag</button>
-                <button class="action-btn" onclick="clearPlayerTag()" style="background:#e74c3c;">Clear Tag</button>
+                <button class="action-btn btn-danger" onclick="clearPlayerTag()">Clear Tag</button>
                 <div id="tag-status" style="margin-top:8px;color:#969696;"></div>
             </div>
             <div class="card" style="margin-top:15px;">
@@ -1964,12 +1964,12 @@
 
             // Dynamically set the color of the status text
             const statusEl = document.getElementById('modal-rep-status');
-            statusEl.style.color = data.score > 80 ? '#00b894' : (data.score > 50 ? '#ff9800' : '#ff7675');
+            statusEl.style.color = data.score > 80 ? '#10b981' : (data.score > 50 ? '#f59e0b' : '#ef4444');
         } catch (error) {
             console.error('Failed to load reputation details:', error);
             // Show error in modal instead of alert
             document.getElementById('modal-rep-status').textContent = 'Data Unavailable';
-            document.getElementById('modal-rep-status').style.color = '#ff7675';
+            document.getElementById('modal-rep-status').style.color = '#ef4444';
             document.getElementById('modal-rep-score').textContent = 'N/A';
         }
     }
@@ -2065,7 +2065,7 @@
 
         } catch (e) {
             console.error("Ticket Load Error:", e);
-            document.getElementById('modal-message').innerHTML = '<span style="color: #ff7675;">Could not load ticket details.</span><br><small>Error: ' + e.message + '</small>';
+            document.getElementById('modal-message').innerHTML = '<span style="color: #ef4444;">Could not load ticket details.</span><br><small>Error: ' + e.message + '</small>';
         }
     }
 
@@ -2153,7 +2153,7 @@
                     <tr>
                         <td>${ann.message}</td>
                         <td>${new Date(ann.time).toLocaleString()}</td>
-                        <td>${ann.sent ? '<span style="color:#8b5cf6">Sent</span>' : '<span style="color:#2196f3">Scheduled</span>'}</td>
+                        <td>${ann.sent ? '<span style="color:#8b5cf6">Sent</span>' : '<span style="color:#3b82f6">Scheduled</span>'}</td>
                         <td><button onclick="deleteScheduledAnnouncement(${ann.index})" class="btn-danger action-btn">Delete</button></td>
                     </tr>
                 `).join('');
@@ -2162,7 +2162,7 @@
             }
         } catch(e) { 
             console.warn("Announcements fetch failed", e);
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ff7675;">Failed to load announcements.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ef4444;">Failed to load announcements.</td></tr>';
         }
     };
 

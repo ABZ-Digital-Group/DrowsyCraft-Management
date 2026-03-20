@@ -105,7 +105,7 @@ body, html {
 
 /* Global Actions Buttons (Kick, Heal, etc) */
 .action-btn, button:not(.nav-btn):not(.nav-group-btn) {
-    background: var(--accent-main) !important;
+    background: var(--accent-main);
     color: #ffffff !important;
     border-radius: 6px !important;
     padding: 8px 14px !important;
@@ -117,10 +117,26 @@ body, html {
 }
 
 .action-btn:hover, button:not(.nav-btn):not(.nav-group-btn):hover {
-    background: #4f46e5 !important; /* Indigo 600 */
+    background: #4f46e5; /* Indigo 600 */
     box-shadow: 0 4px 12px var(--accent-glow) !important;
     transform: translateY(-1px) !important;
 }
+
+/* Semantic Button Colors */
+button.btn-danger, .btn-danger { background: #ef4444 !important; }
+button.btn-danger:hover, .btn-danger:hover { background: #dc2626 !important; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important; }
+
+button.btn-success, .btn-success { background: #10b981 !important; }
+button.btn-success:hover, .btn-success:hover { background: #059669 !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important; }
+
+button.btn-warning, .btn-warning { background: #f59e0b !important; color: #ffffff !important; }
+button.btn-warning:hover, .btn-warning:hover { background: #d97706 !important; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important; }
+
+button.btn-info, .btn-info { background: #3b82f6 !important; }
+button.btn-info:hover, .btn-info:hover { background: #2563eb !important; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important; }
+
+button.btn-secondary, .btn-secondary { background: #475569 !important; }
+button.btn-secondary:hover, .btn-secondary:hover { background: #334155 !important; box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3) !important; }
 
 /* --- INPUT BOX STYLING --- */
 input[type="text"], input[type="number"], textarea, select { 
