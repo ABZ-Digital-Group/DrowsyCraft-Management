@@ -75,32 +75,7 @@ if (webpush) {
     app.post('/push/notify', express.json(), (req, res) => {
         console.log(`\n🔔 [Web Push] Alert Triggered: ${req.body.title}`);
         console.log(`📡 [Web Push] Sending to ${subscriptions.length} connected devices...`);
-        const payload = JSON.stringify(req.body);self.addEventListener('push', function(event) {
-            let payload = { title: 'DrowsyCraft', body: 'New notification!' };
-        
-            if (event.data) {
-                try {
-                    // Try parsing it as JSON (This is what the Java plugin sends)
-                    payload = event.data.json();
-                } catch (err) {
-                    // If it fails (like when using the DevTools Test button), fallback to raw text
-                    payload = { 
-                        title: 'DrowsyCraft Test', 
-                        body: event.data.text() 
-                    };
-                }
-            }
-        
-            const options = {
-                body: payload.body,
-                icon: '/images/icon.png', // Update this path if your icon is located elsewhere
-                badge: '/images/badge.png' // Update this path if your badge is located elsewhere
-            };
-        
-            event.waitUntil(
-                self.registration.showNotification(payload.title, options)
-            );
-        });
+        const payload = JSON.stringify(req.body);
         
         Promise.all(subscriptions.map(sub => webpush.sendNotification(sub, payload).catch(err => {
             if (err.statusCode === 410 || err.statusCode === 404) {
