@@ -271,6 +271,15 @@
     <div class="content">
         <!-- OVERVIEW -->
         <div id="overview" class="tab active">
+            <!-- Push Notification Prompt -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h3 style="color: #10b981; margin: 0 0 5px 0;">🔔 Enable Push Notifications</h3>
+                    <p style="margin: 0; color: #cbd5e1; font-size: 14px;">Receive instant browser alerts when players submit tickets or trigger reports.</p>
+                </div>
+                <button onclick="requestPushPermissions()" id="btn-notifications-overview" class="btn-success" style="padding: 10px 20px; font-weight: bold; white-space: nowrap;">Enable Alerts</button>
+            </div>
+
             <h2>📊 Server Overview</h2>
             <div class="grid">
                 <div class="card">
@@ -2348,6 +2357,11 @@
                 btn.textContent = "🔔 Alerts Enabled";
                 btn.style.color = "#10b981"; // Success green
             }
+                const btnOverview = document.getElementById('btn-notifications-overview');
+                if (btnOverview) {
+                    btnOverview.textContent = "✅ Alerts Enabled";
+                    btnOverview.disabled = true;
+                }
         }
     }
 
