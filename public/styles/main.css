@@ -1,19 +1,18 @@
-/* DrowsyCraft Management - SKY GLASS ULTIMATE (V7)
-    Fixes: Vertical Sidebar Alignment + Global Input Styling
-*/
+/* DrowsyCraft Management - MIDNIGHT SLATE (V8)
+   Clean SaaS style, solid backgrounds, indigo accents
+ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
 
 :root {
-    --bg-dark: #060709;
-    --sidebar-bg: rgba(10, 12, 16, 0.85);
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --card-border: rgba(135, 206, 235, 0.15);
-    --accent-sky: #87CEEB;
-    --accent-glow: rgba(135, 206, 235, 0.35);
+    --bg-dark: #0f172a;          /* Slate 900 */
+    --sidebar-bg: #1e293b;       /* Slate 800 */
+    --card-bg: #1e293b;          /* Slate 800 */
+    --card-border: #334155;      /* Slate 700 */
+    --accent-main: #6366f1;      /* Indigo 500 */
+    --accent-glow: rgba(99, 102, 241, 0.3);
     --text-main: #e1e1e6;
     --text-dim: #94a3b8;
-    --glass-blur: blur(18px);
 }
 
 /* --- Base Override --- */
@@ -21,8 +20,7 @@
 
 body, html { 
     font-family: 'Inter', sans-serif !important; 
-    background: radial-gradient(circle at top right, #102030, var(--bg-dark)) !important;
-    background-attachment: fixed !important;
+    background: var(--bg-dark) !important;
     color: var(--text-main) !important;
     height: 100vh !important;
     overflow: hidden !important;
@@ -38,25 +36,25 @@ body, html {
 /* --- SIDEBAR STRUCTURE --- */
 .sidebar { 
     background: var(--sidebar-bg) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    -webkit-backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--card-border) !important;
     height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
 }
 
 .sidebar-title { 
     flex-shrink: 0;
     padding: 2rem 1rem 1.5rem !important;
-    color: var(--accent-sky) !important;
+    color: var(--text-main) !important;
     font-size: 1.1rem !important; 
     font-weight: 800 !important; 
     text-transform: uppercase; 
     letter-spacing: 2px;
     text-align: center;
-    border-bottom: 2px solid var(--accent-sky) !important;
+    border-bottom: 1px solid var(--card-border) !important;
+    background: rgba(0,0,0,0.1) !important;
 }
 
 .navbar { 
@@ -99,32 +97,34 @@ body, html {
 }
 
 .nav-btn:hover, .nav-btn.active, .nav-group-btn:hover { 
-    background: var(--accent-sky) !important; 
-    color: #060709 !important; 
-    transform: translateX(5px) !important;
+    background: rgba(99, 102, 241, 0.15) !important; 
+    color: var(--accent-main) !important; 
+    border-left: 3px solid var(--accent-main) !important;
+    border-radius: 0 8px 8px 0 !important;
 }
 
 /* Global Actions Buttons (Kick, Heal, etc) */
 .action-btn, button:not(.nav-btn):not(.nav-group-btn) {
-    background: var(--accent-sky) !important;
-    color: #060709 !important;
+    background: var(--accent-main) !important;
+    color: #ffffff !important;
     border-radius: 6px !important;
-    padding: 6px 12px !important;
+    padding: 8px 14px !important;
     font-weight: 700 !important;
     border: none !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
 }
 
 .action-btn:hover, button:not(.nav-btn):not(.nav-group-btn):hover {
-    background: #fff !important;
-    box-shadow: 0 0 10px var(--accent-glow) !important;
+    background: #4f46e5 !important; /* Indigo 600 */
+    box-shadow: 0 4px 12px var(--accent-glow) !important;
     transform: translateY(-1px) !important;
 }
 
 /* --- INPUT BOX STYLING --- */
 input[type="text"], input[type="number"], textarea, select { 
-    background: rgba(0, 0, 0, 0.4) !important; 
+    background: #0f172a !important; 
     border: 1px solid var(--card-border) !important;
     border-radius: 8px !important;
     color: white !important;
@@ -134,13 +134,13 @@ input[type="text"], input[type="number"], textarea, select {
     outline: none !important;
 }
 
-input:focus { border-color: var(--accent-sky) !important; box-shadow: 0 0 10px var(--accent-glow) !important; }
+input:focus, textarea:focus, select:focus { border-color: var(--accent-main) !important; box-shadow: 0 0 0 2px var(--accent-glow) !important; }
 
 /* --- CONTENT AREA --- */
 .content { 
     height: 100vh !important;
     overflow-y: auto !important; 
-    padding: 2.5rem !important; 
+    padding: 2.5rem 3rem !important; 
 }
 
 .tab { display: none !important; }
@@ -148,32 +148,33 @@ input:focus { border-color: var(--accent-sky) !important; box-shadow: 0 0 10px v
 
 .card { 
     background: var(--card-bg) !important;
-    backdrop-filter: var(--glass-blur) !important;
     border: 1px solid var(--card-border) !important;
-    border-radius: 16px !important;
+    border-radius: 12px !important;
     padding: 1.5rem !important;
     margin-bottom: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 .card:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* --- TABLES --- */
 table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
 table th, table td { text-align: left !important; padding: 12px !important; }
-table th { color: var(--accent-sky) !important; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
-table tr { background: rgba(255, 255, 255, 0.02) !important; }
+table th { color: var(--accent-main) !important; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; border-bottom: 1px solid var(--card-border); }
+table tr { background: #1e293b !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 table td:first-child { border-radius: 10px 0 0 10px; border-left: 1px solid var(--card-border) !important; }
 table td:last-child { border-radius: 0 10px 10px 0; border-right: 1px solid var(--card-border) !important; }
+table td { border-top: 1px solid var(--card-border) !important; border-bottom: 1px solid var(--card-border) !important; }
 
 /* --- SCROLLBAR --- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-sky); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
 /* --- RESPONSIVENESS (MOBILE) --- */
 @media (max-width: 900px) {
