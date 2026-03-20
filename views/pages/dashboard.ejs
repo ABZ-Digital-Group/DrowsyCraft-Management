@@ -1957,17 +1957,19 @@
 <script src="/scripts/realm.js?v=30"></script>
 <script>
     // --- GLOBAL API LOADING SPINNER INTERCEPTOR ---
+    window.isBackgroundPolling = false;
     if (typeof window.apiCall === 'function') {
         const originalApiCall = window.apiCall;
         window.apiCall = async function(...args) {
+            const isBg = window.isBackgroundPolling;
             const overlay = document.getElementById('loading-overlay');
-            // Prevent flashing on very fast requests by delaying the spinner display
-            const spinnerTimeout = setTimeout(() => { if (overlay) overlay.style.display = 'flex'; }, 150);
+            let spinnerTimeout;
+            if (!isBg) spinnerTimeout = setTimeout(() => { if (overlay) overlay.style.display = 'flex'; }, 150);
             try {
                 return await originalApiCall.apply(this, args);
             } finally {
-                clearTimeout(spinnerTimeout);
-                if (overlay) overlay.style.display = 'none';
+                if (!isBg) clearTimeout(spinnerTimeout);
+                if (overlay && !isBg) overlay.style.display = 'none';
             }
         };
     }
