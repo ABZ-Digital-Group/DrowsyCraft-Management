@@ -2,7 +2,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
@@ -12,6 +14,19 @@
     <link rel="stylesheet" href="/styles/main.css?v=1.9">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overscroll-behavior-y: none;
+        }
+        input, textarea, select, .selectable {
+            -webkit-user-select: auto;
+            user-select: auto;
+        }
         /* Modern Layout & Animations */
         .tab { animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -26,7 +41,7 @@
         table td { border-top: 1px solid rgba(255,255,255,0.05); }
         
         /* Mobile Header Elements */
-        .mobile-header { display: none; background: #1e293b; padding: 15px 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--card-border); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+        .mobile-header { display: none; background: #1e293b; padding: calc(15px + env(safe-area-inset-top)) 20px 15px 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--card-border); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .mobile-header h2 { margin: 0; color: #f8fafc; font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
         .hamburger-btn { background: transparent; border: none; color: var(--text-main); font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.2s; }
         .hamburger-btn:hover { color: var(--accent-main); }
@@ -36,21 +51,22 @@
         
         /* Mobile View Overrides */
         @media (max-width: 900px) {
-            body { padding-top: 60px; } /* Offset for fixed mobile header */
+            body { padding-top: calc(60px + env(safe-area-inset-top)); padding-bottom: env(safe-area-inset-bottom); } 
             .mobile-header { display: flex; }
-            .container { display: block !important; height: calc(100vh - 60px) !important; }
+            .container { display: block !important; height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important; }
             
             /* Sliding Drawer Sidebar */
             .sidebar { 
-                position: fixed !important; left: -320px; top: 60px; height: calc(100vh - 60px) !important; width: 280px; 
+                position: fixed !important; left: -320px; top: calc(60px + env(safe-area-inset-top)); 
+                height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important; width: 280px; 
                 z-index: 999; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
                 background: #1e293b !important; border-right: 1px solid var(--card-border) !important;
             }
             .sidebar.active-mobile { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-            .sidebar-overlay { display: none; position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 998; backdrop-filter: blur(2px); animation: fadeBg 0.3s ease; }
+            .sidebar-overlay { display: none; position: fixed; top: calc(60px + env(safe-area-inset-top)); left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 998; backdrop-filter: blur(2px); animation: fadeBg 0.3s ease; }
             .sidebar-overlay.active { display: block; }
             .sidebar-title { display: none; } /* Handled by mobile header */
-            .content { padding: 1.25rem !important; height: calc(100vh - 60px) !important; }
+            .content { padding: 1.25rem !important; height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important; }
             @keyframes fadeBg { from { opacity: 0; } to { opacity: 1; } }
         }
         
@@ -378,7 +394,7 @@
                 </div>
                 <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <p><strong>Message:</strong></p>
-                    <p id="modal-message" style="margin: 5px 0;">N/A</p>
+                    <p id="modal-message" class="selectable" style="margin: 5px 0;">N/A</p>
                 </div>
                 <div style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <p><strong>Responses:</strong></p>
@@ -645,7 +661,7 @@
             <h2>⌨️ Console Commands</h2>
             <input type="text" id="console-cmd" placeholder="Enter command..." class="full-width">
             <button onclick="executeCommand()" class="full-width">Execute</button>
-            <div id="console-output" style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; margin-top: 20px; border-radius: 8px; font-family: monospace; height: 300px; overflow-y: auto;"></div>
+            <div id="console-output" class="selectable" style="background: var(--bg-dark); border: 1px solid var(--card-border); padding: 15px; margin-top: 20px; border-radius: 8px; font-family: monospace; height: 300px; overflow-y: auto;"></div>
         </div>
 
         <!-- PERFORMANCE -->
@@ -1361,7 +1377,7 @@
                 </select>
                 <button onclick="clearLogs()" class="btn-danger">Clear Logs</button>
             </div>
-            <div style="background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 8px; padding: 15px; height: 500px; overflow-y: auto; font-family: monospace; font-size: 11px;" id="logs-viewer"></div>
+            <div class="selectable" style="background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 8px; padding: 15px; height: 500px; overflow-y: auto; font-family: monospace; font-size: 11px;" id="logs-viewer"></div>
         </div>
 
         <!-- PLAYER APPEALS -->
