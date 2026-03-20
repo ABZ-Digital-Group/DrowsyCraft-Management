@@ -62,6 +62,15 @@ app.get('/dashboard', (req, res) => {
     res.render('pages/dashboard');
 });
 
+// --- PWA ASSETS ---
+app.get('/manifest.json', (req, res) => {
+    res.sendFile(path.join(__dirname, 'manifest.json'));
+});
+
+app.get('/sw.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
 // --- START SERVER ---
 app.listen(PORT, () => {
     console.log(`🚀 DrowsyCraft Web Panel running on port ${PORT}`);
