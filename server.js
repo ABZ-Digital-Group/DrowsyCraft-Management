@@ -2,6 +2,15 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 const app = express();
+const fs = require('fs');
+
+// --- WEB PUSH SETUP ---
+let webpush;
+try {
+    webpush = require('web-push');
+} catch (e) {
+    console.warn("⚠️  'web-push' is not installed. Advanced Push Notifications disabled. Run 'npm install web-push' to enable.");
+}
 
 // --- CONFIGURATION ---
 const PORT = process.env.PORT || 3000;
@@ -29,6 +38,49 @@ try {
 // --- VIEW ENGINE ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+if (webpush) {
+    // Auto-generate or load VAPID keys for Web Push
+    const vapidPath = path.join(__dirname, 'vapid.json');
+    let vapidKeys;
+    if (fs.existsSync(vapidPath)) {
+        vapidKeys = JSON.parse(fs.readFileSync(vapidPath));
+    } else {
+        vapidKeys = webpush.generateVAPIDKeys();
+        fs.writeFileSync(vapidPath, JSON.stringify(vapidKeys));
+    }
+    webpush.setVapidDetails('mailto:admin@drowsycraft.com', vapidKeys.publicKey, vapidKeys.privateKey);
+
+    // Manage push subscriptions
+    const subsPath = path.join(__dirname, 'subscriptions.json');
+    let subscriptions = fs.existsSync(subsPath) ? JSON.parse(fs.readFileSync(subsPath)) : [];
+
+    app.get('/push/public-key', (req, res) => {
+        res.send(vapidKeys.publicKey);
+    });
+
+    app.post('/push/subscribe', express.json(), (req, res) => {
+        const subscription = req.body;
+        // Avoid duplicate subscriptions from the same device
+        if (!subscriptions.some(s => s.endpoint === subscription.endpoint)) {
+            subscriptions.push(subscription);
+            fs.writeFileSync(subsPath, JSON.stringify(subscriptions));
+        }
+        res.status(201).json({});
+    });
+
+    app.post('/push/notify', express.json(), (req, res) => {
+        const payload = JSON.stringify(req.body);
+        Promise.all(subscriptions.map(sub => webpush.sendNotification(sub, payload).catch(err => {
+            if (err.statusCode === 410 || err.statusCode === 404) {
+                subscriptions = subscriptions.filter(s => s.endpoint !== sub.endpoint);
+            }
+        }))).then(() => {
+            fs.writeFileSync(subsPath, JSON.stringify(subscriptions));
+            res.status(200).json({ success: true, recipients: subscriptions.length });
+        });
+    });
+}
 
 // --- STATIC ASSETS ---
 app.use(express.static(path.join(__dirname, 'public')));
