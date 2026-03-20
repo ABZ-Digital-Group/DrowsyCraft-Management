@@ -25,7 +25,21 @@ self.addEventListener('fetch', event => {
 
 // Listen for incoming Web Push notifications from the server
 self.addEventListener('push', event => {
-    const data = event.data ? event.data.json() : { title: 'DrowsyCraft Alert', body: 'You have a new notification!' };
+    let data = { title: 'DrowsyCraft Alert', body: 'You have a new notification!' };
+
+    if (event.data) {
+        try {
+            // Try parsing it as JSON (This is what the Java plugin sends)
+            data = event.data.json();
+        } catch (e) {
+            // Fallback for plain text tests (like the Chrome DevTools Test button)
+            data = {
+                title: 'DrowsyCraft Test',
+                body: event.data.text()
+            };
+        }
+    }
+
     const options = {
         body: data.body,
         icon: '/icons/icon-192x192.png',
