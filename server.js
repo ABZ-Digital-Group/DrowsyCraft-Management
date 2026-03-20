@@ -65,11 +65,16 @@ if (webpush) {
         if (!subscriptions.some(s => s.endpoint === subscription.endpoint)) {
             subscriptions.push(subscription);
             fs.writeFileSync(subsPath, JSON.stringify(subscriptions));
+            console.log(`✅ [Web Push] New device subscribed! Total devices: ${subscriptions.length}`);
+        } else {
+            console.log(`ℹ️ [Web Push] Device refreshed its subscription.`);
         }
         res.status(201).json({});
     });
 
     app.post('/push/notify', express.json(), (req, res) => {
+        console.log(`\n🔔 [Web Push] Alert Triggered: ${req.body.title}`);
+        console.log(`📡 [Web Push] Sending to ${subscriptions.length} connected devices...`);
         const payload = JSON.stringify(req.body);
         Promise.all(subscriptions.map(sub => webpush.sendNotification(sub, payload).catch(err => {
             if (err.statusCode === 410 || err.statusCode === 404) {
