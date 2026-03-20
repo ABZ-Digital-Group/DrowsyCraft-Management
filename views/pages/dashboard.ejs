@@ -6,8 +6,57 @@
     <title>DrowsyCraft - Server Management</title>
     <link rel="stylesheet" href="/styles/main.css?v=1.9">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Modern Layout & Animations */
+        .tab { animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Smart Responsive Grid for Stat Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        
+        /* Responsive Tables */
+        .table-wrapper { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.2); }
+        table { margin: 0 !important; border-spacing: 0 !important; width: 100%; min-width: 600px; }
+        table th { background: rgba(0,0,0,0.4); padding: 15px !important; white-space: nowrap; }
+        table td { border-top: 1px solid rgba(255,255,255,0.05); }
+        
+        /* Mobile Header Elements */
+        .mobile-header { display: none; background: rgba(10, 12, 16, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 15px 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--card-border); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+        .mobile-header h2 { margin: 0; color: var(--accent-sky); font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
+        .hamburger-btn { background: transparent; border: none; color: var(--text-main); font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.2s; }
+        .hamburger-btn:hover { color: var(--accent-sky); }
+        
+        /* Tab Titles Polish */
+        .content h2 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(90deg, #fff, var(--accent-sky)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Mobile View Overrides */
+        @media (max-width: 900px) {
+            body { padding-top: 60px; } /* Offset for fixed mobile header */
+            .mobile-header { display: flex; }
+            .container { display: block !important; height: calc(100vh - 60px) !important; }
+            
+            /* Sliding Drawer Sidebar */
+            .sidebar { 
+                position: fixed !important; left: -320px; top: 60px; height: calc(100vh - 60px) !important; width: 280px; 
+                z-index: 999; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+                background: rgba(6, 7, 9, 0.98) !important; border-right: 1px solid var(--card-border) !important;
+            }
+            .sidebar.active-mobile { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+            .sidebar-overlay { display: none; position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 998; backdrop-filter: blur(2px); animation: fadeBg 0.3s ease; }
+            .sidebar-overlay.active { display: block; }
+            .sidebar-title { display: none; } /* Handled by mobile header */
+            .content { padding: 1.25rem !important; height: calc(100vh - 60px) !important; }
+            @keyframes fadeBg { from { opacity: 0; } to { opacity: 1; } }
+        }
+    </style>
 </head>
 <body>
+<div class="mobile-header">
+    <button class="hamburger-btn" onclick="toggleMobileSidebar(true)">☰</button>
+    <h2>DrowsyCraft</h2>
+    <div style="width: 24px;"></div> <!-- Spacer to keep title centered -->
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileSidebar(false)"></div>
 <div class="container">
     <div class="sidebar">
         <div class="sidebar-title">DrowsyCraft Management</div>
@@ -2025,6 +2074,35 @@
     
     window.addEventListener('load', function() {
         window.openTicketModal = openTicketModal;
+    });
+    
+    // --- RESPONSIVE MOBILE LAYOUT LOGIC ---
+    function toggleMobileSidebar(force) {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (typeof force === 'boolean') {
+            sidebar.classList.toggle('active-mobile', force);
+            overlay.classList.toggle('active', force);
+        } else {
+            sidebar.classList.toggle('active-mobile');
+            overlay.classList.toggle('active');
+        }
+    }
+
+    // Auto-wrap tables for mobile horizontal scrolling and close sidebar on click
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".tab table").forEach(table => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "table-wrapper";
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+        });
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('nav-btn') || e.target.closest('.nav-btn')) {
+            if (window.innerWidth <= 900) toggleMobileSidebar(false);
+        }
     });
 
     // --- ANNOUNCEMENTS SYSTEM ---

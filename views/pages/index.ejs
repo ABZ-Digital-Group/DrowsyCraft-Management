@@ -8,38 +8,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { 
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: radial-gradient(circle at top right, #102030, #060709);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: #e1e1e6;
+            overflow: hidden;
         }
+        
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #060709; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        }
+        #splash-screen.hidden { opacity: 0; visibility: hidden; transform: scale(1.05); }
+        .splash-logo { 
+            font-size: 3.5rem; color: #87CEEB; text-transform: uppercase; letter-spacing: 4px; font-weight: 800; 
+            animation: pulse 2s infinite alternate; margin-bottom: 15px; 
+        }
+        .splash-text { color: #94a3b8; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; }
+        @keyframes pulse { 
+            0% { text-shadow: 0 0 10px rgba(135,206,235,0.2); transform: scale(0.98); } 
+            100% { text-shadow: 0 0 40px rgba(135,206,235,0.8); transform: scale(1.02); } 
+        }
+        
+        /* --- LOGIN CONTAINER (GLASSMORPHISM) --- */
         .login-container {
-            background: #252526;
+            background: rgba(10, 12, 16, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
             width: 100%;
             max-width: 400px;
-            border: 1px solid #3e3e42;
+            border: 1px solid rgba(135, 206, 235, 0.15);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition-delay: 0.3s;
         }
+        .login-container.visible { opacity: 1; transform: translateY(0); }
+        
         .login-header { text-align: center; margin-bottom: 30px; }
-        .login-header h1 { color: #4ec9b0; font-size: 28px; margin-bottom: 10px; }
-        .login-header p { color: #999; font-size: 14px; }
+        .login-header h1 { color: #87CEEB; font-size: 28px; margin-bottom: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .login-header p { color: #94a3b8; font-size: 14px; }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #4ec9b0; font-weight: 500; }
+        .form-group label { display: block; margin-bottom: 8px; color: #87CEEB; font-weight: 600; font-size: 0.9rem; letter-spacing: 0.5px; text-transform: uppercase; }
         .form-group input {
-            width: 100%; padding: 10px 12px; background: #2d2d30; color: #e0e0e0;
+            width: 100%; padding: 12px 15px; background: rgba(0, 0, 0, 0.4); color: white;
             border: 1px solid #3e3e42; border-radius: 4px; font-size: 14px;
             transition: border-color 0.3s;
         }
         .form-group input:focus { outline: none; border-color: #0e639c; box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.1); }
         .login-btn {
-            width: 100%; padding: 12px; background: #0e639c; color: white; border: none;
-            border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer;
-            transition: background 0.3s; margin-top: 10px;
+            width: 100%; padding: 12px; background: #87CEEB; color: #060709; border: none;
+            border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s ease; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;
         }
-        .login-btn:hover { background: #1177bb; }
+        .login-btn:hover { background: #fff; box-shadow: 0 0 15px rgba(135, 206, 235, 0.4); transform: translateY(-2px); }
         .error-message {
             color: #f44336; text-align: center; margin-bottom: 20px; padding: 10px;
             background: rgba(244, 67, 54, 0.1); border-radius: 4px; display: none;
@@ -51,7 +83,13 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-logo">DrowsyCraft</div>
+        <div class="splash-text" id="splash-status">Initializing Portal...</div>
+    </div>
+
+    <div class="login-container" id="login-container">
         <div class="login-header">
             <h1>🔐 DrowsyCraft</h1>
             <p>Server Management Dashboard</p>
@@ -70,11 +108,23 @@
     </div>
 
     <script>
-        // Check if already logged in
         window.addEventListener('load', () => {
             const token = localStorage.getItem('authToken');
+            const splashScreen = document.getElementById('splash-screen');
+            const loginContainer = document.getElementById('login-container');
+            
             if (token) {
-                window.location.href = '/dashboard';
+                // If already logged in, smoothly transition straight to dashboard
+                document.getElementById('splash-status').textContent = "Authenticating Session...";
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1200);
+            } else {
+                // Not logged in -> Show splash for 2.5 seconds, then reveal login form
+                setTimeout(() => {
+                    splashScreen.classList.add('hidden');
+                    loginContainer.classList.add('visible');
+                }, 2500);
             }
         });
 

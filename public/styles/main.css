@@ -112,6 +112,14 @@ body, html {
     padding: 6px 12px !important;
     font-weight: 700 !important;
     border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.action-btn:hover, button:not(.nav-btn):not(.nav-group-btn):hover {
+    background: #fff !important;
+    box-shadow: 0 0 10px var(--accent-glow) !important;
+    transform: translateY(-1px) !important;
 }
 
 /* --- INPUT BOX STYLING --- */
@@ -145,16 +153,42 @@ input:focus { border-color: var(--accent-sky) !important; box-shadow: 0 0 10px v
     border-radius: 16px !important;
     padding: 1.5rem !important;
     margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
 }
 
 /* --- TABLES --- */
 table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
 table th, table td { text-align: left !important; padding: 12px !important; }
-table th { color: var(--accent-sky) !important; text-transform: uppercase; font-size: 0.7rem; }
+table th { color: var(--accent-sky) !important; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
 table tr { background: rgba(255, 255, 255, 0.02) !important; }
 table td:first-child { border-radius: 10px 0 0 10px; border-left: 1px solid var(--card-border) !important; }
 table td:last-child { border-radius: 0 10px 10px 0; border-right: 1px solid var(--card-border) !important; }
 
 /* --- SCROLLBAR --- */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: var(--accent-sky); border-radius: 10px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-sky); }
+
+/* --- RESPONSIVENESS (MOBILE) --- */
+@media (max-width: 900px) {
+    .container { 
+        grid-template-columns: 1fr !important; 
+        overflow-y: auto !important;
+    }
+    .sidebar { 
+        height: auto !important; 
+        border-right: none !important;
+        border-bottom: 1px solid var(--card-border) !important;
+    }
+    .content {
+        height: auto !important;
+        overflow-y: visible !important;
+        padding: 1.5rem !important;
+    }
+}
