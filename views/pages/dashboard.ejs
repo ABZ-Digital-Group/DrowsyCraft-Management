@@ -2165,16 +2165,43 @@
         }
     }
 
-    // Auto-wrap tables for mobile horizontal scrolling and close sidebar on click
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".tab table").forEach(table => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "table-wrapper";
+    // Auto-wrap tables for mobile horizontal scrolling and add aria-friendly labels to <td>
+    function enhanceTableRowsForMobile() {
+        document.querySelectorAll('.tab table').forEach(table => {
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+            table.querySelectorAll('tbody tr').forEach(row => {
+                row.querySelectorAll('td').forEach((cell, index) => {
+                    if (headers[index]) cell.setAttribute('data-label', headers[index]);
+                });
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.tab table').forEach(table => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-wrapper';
             table.parentNode.insertBefore(wrapper, table);
             wrapper.appendChild(table);
         });
+
+        enhanceTableRowsForMobile();
+
+        // Observe table body mutations to keep data labels in sync for dynamically loaded rows
+        const observer = new MutationObserver(mutations => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length || mutation.removedNodes.length) {
+                    enhanceTableRowsForMobile();
+                    break;
+                }
+            }
+        });
+
+        document.querySelectorAll('.tab table tbody').forEach(tbody => {
+            observer.observe(tbody, { childList: true, subtree: true });
+        });
     });
-    
+
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('nav-btn') || e.target.closest('.nav-btn')) {
             if (window.innerWidth <= 900) toggleMobileSidebar(false);
