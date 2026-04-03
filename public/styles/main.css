@@ -223,22 +223,52 @@ table td { border-top: 1px solid var(--card-border) !important; border-bottom: 1
     .table-wrapper { overflow: visible !important; margin-top: 0; }
     table, thead, tbody, th, td, tr { display: block !important; width: 100% !important; }
     thead { display: none !important; }
-    tr { margin-bottom: 12px !important; border: 1px solid var(--card-border) !important; border-radius: 10px !important; background: var(--card-bg) !important; padding: 10px !important; }
+    tr {
+        margin-bottom: 14px !important;
+        border: 1px solid rgba(100, 116, 139, 0.45) !important;
+        border-radius: 12px !important;
+        background: linear-gradient(145deg, #14223f, #1c2b50) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28) !important;
+        padding: 12px !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    tr:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35) !important;
+    }
     td {
         display: flex !important;
         justify-content: space-between !important;
         align-items: flex-start !important;
         padding: 8px 0 !important;
-        border: none !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.20) !important;
+        color: #e2e8f0 !important;
         font-size: 0.9rem !important;
+        min-height: 24px;
+    }
+    td:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
     }
     td:before {
         content: attr(data-label) ": " !important;
-        color: var(--text-dim) !important;
+        color: #94a3b8 !important;
         font-weight: 700 !important;
         margin-right: 8px !important;
-        flex: 0 0 45% !important;
+        flex: 0 0 43% !important;
         text-align: left !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
     }
-    td:last-child { padding-bottom: 0 !important; }
+    td[data-label="Actions"] {
+        font-size: 0.85rem !important;
+        color: #dbeafe !important;
+        flex-wrap: wrap !important;
+    }
+    td[data-label="Actions"] > button {
+        margin-left: 6px !important;
+        margin-top: 4px !important;
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+    }
 }
