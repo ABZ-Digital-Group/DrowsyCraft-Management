@@ -379,9 +379,18 @@ async function updateTicketFields() {
     const category = document.getElementById('modal-category').value;
     const status = document.getElementById('modal-status').value;
     const assignee = document.getElementById('modal-assignee').value;
-    
-    await apiCall(`/ticket/`, 'PATCH', { priority, category, status, assignee });
+
+    if (!ticketId) {
+        return alert('No ticket selected.');
+    }
+
+    const result = await apiCall(`/ticket/${ticketId}`, 'PATCH', { priority, category, status, assignee });
+    if (!result) {
+        return alert('Failed to update ticket.');
+    }
+
     loadTickets();
+    document.getElementById('ticket-modal').style.display = 'none';
 }
 
 async function addTicketResponse() {
