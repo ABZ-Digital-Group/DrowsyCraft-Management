@@ -10,6 +10,7 @@ let currentUserName = "WebAdmin";
 let punishmentsInterval = null;
 let chatRefreshInterval = null;
 let serverLogsInterval = null;
+const UNSUPPORTED_TABS = new Set(['roleplay', 'voterewards']);
 
 async function loadUserDetails() {
     try {
@@ -35,13 +36,21 @@ function applyPermissions() {
     const adminPermission = "webapp.admin";
     if (userPermissions.has(adminPermission)) {
         console.log("Admin user, all elements visible.");
-        return;
+    } else {
+        document.querySelectorAll('[data-permission]').forEach(elem => {
+            const requiredPermission = elem.getAttribute('data-permission');
+            if (!userPermissions.has(requiredPermission)) {
+                elem.style.display = 'none';
+            }
+        });
     }
 
-    document.querySelectorAll('[data-permission]').forEach(elem => {
-        const requiredPermission = elem.getAttribute('data-permission');
-        if (!userPermissions.has(requiredPermission)) {
-            elem.style.display = 'none';
+    document.querySelectorAll('.nav-btn, .nav-group-btn').forEach(elem => {
+        const onClick = elem.getAttribute('onclick') || '';
+        for (const tabName of UNSUPPORTED_TABS) {
+            if (onClick.includes(`switchTab('${tabName}'`)) {
+                elem.style.display = 'none';
+            }
         }
     });
 
@@ -73,6 +82,11 @@ function toggleNavGroup(button) {
 }
 
 function switchTab(name, button) {
+    if (UNSUPPORTED_TABS.has(name)) {
+        alert('This panel is not available in the current plugin build.');
+        return;
+    }
+
     // Clear any running auto-refresh intervals from other tabs
     if (punishmentsInterval) clearInterval(punishmentsInterval);
     if (chatRefreshInterval) clearInterval(chatRefreshInterval);
@@ -335,7 +349,7 @@ async function loadTickets() {
 }
 
 async function openTicketModal(ticketId) {
-    const ticket = await apiCall(`/ticket/`);
+    const ticket = await apiCall(`/ticket/${ticketId}`);
     if (!ticket) return alert('Ticket not found');
     
     document.getElementById('modal-ticket-id').textContent = `Ticket #${ticket.id}`;
@@ -1711,9 +1725,9 @@ async function viewPlayerReputation(player) {
 }
 
 async function editGroup(name) {
-    const newPerms = prompt('Permissions (comma-separated):', '');
-    if (newPerms !== null) {
-        await apiCall('/group/update', 'POST', { name, permissions: newPerms });
+    const newPrefix = prompt('Group prefix:', '');
+    if (newPrefix !== null) {
+        await apiCall('/groups/update', 'POST', { name, prefix: newPrefix });
         loadPermissions();
     }
 }
@@ -1839,7 +1853,7 @@ async function editRank(rankName) {
 }
 
 async function deleteRank(rankName) {
-    if (!confirm(`Delete rank ""? This will remove the rank from all players.`)) return;
+    if (!confirm(`Delete rank "${rankName}"? This will remove the rank from all players.`)) return;
     const result = await apiCall('/ranks/delete', 'POST', { name: rankName });
     console.log('Delete rank response:', result);
     if (result && result.status) {
@@ -1927,7 +1941,7 @@ async function demotePlayer() {
 }
 
 async function demotePlayerFromTable(playerName) {
-    if (!confirm(`Remove rank from ?`)) return;
+    if (!confirm(`Remove rank from ${playerName}?`)) return;
     const result = await apiCall('/ranks/demote', 'POST', { player: playerName });
     console.log('Demote response:', result);
     if (result && result.status) {
@@ -1976,9 +1990,18 @@ async function loadPlayerAnalytics() {
 
 async function loadLeaderboards() {
     try {
-        const response = await apiCall('/leaderboards');
-        const playtimeLeaders = response && response.playtime ? response.playtime : [];
-       const sessionLeaders = response && response.sessions ? response.sessions : [];
+        const response = await apiCall('/analytics/players');
+        const analytics = response && response.analytics ? response.analytics : [];
+        const playtimeLeaders = analytics
+            .slice()
+            .sort((left, right) => (right.playtimeHours || 0) - (left.playtimeHours || 0))
+            .slice(0, 10)
+            .map(player => ({ player: player.player, value: player.playtimeHours || 0 }));
+        const sessionLeaders = analytics
+            .slice()
+            .sort((left, right) => (right.sessions || 0) - (left.sessions || 0))
+            .slice(0, 10)
+            .map(player => ({ player: player.player, value: player.sessions || 0 }));
         
         const playtimeHtml = playtimeLeaders.map((p, i) => `
             <tr>
@@ -2004,8 +2027,31 @@ async function loadLeaderboards() {
 }
 
 async function loadEconomy() {
-    console.log('Loading economy...');
-    // TODO: Fetch economy data and populate economy-table
+    try {
+        const response = await apiCall('/economy');
+        const players = response && response.players ? response.players : [];
+        const total = players.reduce((sum, player) => sum + (player.balance || 0), 0);
+        const richest = players.length > 0 ? players[0] : null;
+
+        document.getElementById('economy-total').textContent = `$${total.toLocaleString()}`;
+        document.getElementById('economy-richest').textContent = richest
+            ? `${richest.name} ($${(richest.balance || 0).toLocaleString()})`
+            : '-';
+
+        document.getElementById('economy-table').innerHTML = players.length > 0
+            ? players.map(player => `
+                <tr>
+                    <td>${player.name}</td>
+                    <td>$${(player.balance || 0).toLocaleString()}</td>
+                    <td>$${(player.earned || 0).toLocaleString()}</td>
+                    <td>$${(player.spent || 0).toLocaleString()}</td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="4">No economy data available</td></tr>';
+    } catch (error) {
+        console.error('Error loading economy:', error);
+        document.getElementById('economy-table').innerHTML = '<tr><td colspan="4">Failed to load economy data</td></tr>';
+    }
 }
 
 async function loadAuditLog() {
@@ -2042,8 +2088,8 @@ function filterAuditLog() {
     const adminFilter = document.getElementById('audit-admin-filter').value.toLowerCase();
     const actionFilter = document.getElementById('audit-action-filter').value.toLowerCase();
     document.querySelectorAll('#auditlog-table tr').forEach(tr => {
-        const admin = tr.cells[0].textContent.toLowerCase();
-        const action = tr.cells[1].textContent.toLowerCase();
+        const admin = tr.cells[1].textContent.toLowerCase();
+        const action = tr.cells[2].textContent.toLowerCase();
         tr.style.display = (admin.includes(adminFilter) && action.includes(actionFilter)) ? '' : 'none';
     });
 }
@@ -2092,22 +2138,67 @@ async function clearLogs() {
 }
 
 async function loadAppeals() {
-    console.log('Loading appeals...');
-    // TODO: Fetch /api/appeals and populate appeals-table
-}
+    try {
+        const appeals = await apiCall('/appeals');
+        const rows = Array.isArray(appeals) ? appeals : [];
+        const pendingCount = rows.filter(appeal => (appeal.status || 'open') === 'open').length;
+        const resolvedCount = rows.filter(appeal => (appeal.status || '') === 'resolved').length;
 
-function approveAppeal(playerName) {
-    if (confirm(`Approve appeal for ?`)) {
-        console.log('Approving appeal for', playerName);
-        // TODO: POST /api/appeals/approve
+        document.getElementById('appeals-pending').textContent = pendingCount;
+        document.getElementById('appeals-approved').textContent = resolvedCount;
+        document.getElementById('appeals-denied').textContent = '0';
+
+        document.getElementById('appeals-table').innerHTML = rows.length > 0
+            ? rows.map(appeal => {
+                const appealId = String(appeal.id).startsWith('-') ? String(appeal.id) : `-${appeal.id}`;
+                const isResolved = (appeal.status || '') === 'resolved';
+                return `
+                    <tr>
+                        <td>${Math.abs(Number(appealId))}</td>
+                        <td>${appeal.player || 'Unknown'}</td>
+                        <td>${appeal.category || 'other'}</td>
+                        <td>${appeal.priority || 'medium'}</td>
+                        <td>${appeal.status || 'open'}</td>
+                        <td>${appeal.time || '-'}</td>
+                        <td>${appeal.message || ''}</td>
+                        <td>
+                            ${isResolved
+                                ? '<span style="color:#4ec9b0;">Resolved</span>'
+                                : `<button class="btn-success" style="padding:4px 8px;font-size:11px;" onclick="approveAppeal('${appealId}')">Approve</button>
+                                   <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="denyAppeal('${appealId}')">Deny</button>`}
+                        </td>
+                    </tr>
+                `;
+            }).join('')
+            : '<tr><td colspan="8">No appeals found</td></tr>';
+        document.getElementById('appeals-status').textContent = '';
+    } catch (error) {
+        console.error('Error loading appeals:', error);
+        document.getElementById('appeals-table').innerHTML = '<tr><td colspan="8">Failed to load appeals</td></tr>';
+        document.getElementById('appeals-status').textContent = 'Appeals are unavailable right now.';
     }
 }
 
-function denyAppeal(playerName) {
-    if (confirm(`Deny appeal for ?`)) {
-        console.log('Denying appeal for', playerName);
-        // TODO: POST /api/appeals/deny
+async function approveAppeal(appealId) {
+    if (!confirm(`Approve appeal #${Math.abs(Number(appealId))}?`)) return;
+    const result = await apiCall(`/ticket/${appealId}/resolve`, 'POST', { reason: 'Approved by web panel' });
+    if (result && result.status) {
+        document.getElementById('appeals-status').textContent = `Appeal #${Math.abs(Number(appealId))} approved.`;
+        loadAppeals();
+        return;
     }
+    alert('Failed to approve appeal.');
+}
+
+async function denyAppeal(appealId) {
+    if (!confirm(`Deny appeal #${Math.abs(Number(appealId))}?`)) return;
+    const result = await apiCall(`/ticket/${appealId}/resolve`, 'POST', { reason: 'Denied by web panel' });
+    if (result && result.status) {
+        document.getElementById('appeals-status').textContent = `Appeal #${Math.abs(Number(appealId))} denied.`;
+        loadAppeals();
+        return;
+    }
+    alert('Failed to deny appeal.');
 }
 
 async function loadAnnouncements() {
@@ -2148,7 +2239,7 @@ async function scheduleAnnouncement() {
 
 async function deleteScheduledAnnouncement(index) {
     if (!confirm('Delete this scheduled announcement?')) return;
-    const response = await apiCall('/announcements/schedule', 'DELETE', { index: index });
+    const response = await apiCall(`/announcements/schedule/${index}`, 'DELETE');
     if (response && response.success) loadAnnouncements();
 }
 
